@@ -1,18 +1,19 @@
 # Maintainer: honjow
 pkgname=sk-holoiso-config
-pkgver=r12.98ad5b9
+pkgver=r1
 pkgrel=1
 pkgdesc="A custom configs for sk-holoiso"
 arch=('any')
 url="https://github.com/honjow/sk-holoiso-config"
 license=('MIT')
 makedepends=('git')
-depends=('holo-gs-auto-update')
+aurdepends=('holo-gs-auto-update')
 provides=(sk-holoiso-config)
 conflicts=(sk-holoiso-config)
 source=("git+$url")
 sha256sums=('SKIP')
 options=(!strip)
+install=sk-holoiso-config.install
 
 pkgver() {
     cd "$srcdir/sk-holoiso-config"
@@ -32,15 +33,4 @@ package() {
         install -Dm644 "$srcdir/sk-holoiso-config/src/usr/bin/$exclude_file" "$pkgdir/usr/bin/$exclude_file"
     done
 
-}
-
-post_install() {
-    echo "Penable sk-auto-swap.service and sk-efi-mount.service"
-    sudo systemctl enable sk-auto-swap.service
-    sudo systemctl enable sk-efi-mount.service
-
-    # swap partuuid
-    echo "set swap PARTUUID in /etc/default/auto_swap"
-    SWAP_PARTITION=$(lsblk -rno NAME,PARTUUID,PARTTYPE | awk '$3=="0657fd6d-a4ab-43c4-84e5-0933c84b4f4f" {print $1}')
-    echo "$SWAP_PARTITION" | sudo tee /etc/default/auto_swap
 }
