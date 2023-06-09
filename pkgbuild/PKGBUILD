@@ -1,6 +1,6 @@
 # Maintainer: honjow
 pkgname=sk-holoiso-config
-pkgver=r1
+pkgver=r4.bb72e6a
 pkgrel=1
 pkgdesc="A custom configs for sk-holoiso"
 arch=('any')
@@ -30,7 +30,7 @@ package() {
 
     exclude_files=("sk-auto-swap" "sk-efi-mount")
     for exclude_file in "${exclude_files[@]}"; do
-        install -Dm644 "$srcdir/sk-holoiso-config/src/usr/bin/$exclude_file" "$pkgdir/usr/bin/$exclude_file"
+        install -Dm755 "$srcdir/sk-holoiso-config/src/usr/bin/$exclude_file" "$pkgdir/usr/bin/$exclude_file"
     done
 
 }

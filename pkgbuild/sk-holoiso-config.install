@@ -1,5 +1,3 @@
-
-
 post_install() {
     echo "Penable sk-auto-swap.service and sk-efi-mount.service"
     sudo systemctl enable sk-auto-swap.service
