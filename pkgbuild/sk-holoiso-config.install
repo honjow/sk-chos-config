@@ -13,8 +13,11 @@ post_install() {
     SWAP_PARTITION=$(lsblk -rno NAME,PARTUUID,PARTTYPE | awk '$3=="0657fd6d-a4ab-43c4-84e5-0933c84b4f4f" {print $1}')
     echo "$SWAP_PARTITION" | sudo tee /etc/default/auto_swap
 
-    #
-    rm /etc/udev/rules.d/99-disable-bluetooth-autosuspend.rules
+    DEVICENAME=$(cat /sys/devices/virtual/dmi/id/product_name)
+    if [[ "${DEVICENAME}" != "G1619-04" ]]; then
+      rm /etc/udev/rules.d/99-disable-bluetooth-autosuspend.rules
+    fi
+    
 }
 
 pre_upgrade() {
