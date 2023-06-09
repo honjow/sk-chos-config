@@ -1,0 +1,7 @@
+#!/bin/bash
+systemctl restart ayaled.service
+
+
+# geek 唤醒重新加载触摸屏驱动
+modprobe -r goodix_ts
+modprobe goodix_ts

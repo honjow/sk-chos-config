@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Check if swap is already enabled
+if [[ $(grep -c ^ /proc/swaps) -gt 1 && $(awk 'NR==2{print $1}' /proc/swaps) == "/dev/"* ]]; then
+    echo "Swap is already enabled."
+    exit
+fi
+
+# Get PARTUUID from conf file
+PARTUUID=$(cat /etc/default/auto_swap)
+
+# Check if partition with PARTUUID exists and is of type linuxswap
+if [ -z "$PARTUUID" ]; then
+    echo "PARTUUID is not specified in the configuration file."
+    exit
+fi
+
+#SWAP_PARTITION=$(lsblk -rno NAME,PARTUUID,PARTTYPE | awk '$2=="'$PARTUUID'" && $3=="0657fd6d-a4ab-43c4-84e5-0933c84b4f4f" {print $1}')
+SWAP_PARTITION=$(lsblk -rno NAME,PARTUUID,PARTTYPE | awk '$2=="'$PARTUUID'"  {print $1}')
+if [ -z "$SWAP_PARTITION" ]; then
+    echo "No partition with PARTUUID=$PARTUUID and type linuxswap found."
+    exit
+fi
+
+# Format the partition as swap and enable it
+echo "Formatting partition $SWAP_PARTITION as swap."
+mkswap /dev/$SWAP_PARTITION
+echo "Enabling swap."
+swapon /dev/$SWAP_PARTITION
+
+# Check if swap is now enabled
+if [[ $(grep -c ^ /proc/swaps) -gt 1 && $(awk 'NR==2{print $1}' /proc/swaps) == "/dev/"* ]]; then
+    echo "Swap enabled successfully."
+    #holoiso-grub-update
+    #refind-update
+else
+    echo "Failed to enable swap."
+fi

@@ -1,0 +1,9 @@
+[Unit]
+Description=Mount EFI partition at /boot/efi
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/sk-efi-mount
+
+[Install]
+WantedBy=multi-user.target

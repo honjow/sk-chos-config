@@ -1,0 +1,10 @@
+[Unit]
+Description=Automatically format and enable swap partition on startup
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/sk-auto-swap
+
+[Install]
+WantedBy=multi-user.target
