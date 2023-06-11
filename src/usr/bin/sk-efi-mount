@@ -3,7 +3,7 @@
 # 获取当前根分区所在的设备名称
 ROOT_DEV=$(lsblk -no PKNAME $(mount | grep ' / ' | cut -d' ' -f1))
 
-# 查找与当前根分区在同一磁盘上的 EFI 分区
+# 查找与当前根分区在同一磁盘上的 EFI 分区 (多个结果取第一个)
 EFI_PARTITION=$(lsblk -rno NAME,PARTTYPE | awk '$2 == "c12a7328-f81f-11d2-ba4b-00a0c93ec93b" && $1 ~ /'"${ROOT_DEV}"'p?[[:digit:]]$/ {print $1}' | head -n 1 )
 
 
@@ -12,6 +12,11 @@ if [ -n "${EFI_PARTITION}" ]; then
     # 获取 EFI 分区的设备文件名和 PARTUUID
     EFI_DEV="/dev/${EFI_PARTITION}"
     EFI_PARTUUID=$(lsblk -no PARTUUID "${EFI_DEV}")
+
+    if [ -z "${EFI_PARTUUID}" ]; then
+        echo "Failed to get PARTUUID for EFI partition ${EFI_PARTITION}"
+        exit 1
+    fi
 
     # 检查 /etc/fstab 中是否已存在 EFI 分区挂载点
     EXISTING_PARTUUID=$(awk '$2 == "/boot/efi" {print $1}' /etc/fstab | sed 's/PARTUUID=//')
