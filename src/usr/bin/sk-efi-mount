@@ -4,18 +4,18 @@
 ROOT_DEV=$(lsblk -no PKNAME $(mount | grep ' / ' | cut -d' ' -f1))
 
 # 查找与当前根分区在同一磁盘上的 EFI 分区
-EFI_PARTITION=$(lsblk -rno NAME,PARTTYPE | awk '$2 == "c12a7328-f81f-11d2-ba4b-00a0c93ec93b" && $1 ~ /'"${ROOT_DEV}"'p?[[:digit:]]$/ {print $1}' )
+EFI_PARTITION=$(lsblk -rno NAME,PARTTYPE | awk '$2 == "c12a7328-f81f-11d2-ba4b-00a0c93ec93b" && $1 ~ /'"${ROOT_DEV}"'p?[[:digit:]]$/ {print $1}' | head -n 1 )
 
 
 # 如果找到 EFI 分区，则尝试将其挂载到 /boot/efi
 if [ -n "${EFI_PARTITION}" ]; then
     # 获取 EFI 分区的设备文件名和 PARTUUID
     EFI_DEV="/dev/${EFI_PARTITION}"
-    EFI_PARTUUID=$(blkid -s PARTUUID -o value "${EFI_DEV}")
+    EFI_PARTUUID=$(lsblk -no PARTUUID "${EFI_DEV}")
 
     # 检查 /etc/fstab 中是否已存在 EFI 分区挂载点
     EXISTING_PARTUUID=$(awk '$2 == "/boot/efi" {print $1}' /etc/fstab | sed 's/PARTUUID=//')
-    if [ -z "${EXISTING_PARTUUID}" ]; then
+    if [[ -z "${EXISTING_PARTUUID}" ]]; then
         # 如果不存在，则将新的 EFI 分区挂载点添加到文件末尾
         echo "PARTUUID=${EFI_PARTUUID}	/boot/efi	vfat	rw,nofail,umask=0077 0 2" >> /etc/fstab
     elif [ "${EXISTING_PARTUUID}" != "${EFI_PARTUUID}" ]; then
