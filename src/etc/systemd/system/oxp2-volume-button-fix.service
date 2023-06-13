@@ -1,0 +1,10 @@
+[Unit]
+Description=oxp2Fix Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python /usr/share/sk-holoiso-config/oxp2Fix/oxp2VolumeButtonFix.py
+Restart=always
+
+[Install]
+WantedBy=default.target

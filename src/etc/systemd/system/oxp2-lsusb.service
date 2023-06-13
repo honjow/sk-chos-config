@@ -1,0 +1,9 @@
+[Unit]
+Description=Continuously execute lsusb -v command
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c 'while true; do lsusb -v > /dev/null 2>&1; sleep 1; done'
+
+[Install]
+WantedBy=multi-user.target
