@@ -14,6 +14,9 @@ from gi.repository import GLib, Gtk, Gio, Pango
 def handycon_switch_callback(active):
     toggle_service("handycon.service", active)
 
+def oxp2lsusb_switch_callback(active):
+    toggle_service("oxp2-lsusb.service", active)
+
 def handycon_update_callback():
     print("执行 HandyGCCS 更新操作")
     # 判断 ~/.cache/sk-holoiso-config/git/HandyGCCS 是否存在
@@ -86,7 +89,7 @@ def run_command(command, name=""):
     except Exception as e:
         success = False
         ret_msg = str(e)
-        print(f"{name}更新失败: {et_msg}")
+        print(f"{name}更新失败: {ret_msg}")
     
     return success, ret_msg
 
@@ -252,12 +255,12 @@ class SkHoloisoConfigApp(Gtk.Application):
         group1.pack_start(label1, False, False, 0)
 
         handycon_enabled = check_service_autostart("handycon.service")
-        function_witch1 = FunctionSwitch("HandyGCCS", "用来驱动部分掌机的手柄按钮", handycon_enabled, handycon_switch_callback)
-        group1.pack_start(function_witch1, False, False, 0)
+        function_switch_handycon = FunctionSwitch("HandyGCCS", "用来驱动部分掌机的手柄按钮", handycon_enabled, handycon_switch_callback)
+        group1.pack_start(function_switch_handycon, False, False, 0)
 
-
-        # function_witch2 = FunctionSwitch("功能2", "功能2的说明功能用来驱动部分掌机的部分掌机的手柄按钮用来")
-        # group1.pack_start(function_witch2, False, False, 0)
+        oxp2lsusb_enabled = check_service_autostart("oxp2-lsusb.service")
+        function_switch_oxp2lsusb = FunctionSwitch("OXP2手柄热插拔检测修复", "修复OXP2手柄热插拔后不识别的问题", oxp2lsusb_enabled, oxp2lsusb_switch_callback)
+        group1.pack_start(function_switch_oxp2lsusb, False, False, 0)
 
         # 第二组：手动更新
         group2 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)

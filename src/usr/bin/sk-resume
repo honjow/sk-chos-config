@@ -1,7 +1,15 @@
 #!/bin/bash
-systemctl restart ayaled.service
+DEVICENAME=$(cat /sys/devices/virtual/dmi/id/product_name)
+VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
 
+ayaled_status=$(systemctl is-enabled ayaled.service 2>/dev/null)
+if [[ "$ayaled_status" != "enabled" ]]; then
+    sudo systemctl restart ayaled.service
+fi
 
 # geek 唤醒重新加载触摸屏驱动
-modprobe -r goodix_ts
-modprobe goodix_ts
+if [[ "${DEVICENAME}" == "GEEK" ]];then
+    sleep 3
+    modprobe -r goodix_ts
+    modprobe goodix_ts
+fi
