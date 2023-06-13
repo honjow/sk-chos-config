@@ -11,6 +11,17 @@ import subprocess
 gi.require_version("Gtk", "3.0")
 from gi.repository import GLib, Gtk, Gio, Pango
 
+def get_product_name():
+    # get from /sys/devices/virtual/dmi/id/product_name
+    product_name = ""
+    try:
+        with open("/sys/devices/virtual/dmi/id/product_name", "r") as f:
+            product_name = f.readline().strip()
+    except Exception as e:
+        print("读取设备名称失败:", str(e))
+    return product_name
+
+
 def handycon_switch_callback(active):
     toggle_service("handycon.service", active)
 
@@ -72,7 +83,10 @@ def tomoon_update_callback():
 
 def this_update_callback():
     command = "yay -Sy sk-holoiso-config --noconfirm --overwrite \"*\""
-    return run_command(command, "Sk Holoiso Config")
+    success, ret_msg = run_command(command, "Sk Holoiso Config")
+    if success:
+        ret_msg = "更新完成, 请重新启动应用"
+    return success, ret_msg
     
 
 # 执行命令
@@ -155,6 +169,8 @@ class FunctionSwitch(Gtk.Box):
         # 右边开关部分
         switch = Gtk.Switch()
         switch.props.valign = Gtk.Align.CENTER
+        switch.props.height_request = 46
+        switch.props.width_request = 100
         switch.connect("notify::active", self.on_switch_activated)
         switch.set_active(initial_value)
         switch_box = Gtk.Box()
@@ -173,8 +189,8 @@ class UpdateButton(Gtk.Button):
     def __init__(self, function_name, callback=None):
         Gtk.Button.__init__(self, label=function_name)
 
-        self.set_margin_start(20)
-        self.set_margin_end(20)
+        # self.set_margin_start(20)
+        # self.set_margin_end(20)
         self.set_margin_top(5)
         self.set_margin_bottom(5)
 
@@ -212,7 +228,7 @@ class UpdateButton(Gtk.Button):
                 modal=True,
                 message_type=Gtk.MessageType.INFO,
                 buttons=Gtk.ButtonsType.OK,
-                text="更新成功",
+                text=ret_msg if ret_msg else "更新成功",
             )
         else:
             dialog = Gtk.MessageDialog(
@@ -234,13 +250,14 @@ class SkHoloisoConfigApp(Gtk.Application):
         Gtk.Application.__init__(self,
                                  application_id="com.honjow.skholoisoconfig",
                                  flags=Gio.ApplicationFlags.FLAGS_NONE)
+        self.product_name = get_product_name()
         self.connect("activate", self.on_activate)
     
 
     def on_activate(self, app):
         # 创建主窗口
         window = Gtk.ApplicationWindow(application=app)
-        window.set_default_size(500, 580)
+        window.set_default_size(500, 620)
         window.set_title("Sk SteamOS 配置")
 
         window.set_icon_name("logisim")
@@ -271,13 +288,14 @@ class SkHoloisoConfigApp(Gtk.Application):
         function_switch_handycon = FunctionSwitch("HandyGCCS", "用来驱动部分掌机的手柄按钮", handycon_enabled, handycon_switch_callback)
         group1.pack_start(function_switch_handycon, False, False, 0)
 
-        oxp2lsusb_enabled = check_service_autostart("oxp2-lsusb.service")
-        function_switch_oxp2lsusb = FunctionSwitch("OXP2手柄热插拔检测修复", "修复OXP2手柄热插拔后不识别的问题", oxp2lsusb_enabled, oxp2lsusb_switch_callback)
-        group1.pack_start(function_switch_oxp2lsusb, False, False, 0)
+        if self.product_name == "ONEXPLAYER 2 ARP23":
+            oxp2lsusb_enabled = check_service_autostart("oxp2-lsusb.service")
+            function_switch_oxp2lsusb = FunctionSwitch("OXP2手柄热插拔检测修复", "修复OXP2手柄热插拔后不识别的问题", oxp2lsusb_enabled, oxp2lsusb_switch_callback)
+            group1.pack_start(function_switch_oxp2lsusb, False, False, 0)
 
-        oxp2_volume_button_fix_enabled = check_service_autostart("oxp2-volume-button-fix.service")
-        function_switch_oxp2_volume_button_fix = FunctionSwitch("OXP2音量键修复", "修复OXP2音量键问题", oxp2_volume_button_fix_enabled, oxp2_volume_button_fix_switch_callback)
-        group1.pack_start(function_switch_oxp2_volume_button_fix, False, False, 0)
+            oxp2_volume_button_fix_enabled = check_service_autostart("oxp2-volume-button-fix.service")
+            function_switch_oxp2_volume_button_fix = FunctionSwitch("OXP2音量键修复", "修复OXP2音量键问题", oxp2_volume_button_fix_enabled, oxp2_volume_button_fix_switch_callback)
+            group1.pack_start(function_switch_oxp2_volume_button_fix, False, False, 0)
 
         # 第二组：手动更新
         group2 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
