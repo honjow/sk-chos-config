@@ -17,6 +17,9 @@ def handycon_switch_callback(active):
 def oxp2lsusb_switch_callback(active):
     toggle_service("oxp2-lsusb.service", active)
 
+def oxp2_volume_button_fix_switch_callback(active):
+    toggle_service("oxp2-volume-button-fix.service", active)
+
 def handycon_update_callback():
     print("执行 HandyGCCS 更新操作")
     # 判断 ~/.cache/sk-holoiso-config/git/HandyGCCS 是否存在
@@ -66,6 +69,10 @@ def tomoon_update_callback():
     command = "curl -L http://i.ohmydeck.net | sh"
     # command = "ls /abcd"
     return run_command(command, "ToMoon")
+
+def this_update_callback():
+    command = "yay -Sy sk-holoiso-config --noconfirm --overwrite \"*\""
+    return run_command(command, "Sk Holoiso Config")
     
 
 # 执行命令
@@ -115,8 +122,8 @@ def toggle_service(service_name, enable):
 class FunctionSwitch(Gtk.Box):
     def __init__(self, function_name, description, initial_value=False, callback=None):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
-        self.set_margin_start(20)
-        self.set_margin_end(20)
+        # self.set_margin_start(20)
+        # self.set_margin_end(20)
         self.set_margin_top(10)
         self.set_margin_bottom(10)
 
@@ -233,7 +240,7 @@ class SkHoloisoConfigApp(Gtk.Application):
     def on_activate(self, app):
         # 创建主窗口
         window = Gtk.ApplicationWindow(application=app)
-        window.set_default_size(500, 400)
+        window.set_default_size(500, 580)
         window.set_title("Sk SteamOS 配置")
 
         window.set_icon_name("logisim")
@@ -244,14 +251,20 @@ class SkHoloisoConfigApp(Gtk.Application):
 
         # 创建垂直布局容器
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        vbox.set_margin_start(20)
+        vbox.set_margin_end(20)
+        vbox.set_margin_top(20)
+        vbox.set_margin_bottom(20)
         scrolled_window.add(vbox)
 
         # 第一组：相关功能开关
         group1 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        group1.set_margin_bottom(10)
         vbox.pack_start(group1, True, True, 0)
 
         label1 = Gtk.Label()
         label1.set_markup("<b>功能开关</b>")
+        label1.set_halign(Gtk.Align.START)
         group1.pack_start(label1, False, False, 0)
 
         handycon_enabled = check_service_autostart("handycon.service")
@@ -262,12 +275,17 @@ class SkHoloisoConfigApp(Gtk.Application):
         function_switch_oxp2lsusb = FunctionSwitch("OXP2手柄热插拔检测修复", "修复OXP2手柄热插拔后不识别的问题", oxp2lsusb_enabled, oxp2lsusb_switch_callback)
         group1.pack_start(function_switch_oxp2lsusb, False, False, 0)
 
+        oxp2_volume_button_fix_enabled = check_service_autostart("oxp2-volume-button-fix.service")
+        function_switch_oxp2_volume_button_fix = FunctionSwitch("OXP2音量键修复", "修复OXP2音量键问题", oxp2_volume_button_fix_enabled, oxp2_volume_button_fix_switch_callback)
+        group1.pack_start(function_switch_oxp2_volume_button_fix, False, False, 0)
+
         # 第二组：手动更新
         group2 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
         vbox.pack_start(group2, True, True, 0)
 
         label2 = Gtk.Label()
         label2.set_markup("<b>手动更新</b>")
+        label2.set_halign(Gtk.Align.START)
         group2.pack_start(label2, False, False, 0)
 
         update_button1 = UpdateButton("更新HandyGCCS", handycon_update_callback)
@@ -278,6 +296,9 @@ class SkHoloisoConfigApp(Gtk.Application):
 
         update_button_tomoon = UpdateButton("更新Tomoon", tomoon_update_callback)
         group2.pack_start(update_button_tomoon, False, False, 0)
+
+        update_button_this = UpdateButton("更新本程序", this_update_callback)
+        group2.pack_start(update_button_this, False, False, 0)
 
         self.loading_spinner = Gtk.Spinner()
 
