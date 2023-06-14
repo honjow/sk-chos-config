@@ -16,7 +16,7 @@ from gi.repository import Gtk, Gio
 class SkHoloisoConfigApp(Gtk.Application):
     def __init__(self):
         Gtk.Application.__init__(self,
-                                 application_id="com.honjow.skholoisoconfig",
+                                 application_id="com.honjow.sk-holoiso-config",
                                  flags=Gio.ApplicationFlags.FLAGS_NONE)
         self.product_name = get_product_name()
         self.connect("activate", self.on_activate)
