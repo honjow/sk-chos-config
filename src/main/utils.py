@@ -11,6 +11,7 @@ def get_product_name():
             product_name = f.readline().strip()
     except Exception as e:
         print("读取设备名称失败:", str(e))
+    print("设备名称:", product_name)
     return product_name
 
 # 执行命令

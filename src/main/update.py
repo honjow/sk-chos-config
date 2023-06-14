@@ -17,7 +17,7 @@ def oxp2_volume_button_fix_switch_callback(active):
     toggle_service("oxp2-volume-button-fix.service", active)
 
 # ayaneo 切换lc键睡眠
-def ayaneo_lc_suppend_switch_callback(active):
+def aya_lc_suspend_switch_callback(active):
     toggle_flag_file = '/usr/share/handygccs/aya-lc-suspend'
     toggle_flag_file_exists = os.path.isfile(toggle_flag_file)
     if active and not toggle_flag_file_exists:

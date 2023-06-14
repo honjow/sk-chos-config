@@ -23,6 +23,7 @@ class SkHoloisoConfigApp(Gtk.Application):
     
 
     def on_activate(self, app):
+        print("启动Sk Holoiso Config")
         # 创建主窗口
         window = Gtk.ApplicationWindow(application=app)
         window.set_default_size(500, 620)
@@ -81,6 +82,7 @@ class SkHoloisoConfigApp(Gtk.Application):
             ):
             aya_lc_suspend_file = '/usr/share/handygccs/aya-lc-suspend'
             aya_lc_suspend_enabled = os.path.isfile(aya_lc_suspend_file)
+            # aya_lc_suspend_enabled = False
             function_switch_aya_lc_suspend = FunctionSwitch("AYANEO LC键睡眠", "默认为截图, 开启后LC键作为睡眠键", aya_lc_suspend_enabled, update.aya_lc_suspend_switch_callback)
             group1.pack_start(function_switch_aya_lc_suspend, False, False, 0)
 
