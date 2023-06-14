@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # coding=utf-8
 
+import os
 import gi
 from component import FunctionSwitch, UpdateButton
 import update
@@ -63,6 +64,25 @@ class SkHoloisoConfigApp(Gtk.Application):
             oxp2_volume_button_fix_enabled = check_service_autostart("oxp2-volume-button-fix.service")
             function_switch_oxp2_volume_button_fix = FunctionSwitch("OXP2音量键修复", "修复OXP2音量键问题", oxp2_volume_button_fix_enabled, update.oxp2_volume_button_fix_switch_callback)
             group1.pack_start(function_switch_oxp2_volume_button_fix, False, False, 0)
+
+        if self.product_name in (
+            "NEXT",
+            "NEXT Pro",
+            "NEXT Advance",
+            "AYANEO NEXT",
+            "AYANEO NEXT Pro",
+            "AYANEO NEXT Advance",
+            "AIR",
+            "AIR Pro",
+            "AIR Plus",
+            "AYANEO 2",
+            "GEEK",
+            "AYANEO 2S",
+            ):
+            aya_lc_suspend_file = '/usr/share/handygccs/aya-lc-suspend'
+            aya_lc_suspend_enabled = os.path.isfile(aya_lc_suspend_file)
+            function_switch_aya_lc_suspend = FunctionSwitch("AYANEO LC键睡眠", "默认为截图, 开启后LC键作为睡眠键", aya_lc_suspend_enabled, update.aya_lc_suspend_switch_callback)
+            group1.pack_start(function_switch_aya_lc_suspend, False, False, 0)
 
         # 第二组：手动更新
         group2 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
