@@ -4,7 +4,18 @@ import os
 import urllib.request
 
 # import utils
-from utils import run_command
+from utils import run_command, toggle_service
+
+
+def handycon_switch_callback(active):
+    toggle_service("handycon.service", active)
+
+def oxp2lsusb_switch_callback(active):
+    toggle_service("oxp2-lsusb.service", active)
+
+def oxp2_volume_button_fix_switch_callback(active):
+    toggle_service("oxp2-volume-button-fix.service", active)
+
 
 
 def handycon_update_callback():

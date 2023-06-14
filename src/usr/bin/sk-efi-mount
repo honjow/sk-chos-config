@@ -6,6 +6,7 @@ ROOT_DEV=$(lsblk -no PKNAME $(mount | grep ' / ' | cut -d' ' -f1))
 # 查找与当前根分区在同一磁盘上的 EFI 分区 (多个结果取第一个)
 EFI_PARTITION=$(lsblk -rno NAME,PARTTYPE | awk '$2 == "c12a7328-f81f-11d2-ba4b-00a0c93ec93b" && $1 ~ /'"${ROOT_DEV}"'p?[[:digit:]]$/ {print $1}' | head -n 1 )
 
+echo "EFI_PARTITION ${EFI_PARTITION}"
 
 # 如果找到 EFI 分区，则尝试将其挂载到 /boot/efi
 if [ -n "${EFI_PARTITION}" ]; then
@@ -13,20 +14,33 @@ if [ -n "${EFI_PARTITION}" ]; then
     EFI_DEV="/dev/${EFI_PARTITION}"
     EFI_PARTUUID=$(lsblk -no PARTUUID "${EFI_DEV}")
 
+    echo "EFI_PARTUUID ${EFI_PARTUUID}"
     if [ -z "${EFI_PARTUUID}" ]; then
         echo "Failed to get PARTUUID for EFI partition ${EFI_PARTITION}"
         exit 1
     fi
 
+    cp /etc/fstab /etc/fstab.backup
+
+    # 使用 awk 分析 /etc/fstab 文件并生成新的内容
+    awk '!($2 == "/boot/efi")' /etc/fstab > /etc/fstab.tmp
+
+    # 将临时文件替换回原始的 /etc/fstab 文件
+    mv /etc/fstab.tmp /etc/fstab
+
+    MEW_MOUNT="PARTUUID=${EFI_PARTUUID}"
+    echo "MEW_MOUNT: ${MEW_MOUNT}"
     # 检查 /etc/fstab 中是否已存在 EFI 分区挂载点
-    EXISTING_PARTUUID=$(awk '$2 == "/boot/efi" {print $1}' /etc/fstab | sed 's/PARTUUID=//')
-    if [[ -z "${EXISTING_PARTUUID}" ]]; then
+    EXISTING_MOUNT=$(awk '$2 == "/boot/efi" {print $1}' /etc/fstab)
+    echo "EXISTING_MOUNT: ${EXISTING_MOUNT}"
+    if [[ -z "${EXISTING_MOUNT}" ]]; then
         # 如果不存在，则将新的 EFI 分区挂载点添加到文件末尾
         echo "PARTUUID=${EFI_PARTUUID}	/boot/efi	vfat	rw,nofail,umask=0077 0 2" >> /etc/fstab
-    elif [ "${EXISTING_PARTUUID}" != "${EFI_PARTUUID}" ]; then
+    elif [[ "${EXISTING_MOUNT}" != "${MEW_MOUNT}" ]]; then
         echo "Updating /etc/fstab with new EFI partition PARTUUID: ${EFI_PARTUUID}"
         cp /etc/fstab /etc/fstab.bak
-        sed -i "s/${EXISTING_PARTUUID}/${EFI_PARTUUID}/" /etc/fstab
+        # echo "s/${EXISTING_MOUNT}\(\s\)/${MEW_MOUNT}\1/"
+        sed -i "s/${EXISTING_MOUNT}\(\s\)/${MEW_MOUNT}\1/" /etc/fstab
     fi
 
     # 如果 /boot/efi 目录不存在，则创建该目录

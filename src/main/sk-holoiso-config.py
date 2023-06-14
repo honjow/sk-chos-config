@@ -5,20 +5,10 @@ import gi
 from component import FunctionSwitch, UpdateButton
 import update
 
-from utils import check_service_autostart, get_product_name, toggle_service
+from utils import check_service_autostart, get_product_name
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gio
-
-
-def handycon_switch_callback(active):
-    toggle_service("handycon.service", active)
-
-def oxp2lsusb_switch_callback(active):
-    toggle_service("oxp2-lsusb.service", active)
-
-def oxp2_volume_button_fix_switch_callback(active):
-    toggle_service("oxp2-volume-button-fix.service", active)
 
 
 
@@ -62,16 +52,16 @@ class SkHoloisoConfigApp(Gtk.Application):
         group1.pack_start(label1, False, False, 0)
 
         handycon_enabled = check_service_autostart("handycon.service")
-        function_switch_handycon = FunctionSwitch("HandyGCCS", "用来驱动部分掌机的手柄按钮", handycon_enabled, handycon_switch_callback)
+        function_switch_handycon = FunctionSwitch("HandyGCCS", "用来驱动部分掌机的手柄按钮", handycon_enabled, update.handycon_switch_callback)
         group1.pack_start(function_switch_handycon, False, False, 0)
 
         if self.product_name == "ONEXPLAYER 2 ARP23":
             oxp2lsusb_enabled = check_service_autostart("oxp2-lsusb.service")
-            function_switch_oxp2lsusb = FunctionSwitch("OXP2手柄热插拔检测修复", "修复OXP2手柄热插拔后不识别的问题", oxp2lsusb_enabled, oxp2lsusb_switch_callback)
+            function_switch_oxp2lsusb = FunctionSwitch("OXP2手柄热插拔检测修复", "修复OXP2手柄热插拔后不识别的问题", oxp2lsusb_enabled, update.oxp2lsusb_switch_callback)
             group1.pack_start(function_switch_oxp2lsusb, False, False, 0)
 
             oxp2_volume_button_fix_enabled = check_service_autostart("oxp2-volume-button-fix.service")
-            function_switch_oxp2_volume_button_fix = FunctionSwitch("OXP2音量键修复", "修复OXP2音量键问题", oxp2_volume_button_fix_enabled, oxp2_volume_button_fix_switch_callback)
+            function_switch_oxp2_volume_button_fix = FunctionSwitch("OXP2音量键修复", "修复OXP2音量键问题", oxp2_volume_button_fix_enabled, update.oxp2_volume_button_fix_switch_callback)
             group1.pack_start(function_switch_oxp2_volume_button_fix, False, False, 0)
 
         # 第二组：手动更新

@@ -8,7 +8,7 @@ from gi.repository import GLib, Gtk, Pango
 
 
 class FunctionSwitch(Gtk.Box):
-    def __init__(self, function_name, description, initial_value=False, callback=None):
+    def __init__(self, title, description, initial_value=False, callback=None):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
         # self.set_margin_start(20)
         # self.set_margin_end(20)
@@ -23,7 +23,7 @@ class FunctionSwitch(Gtk.Box):
         self.pack_start(left_box, True, True, 0)
 
         switch_label = Gtk.Label()
-        switch_label.set_text(function_name)
+        switch_label.set_text(title)
         switch_label.set_halign(Gtk.Align.START)
         switch_label.set_valign(Gtk.Align.START)
         left_box.pack_start(switch_label, False, False, 0)
@@ -60,8 +60,8 @@ class FunctionSwitch(Gtk.Box):
             self.last_value = active
 
 class UpdateButton(Gtk.Button):
-    def __init__(self, function_name, callback=None):
-        Gtk.Button.__init__(self, label=function_name)
+    def __init__(self, title, callback=None):
+        Gtk.Button.__init__(self, label=title)
 
         # self.set_margin_start(20)
         # self.set_margin_end(20)
@@ -70,7 +70,7 @@ class UpdateButton(Gtk.Button):
 
         self.set_sensitive(True)
 
-        self.function_name = function_name
+        self.function_name = title
         self.callback = callback
 
         self.connect("clicked", self.on_update_clicked)
