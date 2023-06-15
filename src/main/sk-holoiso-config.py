@@ -3,71 +3,13 @@
 
 import os
 import gi
-from component import FunctionSwitch, UpdateButton
+from component import AboutPage, FunctionSwitch, UpdateButton
 import update
 
-from utils import check_service_autostart, get_product_name, open_website
+from utils import check_service_autostart, get_product_name
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, Gio, Gdk
-
-def create_about_page():
-    about_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
-
-    grid = Gtk.Grid()
-    grid.set_column_spacing(10)
-    grid.set_row_spacing(10)
-    grid.set_margin_top(20)
-    grid.set_margin_bottom(20)
-    grid.set_margin_start(20)
-    grid.set_margin_end(20)
-    grid.set_halign(Gtk.Align.CENTER)
-
-    # 应用程序名称
-    name_label = Gtk.Label()
-    name_label.set_text("Sk SteamOS (Holoiso) Config")
-    name_label.set_halign(Gtk.Align.CENTER)
-    name_label.set_valign(Gtk.Align.CENTER)
-    name_label.set_hexpand(True)
-    name_label.set_vexpand(True)
-    name_label.set_margin_bottom(10)
-    name_label.set_margin_top(10)
-    name_label.set_margin_start(10)
-    name_label.set_margin_end(10)
-    name_label.set_markup("<span font_weight='bold' font_size='large'>{}</span>".format(name_label.get_text()))
-
-    # 版本号
-    version_label = Gtk.Label()
-    version_label.set_text("版本 1.0")
-    version_label.set_halign(Gtk.Align.CENTER)
-    version_label.set_valign(Gtk.Align.CENTER)
-
-    # 作者
-    authors_label = Gtk.Label()
-    authors_label.set_text("作者: Honjow")
-    authors_label.set_halign(Gtk.Align.CENTER)
-    authors_label.set_valign(Gtk.Align.CENTER)
-
-    # 官方网站
-    website_label = Gtk.Label()
-    url = "https://github.com/honjow/sk-holoiso-config"
-    website_label.set_markup(f"Github: <a href='{url}'>{url}</a>")
-    website_label.set_halign(Gtk.Align.CENTER)
-    website_label.set_valign(Gtk.Align.CENTER)
-    website_label.set_use_markup(True)
-    website_label.connect("activate-link", open_website, url)
-    website_label.set_events(Gdk.EventMask.BUTTON_PRESS_MASK)
-
-    # 设置部件在网格中的位置
-    grid.attach(name_label, 0, 0, 2, 1)
-    grid.attach(version_label, 0, 1, 2, 1)
-    grid.attach(authors_label, 0, 2, 2, 1)
-    grid.attach(website_label, 0, 3, 2, 1)
-
-    about_box.pack_start(grid, True, True, 0)
-
-    return about_box
-
+from gi.repository import Gtk, Gio
 
 class SkHoloisoConfigApp(Gtk.Application):
     def __init__(self):
@@ -191,7 +133,7 @@ class SkHoloisoConfigApp(Gtk.Application):
         update_box.pack_start(update_button_this, False, False, 0)
 
         # 第三组：关于
-        stack.add_titled(create_about_page(), "about", "关于")
+        stack.add_titled(AboutPage(), "about", "关于")
 
         self.loading_spinner = Gtk.Spinner()
 
