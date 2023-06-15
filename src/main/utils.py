@@ -1,7 +1,12 @@
 #!/usr/bin/python
 # coding=utf-8
-
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gdk
 import subprocess
+
+def open_website(label, uri):
+    Gdk.spawn_command_line_async(f'xdg-open {uri}')
 
 def get_product_name():
     # get from /sys/devices/virtual/dmi/id/product_name

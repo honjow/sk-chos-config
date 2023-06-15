@@ -10,8 +10,8 @@ from gi.repository import GLib, Gtk, Pango
 class FunctionSwitch(Gtk.Box):
     def __init__(self, title, description, initial_value=False, callback=None):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
-        # self.set_margin_start(20)
-        # self.set_margin_end(20)
+        self.set_margin_start(5)
+        self.set_margin_end(5)
         self.set_margin_top(10)
         self.set_margin_bottom(10)
 
@@ -43,8 +43,7 @@ class FunctionSwitch(Gtk.Box):
         # 右边开关部分
         switch = Gtk.Switch()
         switch.props.valign = Gtk.Align.CENTER
-        switch.props.height_request = 46
-        switch.props.width_request = 100
+        # switch.set_size_request(80, 40)
         switch.connect("notify::active", self.on_switch_activated)
         switch.set_active(initial_value)
         switch_box = Gtk.Box()
@@ -63,8 +62,8 @@ class UpdateButton(Gtk.Button):
     def __init__(self, title, callback=None):
         Gtk.Button.__init__(self, label=title)
 
-        # self.set_margin_start(20)
-        # self.set_margin_end(20)
+        self.set_margin_start(5)
+        self.set_margin_end(5)
         self.set_margin_top(5)
         self.set_margin_bottom(5)
 
