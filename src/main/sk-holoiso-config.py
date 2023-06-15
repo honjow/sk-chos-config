@@ -181,6 +181,9 @@ class SkHoloisoConfigApp(Gtk.Application):
         update_button2 = UpdateButton("更新Decky (插件平台)", update.simple_decky_update_callback)
         update_box.pack_start(update_button2, False, False, 0)
 
+        update_pwc = UpdateButton("更新 PowerControl", update.power_control_update_callback)
+        update_box.pack_start(update_pwc, False, False, 0)
+
         update_button_tomoon = UpdateButton("更新Tomoon", update.tomoon_update_callback)
         update_box.pack_start(update_button_tomoon, False, False, 0)
 

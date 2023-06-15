@@ -33,7 +33,7 @@ def run_command(command, name=""):
 
         if return_code != 0:
             success = False
-            ret_msg = stderr.decode().strip()
+            ret_msg = stderr.strip()
             print(f"{name}更新失败: {ret_msg}")
         else:
             print(f"{name}更新完成")

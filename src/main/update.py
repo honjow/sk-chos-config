@@ -74,7 +74,7 @@ def simple_decky_update_callback():
     return run_command(command, "Decky")
 
 def tomoon_update_callback():
-    command = "curl -L http://i.ohmydeck.net | sh"
+    command = "curl -L http://i.ohmydeck.net | sed 's#curl#curl -k#g' | sh"
     # command = "ls /abcd"
     return run_command(command, "ToMoon")
 
@@ -84,3 +84,57 @@ def this_update_callback():
     if success:
         ret_msg = "更新完成, 请重新启动应用"
     return success, ret_msg
+
+def decky_plugin_update_callback(git_url):
+    name = git_url.split("/")[-1].split(".")[0]
+    print("执行Decky插件更新操作 {} {}".format(name, git_url))
+    git_directory = os.path.expanduser("~/.cache/sk-holoiso-config/git")
+    repo_directory = os.path.expanduser("{}/{}".format(git_directory, name))
+    if os.path.exists(repo_directory):
+        upt_command = "cd {} && git pull".format(repo_directory)
+    else:
+        upt_command = ("mkdir -p {} && cd {} && git clone {}").format(git_directory, git_directory, git_url)
+    print("执行更新命令: {}".format(upt_command))
+
+    success, ret_msg = run_command(upt_command, name)
+    if not success:
+        return success, ret_msg
+
+    build_command = "cd {} && sudo npm i -g pnpm && pnpm i && pnpm update decky-frontend-lib --latest && pnpm run build".format(repo_directory)
+    success, ret_msg = run_command(build_command, name)
+    if not success:
+        return success, ret_msg
+    
+    # parse plugin.json 
+    plugin_json_path = "{}/plugin.json".format(repo_directory)
+    if not os.path.exists(plugin_json_path):
+        return False, "plugin.json 不存在"
+    import json
+    with open(plugin_json_path, "r") as f:
+        plugin_json = json.load(f)
+    plugin_name = plugin_json["name"]
+    plugin_parent_directory = os.path.expanduser("~/homebrew/plugins")
+    plugin_directory = os.path.expanduser("{}/{}".format(plugin_parent_directory, plugin_name))
+
+    deploy_command = (f"chmod -v 755 {plugin_parent_directory} "
+                        f" && mkdir -p {plugin_directory} "
+                        f" && chmod -v 755 {plugin_directory} "
+                        f" && rsync -azp --progress --delete {repo_directory}/ {plugin_directory} "
+                        " --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rwx,Fg=rx,Fo=rx "
+                        " --exclude='.git/' --exclude='.github/' --exclude='.vscode/' --exclude='node_modules/' "
+                        " --exclude='.pnpm-store/' --exclude='src/' --exclude='*.log' --exclude='.gitignore'  "
+                        " --exclude='.idea' --exclude='.env' --exclude='Makefile' --exclude='pnpm-lock.yaml' "
+                        " && sudo systemctl restart plugin_loader.service "
+                        )
+    
+    # print ("执行部署命令: {}".format(deploy_command))
+    # os.system(deploy_command)
+    return run_command(deploy_command, name)
+
+
+def power_control_update_callback():
+    depends_command = "yay -Sy npm --noconfirm --needed"
+    run_command(depends_command, "npm")
+
+    git_url = "https://github.com/mengmeet/PowerControl.git"
+    return decky_plugin_update_callback(git_url)
