@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # coding=utf-8
 
+import os
 import subprocess
 
 def get_product_name():
@@ -18,7 +19,7 @@ def get_product_name():
 def run_command(command, name=""):
     success = True
     ret_msg = ""
-    print(f"执行{name}更新操作")
+    print(f"执行{name}操作")
     try:
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         for line in process.stdout:
@@ -29,13 +30,13 @@ def run_command(command, name=""):
         if return_code != 0:
             success = False
             ret_msg = stderr.strip()
-            print(f"{name}更新失败: {ret_msg}")
+            print(f"{name}操作失败: {ret_msg}")
         else:
-            print(f"{name}更新完成")
+            print(f"{name}操作完成")
     except Exception as e:
         success = False
         ret_msg = str(e)
-        print(f"{name}更新失败: {ret_msg}")
+        print(f"{name}操作失败: {ret_msg}")
     
     return success, ret_msg
 
@@ -51,10 +52,11 @@ def check_service_autostart(service_name):
 # 检查服务是否存在
 def check_service_exists(service_name):
     try:
-        subprocess.check_output(['sudo', 'systemctl', 'status', service_name])
+        # 使用`systemctl is-active`命令检查服务状态
+        subprocess.run(['systemctl', 'is-active', service_name], check=True, capture_output=True)
         return True
     except subprocess.CalledProcessError:
-        # 如果命令执行出错，则服务可能不存在或无法访问
+        print (f"服务 {service_name} 不存在")
         return False
 
 def toggle_service(service_name, enable):
@@ -65,3 +67,7 @@ def toggle_service(service_name, enable):
         print(f"服务 {service_name} {action}成功")
     except subprocess.CalledProcessError as e:
         print(f"服务 {service_name} {action}失败:", str(e))
+
+def check_decky_plugin_exists(plugin_name):
+    return os.path.isfile(os.path.expanduser("~/homebrew/plugins/{}/plugin.json".format(plugin_name)))
+
