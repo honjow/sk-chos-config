@@ -69,6 +69,7 @@ class ManagerItem(Gtk.Box):
         self.set_margin_top(10)
         self.set_margin_bottom(10)
 
+        self.title = title
         self.install_callback = install_callback
         self.uninstall_callback = uninstall_callback
         self.install_button = None
@@ -80,6 +81,8 @@ class ManagerItem(Gtk.Box):
             self.current_installed = self.installed_cb()
         else:
             self.current_installed = self.installed_cb
+
+        # print ("{} current_installed: {}".format(self.title, self.current_installed))
 
         # 左边文字部分
         left_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
@@ -116,10 +119,12 @@ class ManagerItem(Gtk.Box):
             self.uninstall_button.set_valign(Gtk.Align.CENTER)
             self.uninstall_button.connect("clicked", self.on_uninstall_clicked)
             self.pack_start(self.uninstall_button, False, False, 0)
+            if not self.current_installed:
+                self.uninstall_button.hide()
 
         if self.install_callback is not None:
             self.install_button = Gtk.Button()
-            self.install_button.set_label("更新" if installed_cb else "安装")
+            self.install_button.set_label("更新" if self.current_installed else "安装")
             self.install_button.set_valign(Gtk.Align.CENTER)
             self.install_button.connect("clicked", self.on_install_clicked)
             self.pack_start(self.install_button, False, False, 0)
@@ -155,24 +160,45 @@ class ManagerItem(Gtk.Box):
             if self.uninstall_button is not None:
                 self.uninstall_button.hide()
 
-    def completed(self, success, msg=None):
+    def completed(self, success, install=True, msg=None):
         self.reload_installed()
         self.enable_buttons()
-        print ("Completed: " + str(success) + " " + str(msg))
+        print ("Completed: success: {}, install: {}, msg: {}".format(success, install, msg))
+        # 根据回调函数的运行结果显示对话框内容
+        if success:
+            dialog = Gtk.MessageDialog(
+                transient_for=self.get_toplevel(),
+                modal=True,
+                message_type=Gtk.MessageType.INFO,
+                buttons=Gtk.ButtonsType.OK,
+                text=msg if msg else "{} {}成功".format(self.title, "安装" if install else "卸载"),
+            )
+        else:
+            dialog = Gtk.MessageDialog(
+                transient_for=self.get_toplevel(),
+                modal=True,
+                message_type=Gtk.MessageType.ERROR,
+                buttons=Gtk.ButtonsType.OK,
+                text=msg,
+            )
 
-    def execute_callback(self, callback):
-        result, ret_msg = callback()
-        GLib.idle_add(self.completed, result, ret_msg)
+        dialog.run()
+        dialog.destroy()
+
+
+    def execute_callback(self, callback, install):
+        success, ret_msg = callback()
+        GLib.idle_add(self.completed, success, install, ret_msg)
 
     def on_install_clicked(self, button):
         print("Installing...")
         self.disable_buttons()
-        threading.Thread(target=self.execute_callback, args=(self.install_callback,)).start()
+        threading.Thread(target=self.execute_callback, args=(self.install_callback, True)).start()
 
     def on_uninstall_clicked(self, button):
         print("Uninstalling...")
         self.disable_buttons()
-        threading.Thread(target=self.execute_callback, args=(self.uninstall_callback,)).start()
+        threading.Thread(target=self.execute_callback, args=(self.uninstall_callback, False)).start()
 
 class UpdateFullButton(Gtk.Button):
     def __init__(self, title, callback=None):

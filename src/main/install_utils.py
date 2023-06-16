@@ -41,6 +41,19 @@ def handycon_install():
 
     return run_command(command, "HandyGCCS")
 
+def handycon_uninstall():
+    print("执行 HandyGCCS 卸载操作")
+    command = ("sudo systemctl stop handycon && sudo systemctl disable handycon;"
+                "sudo rm -v /usr/lib/modules-load.d/handycon.conf;"
+                "sudo rm -v /usr/lib/systemd/system/handycon.service;"
+                "sudo rm -v /usr/lib/udev/rules.d/60-handycon.rules;"
+                "sudo rm -v /usr/share/handygccs/scripts/constants.py;"
+                "sudo rm -v /usr/share/handygccs/scripts/handycon.py;"
+                "sudo rm -v /usr/share/libretro/autoconfig/udev/HandyGCCS-Controller.cfg;"
+                "sudo udevadm control -R"
+                )
+    return run_command(command, "HandyGCCS")
+
 
 def decky_update_callback():
     success = True
@@ -138,3 +151,7 @@ def power_control_install():
 
     git_url = "https://github.com/mengmeet/PowerControl.git"
     return decky_plugin_update_callback(git_url)
+
+def remove_decky_plugin(plugin_name):
+    command = "sudo rm -rf ~/homebrew/plugins/{} && sudo systemctl restart plugin_loader.service ".format(plugin_name)
+    return run_command(command, plugin_name)
