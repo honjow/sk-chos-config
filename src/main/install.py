@@ -28,7 +28,7 @@ def aya_lc_suspend_switch_callback(active):
         run_command('sudo rm {} && sudo systemctl restart handycon.service'.format(toggle_flag_file))
 
 
-def handycon_update_callback():
+def handycon_install():
     print("执行 HandyGCCS 更新操作")
     # 判断 ~/.cache/sk-holoiso-config/git/HandyGCCS 是否存在
     git_directory = os.path.expanduser("~/.cache/sk-holoiso-config/git/HandyGCCS")
@@ -69,16 +69,16 @@ def decky_update_callback():
     print("Decky更新完成")
     return success, ret_msg
 
-def simple_decky_update_callback():
+def simple_decky_install():
     command = "curl -Lk https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/install_release.sh | sed 's#prerelease == \"false\"#prerelease == \"true\"#' | sudo sh"
     return run_command(command, "Decky")
 
-def tomoon_update_callback():
+def tomoon_install():
     command = "curl -L http://i.ohmydeck.net | sed 's#curl#curl -k#g' | sh"
     # command = "ls /abcd"
     return run_command(command, "ToMoon")
 
-def this_update_callback():
+def this_app_install():
     command = "yay -Sy sk-holoiso-config --noconfirm --overwrite \"*\""
     success, ret_msg = run_command(command, "Sk Holoiso Config")
     if success:
@@ -132,7 +132,7 @@ def decky_plugin_update_callback(git_url):
     return run_command(deploy_command, name)
 
 
-def power_control_update_callback():
+def power_control_install():
     depends_command = "yay -Sy npm --noconfirm --needed"
     run_command(depends_command, "npm")
 

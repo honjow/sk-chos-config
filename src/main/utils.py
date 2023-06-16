@@ -48,6 +48,15 @@ def check_service_autostart(service_name):
         # 如果命令执行出错，则服务可能不存在或无法访问
         return False
 
+# 检查服务是否存在
+def check_service_exists(service_name):
+    try:
+        subprocess.check_output(['sudo', 'systemctl', 'status', service_name])
+        return True
+    except subprocess.CalledProcessError:
+        # 如果命令执行出错，则服务可能不存在或无法访问
+        return False
+
 def toggle_service(service_name, enable):
     action = "enable" if enable else "disable"
     try:
