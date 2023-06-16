@@ -12,8 +12,8 @@ from gi.repository import GLib, Gtk, Pango, Gdk
 class SwitchItem(Gtk.Box):
     def __init__(self, title, description, initial_value=False, callback=None):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
-        self.set_margin_start(5)
-        self.set_margin_end(5)
+        self.set_margin_start(2)
+        self.set_margin_end(2)
         self.set_margin_top(10)
         self.set_margin_bottom(10)
 
@@ -64,8 +64,8 @@ class SwitchItem(Gtk.Box):
 class ManagerItem(Gtk.Box):
     def __init__(self, title, description, installed_cb, install_callback=None, uninstall_callback=None):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
-        self.set_margin_start(5)
-        self.set_margin_end(5)
+        self.set_margin_start(2)
+        self.set_margin_end(2)
         self.set_margin_top(10)
         self.set_margin_bottom(10)
 
