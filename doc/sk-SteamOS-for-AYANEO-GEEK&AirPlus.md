@@ -2,7 +2,7 @@
 
 ## 镜像发布
 
-下载链接:https://pan.baidu.com/s/1W2jIySkrEuqlpixlZ00rtA?pwd=aabb
+下载链接:<https://pan.baidu.com/s/1W2jIySkrEuqlpixlZ00rtA?pwd=aabb>
 
 ### 1.4
 
@@ -13,7 +13,6 @@
 #### 更新方式
 
 1.4 默认只提供root分区镜像，需要从1.3升级。使用DiskGenius还原分区镜像到root分区即可。如果有设置挂载共享分区的，需要重新设置
-
 
 ### 1.3
 

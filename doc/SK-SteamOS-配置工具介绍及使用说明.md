@@ -5,11 +5,12 @@
 SK-SteamOS-配置工具，又名SK-HoloISO-配置工具。是一个为HoloISO系统编写的配置工具，可以针对 HoloISO 进行一些配置，以及针对机型的修复等。
 
 目前支持的功能有：
+
 - 自带针对HoloISO系统的一些修复，默认安装后生效启用，不可直接在界面上设置
 - 功能开关：一些服务的开关，比如手柄按键驱动程序，部分机型的修复服务，以及个性设置开关
 - 安装管理：安装更新和卸载一些软件，比如decky插件平台，以及一些不在decky商店发布的插件：功耗插件，led插件；还有部分机型需要的 HandyGCCS 手柄驱动程序
 
-项目地址： https://github.com/honjow/sk-holoiso-config
+项目地址： <https://github.com/honjow/sk-holoiso-config>
 
 ## 适用系统和设备
 
@@ -18,15 +19,19 @@ SK-SteamOS-配置工具，又名SK-HoloISO-配置工具。是一个为HoloISO系
 ## 安装方式
 
 在控制条终端中执行
+
 ```bash
 yay -Sy sk-holoiso-config --overwrite "*" --noconfirm
 ```
+
 安装后请在开始菜单中找到 **SK SteamOS配置** 应用打开使用。
 
 如果使用过程中出现异常，需要监测其输出，可以在控制台中执行
+
 ```bash
 sk-holoiso-config
 ```
+
 来启动应用，这样可以在控制台中看到输出信息。
 注意：在控制台中启动时， 不要使用 `sudo` 命令，否则会出现权限问题。
 
