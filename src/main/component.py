@@ -120,7 +120,8 @@ class ManagerItem(Gtk.Box):
             self.uninstall_button.connect("clicked", self.on_uninstall_clicked)
             self.pack_start(self.uninstall_button, False, False, 0)
             if not self.current_installed:
-                self.uninstall_button.hide()
+                # self.uninstall_button.hide()
+                GLib.idle_add(self.uninstall_button.hide)
 
         if self.install_callback is not None:
             self.install_button = Gtk.Button()
