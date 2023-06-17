@@ -98,7 +98,12 @@ def this_app_install():
         ret_msg = "更新完成, 请重新启动应用"
     return success, ret_msg
 
-def decky_plugin_update_callback(git_url):
+def decky_plugin_update(git_url):
+    depends_command = "yay -Sy npm --noconfirm --needed"
+    success, ret_msg = run_command(depends_command, "npm")
+    if not success:
+        return success, ret_msg
+
     name = git_url.split("/")[-1].split(".")[0]
     print("执行Decky插件更新操作 {} {}".format(name, git_url))
     git_directory = os.path.expanduser("~/.cache/sk-holoiso-config/git")
@@ -144,14 +149,14 @@ def decky_plugin_update_callback(git_url):
     # os.system(deploy_command)
     return run_command(deploy_command, name)
 
-
-def power_control_install():
-    depends_command = "yay -Sy npm --noconfirm --needed"
-    run_command(depends_command, "npm")
-
-    git_url = "https://github.com/mengmeet/PowerControl.git"
-    return decky_plugin_update_callback(git_url)
-
 def remove_decky_plugin(plugin_name):
     command = "sudo rm -rf ~/homebrew/plugins/{} && sudo systemctl restart plugin_loader.service ".format(plugin_name)
     return run_command(command, plugin_name)
+
+def power_control_install():
+    git_url = "https://github.com/mengmeet/PowerControl.git"
+    return decky_plugin_update(git_url)
+
+def ayaled_install():
+    git_url = "https://github.com/MiZai2/ayaled.git"
+    return decky_plugin_update(git_url)

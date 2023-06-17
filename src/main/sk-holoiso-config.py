@@ -157,6 +157,24 @@ class SkHoloisoConfigApp(Gtk.Application):
         )
         manager_page.pack_start(item_handycon, False, False, 0)
 
+        if self.product_name in (
+            "AIR",
+            "AIR Pro",
+            "AIR Plus",
+            "AYANEO 2",
+            "GEEK",
+            "AYANEO 2S",
+            "GEEK 1S",
+        ):
+            item_ayaled = ManagerItem(
+                "AYANEO LED",
+                "AYANEO掌机LED灯控制Decky插件",
+                lambda: check_decky_plugin_exists("ayaled"),
+                install_utils.ayaled_install,
+                lambda: install_utils.remove_decky_plugin("ayaled"),
+            )
+            manager_page.pack_start(item_ayaled, False, False, 0)
+
         item_power_control = ManagerItem(
             "PowerControl",
             "掌机功耗性能管理Decky插件",
