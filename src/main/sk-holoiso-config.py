@@ -4,7 +4,7 @@
 import os
 import gi
 from component import AboutPage, ManagerItem, SwitchItem, UpdateFullButton
-import install_utils
+import installs
 
 from utils import (
     check_decky_plugin_exists,
@@ -87,7 +87,7 @@ class SkHoloisoConfigApp(Gtk.Application):
             "HandyGCCS",
             "用来驱动部分掌机的手柄按钮",
             handycon_enabled,
-            install_utils.handycon_switch_callback,
+            installs.handycon_switch_callback,
         )
         switch_box.pack_start(switch_item_handycon, False, False, 0)
 
@@ -97,7 +97,7 @@ class SkHoloisoConfigApp(Gtk.Application):
                 "OXP2手柄热插拔检测修复",
                 "修复OXP2手柄热插拔后不识别的问题",
                 oxp2lsusb_enabled,
-                install_utils.oxp2lsusb_switch_callback,
+                installs.oxp2lsusb_switch_callback,
             )
             switch_box.pack_start(switch_item_oxp2lsusb, False, False, 0)
 
@@ -108,7 +108,7 @@ class SkHoloisoConfigApp(Gtk.Application):
                 "OXP2音量键修复",
                 "修复OXP2音量键问题",
                 oxp2_volume_button_fix_enabled,
-                install_utils.oxp2_volume_button_fix_switch_callback,
+                installs.oxp2_volume_button_fix_switch_callback,
             )
             switch_box.pack_start(switch_item_oxp2_volume_button_fix, False, False, 0)
 
@@ -132,7 +132,7 @@ class SkHoloisoConfigApp(Gtk.Application):
                 "AYANEO LC键睡眠",
                 "默认为截图, 开启后LC键作为睡眠键",
                 aya_lc_suspend_enabled,
-                install_utils.aya_lc_suspend_switch_callback,
+                installs.aya_lc_suspend_switch_callback,
             )
             switch_box.pack_start(switch_item_aya_lc_suspend, False, False, 0)
 
@@ -144,7 +144,7 @@ class SkHoloisoConfigApp(Gtk.Application):
             "Decky",
             "游戏模式的插件平台",
             lambda: check_service_exists("plugin_loader.service"),
-            install_utils.simple_decky_install,
+            installs.simple_decky_install,
         )
         manager_page.pack_start(item_decky, False, False, 0)
 
@@ -152,8 +152,8 @@ class SkHoloisoConfigApp(Gtk.Application):
             "HandyGCCS",
             "驱动部分掌机的手柄按钮",
             lambda: check_service_exists("handycon.service"),
-            install_utils.handycon_install,
-            install_utils.handycon_uninstall,
+            installs.handycon_install,
+            installs.handycon_uninstall,
         )
         manager_page.pack_start(item_handycon, False, False, 0)
 
@@ -170,8 +170,8 @@ class SkHoloisoConfigApp(Gtk.Application):
                 "AYANEO LED",
                 "AYANEO掌机LED灯控制Decky插件",
                 lambda: check_decky_plugin_exists("ayaled"),
-                install_utils.ayaled_install,
-                lambda: install_utils.remove_decky_plugin("ayaled"),
+                installs.ayaled_install,
+                lambda: installs.remove_decky_plugin("ayaled"),
             )
             manager_page.pack_start(item_ayaled, False, False, 0)
 
@@ -179,8 +179,8 @@ class SkHoloisoConfigApp(Gtk.Application):
             "PowerControl",
             "掌机功耗性能管理Decky插件",
             lambda: check_decky_plugin_exists("PowerControl"),
-            install_utils.power_control_install,
-            lambda: install_utils.remove_decky_plugin("PowerControl"),
+            installs.power_control_install,
+            lambda: installs.remove_decky_plugin("PowerControl"),
         )
         manager_page.pack_start(item_power_control, False, False, 0)
 
@@ -188,8 +188,8 @@ class SkHoloisoConfigApp(Gtk.Application):
             "ToMoon",
             "科学上网Decky插件",
             lambda: check_decky_plugin_exists("tomoon"),
-            install_utils.tomoon_install,
-            lambda: install_utils.remove_decky_plugin("tomoon"),
+            installs.tomoon_install,
+            lambda: installs.remove_decky_plugin("tomoon"),
         )
         manager_page.pack_start(item_tomoon, False, False, 0)
 
@@ -197,7 +197,7 @@ class SkHoloisoConfigApp(Gtk.Application):
             "Mesa(Arch官方源)",
             "Mesa显卡驱动, 使用 Arch 官方源安装",
             True,
-            install_utils.mesa_arch_install,
+            installs.mesa_arch_install,
         )
         manager_page.pack_start(item_mesa_arch, False, False, 0)
 
@@ -205,12 +205,12 @@ class SkHoloisoConfigApp(Gtk.Application):
             "Mesa(Valve 官方源)",
             "Mesa显卡驱动, 使用 Valve main 源安装",
             True,
-            install_utils.mesa_valve_install,
+            installs.mesa_valve_install,
         )
         manager_page.pack_start(item_valve_arch, False, False, 0)
 
         item_this_app = ManagerItem(
-            "本程序", "SkHoloisoConfig", True, install_utils.this_app_install
+            "本程序", "SkHoloisoConfig", True, installs.this_app_install
         )
         manager_page.pack_start(item_this_app, False, False, 0)
 
