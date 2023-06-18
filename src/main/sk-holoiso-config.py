@@ -193,6 +193,22 @@ class SkHoloisoConfigApp(Gtk.Application):
         )
         manager_page.pack_start(item_tomoon, False, False, 0)
 
+        item_mesa_arch = ManagerItem(
+            "Mesa(Arch官方源)",
+            "Mesa显卡驱动, 使用 Arch 官方源安装",
+            True,
+            install_utils.mesa_arch_install,
+        )
+        manager_page.pack_start(item_mesa_arch, False, False, 0)
+
+        item_valve_arch = ManagerItem(
+            "Mesa(Valve 官方源)",
+            "Mesa显卡驱动, 使用 Valve main 源安装",
+            True,
+            install_utils.mesa_valve_install,
+        )
+        manager_page.pack_start(item_valve_arch, False, False, 0)
+
         item_this_app = ManagerItem(
             "本程序", "SkHoloisoConfig", True, install_utils.this_app_install
         )

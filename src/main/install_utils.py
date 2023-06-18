@@ -160,3 +160,12 @@ def power_control_install():
 def ayaled_install():
     git_url = "https://github.com/MiZai2/ayaled.git"
     return decky_plugin_update(git_url)
+
+
+def mesa_arch_install():
+    command = "sudo /usr/share/sk-holoiso-config/install_mesa_arch.sh"
+    return run_command(command, "Mesa Arch")
+
+def mesa_valve_install():
+    command = "sudo /usr/share/sk-holoiso-config/install_mesa_valve.sh"
+    return run_command(command, "Mesa Valve")
