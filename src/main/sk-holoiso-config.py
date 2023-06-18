@@ -140,7 +140,7 @@ class SkHoloisoConfigApp(Gtk.Application):
             aya_lc_suspend_enabled = os.path.isfile(aya_lc_suspend_file)
             switch_item_aya_lc_suspend = SwitchItem(
                 "AYANEO LC键睡眠",
-                "默认为截图, 开启后LC键作为睡眠键",
+                "默认为截图, 开启后LC键作为睡眠键(如果没有效果，请先更新HandyGCCS)",
                 aya_lc_suspend_enabled,
                 installs.aya_lc_suspend_switch_callback,
             )
