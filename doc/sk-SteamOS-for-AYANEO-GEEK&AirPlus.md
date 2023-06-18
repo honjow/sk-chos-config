@@ -1,8 +1,25 @@
-# SteamOS-for-AYANEO&GEEK&AirPlus
+# SK-SteamOS-for-AYANEO-GEEK&AirPlus
+
+## 介绍
+
+这是一个基于 HoloISO 镜像制作的 SteamOS 系统，理论适用于大多数 AMD 平台的掌机，但是本人手头只有 AYANEO Geek 和 Air Plus，所以只测试了这两个机型。其他机型请自行测试。
 
 ## 镜像发布
 
-下载链接:<https://pan.baidu.com/s/1W2jIySkrEuqlpixlZ00rtA?pwd=aabb>
+下载链接: [https://pan.baidu.com/s/1W2jIySkrEuqlpixlZ00rtA?pwd=aabb](https://pan.baidu.com/s/1W2jIySkrEuqlpixlZ00rtA?pwd=aabb)
+
+### 1.5
+
+- 更新 Mesa 显卡驱动 到 23.1.2 ，使用 Arch 官方源版本。或许能让7840u正常进入系统
+- 更新 linux-firmware
+
+#### 更新说明
+
+如果不是 7840U 可以忽略这个更新
+
+如果需要更新显卡驱动的，先更新最新 sk SteamOS 配置工具。在里面更新即可
+
+1.5 同样只提供root分区镜像，全新安装需要先安装1.3完整包，然后使用DiskGenius还原分区镜像到root分区（32G分区左边20G那个）即可。如果有设置挂载共享分区的，需要重新设置
 
 ### 1.4
 
