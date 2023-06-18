@@ -3,8 +3,9 @@
 
 import os
 import gi
-from component import AboutPage, ManagerItem, SwitchItem, UpdateFullButton
+from component import AboutPage, ManagerItem, SwitchItem
 import installs
+import utils
 
 from utils import (
     check_decky_plugin_exists,
@@ -90,6 +91,15 @@ class SkHoloisoConfigApp(Gtk.Application):
             installs.handycon_switch_callback,
         )
         switch_box.pack_start(switch_item_handycon, False, False, 0)
+
+        hibernate_enabled = utils.chk_hibernate()
+        switch_item_hibernate = SwitchItem(
+            "休眠",
+            "开启后按下电源键会进入休眠状态, 否则是睡眠状态",
+            hibernate_enabled,
+            installs.hibernate_switch_callback,
+        )
+        switch_box.pack_start(switch_item_hibernate, False, False, 0)
 
         if self.product_name == "ONEXPLAYER 2 ARP23":
             oxp2lsusb_enabled = check_service_autostart("oxp2-lsusb.service")

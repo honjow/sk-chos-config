@@ -16,6 +16,20 @@ def oxp2lsusb_switch_callback(active):
 def oxp2_volume_button_fix_switch_callback(active):
     toggle_service("oxp2-volume-button-fix.service", active)
 
+
+def hibernate_switch_callback(active):
+    if active:
+        sleep_conf = """[Sleep]
+SuspendMode=platform shutdown
+SuspendState=disk
+HibernateDelaySec=30s
+"""
+        run_command("sudo mkdir -p /etc/systemd/sleep.conf.d && sudo tee /etc/systemd/sleep.conf.d/sleep.conf << EOF\n{}\nEOF".format(sleep_conf))
+    else:
+        run_command("sudo rm -f /etc/systemd/sleep.conf.d/*.conf")
+    # 生效  
+    run_command("sudo systemctl kill -s HUP systemd-logind")
+
 # ayaneo 切换lc键睡眠
 def aya_lc_suspend_switch_callback(active):
     toggle_flag_file = '/usr/share/handygccs/aya-lc-suspend'
@@ -37,7 +51,7 @@ def handycon_install():
         command = "cd {} && git pull && sudo make install".format(git_directory)
     else:
         print("新建git目录并执行更新")
-        command = "mkdir -p ~/.cache/sk-holoiso-config/git && git clone https://github.com/honjow/HandyGCCS.git {} && sudo make install".format(git_directory)
+        command = "mkdir -p ~/.cache/sk-holoiso-config/git && git clone https://github.com/honjow/HandyGCCS.git {} && sudo make install && sudo systemctl restart handycon.service".format(git_directory)
 
     return run_command(command, "HandyGCCS")
 

@@ -71,3 +71,18 @@ def toggle_service(service_name, enable):
 def check_decky_plugin_exists(plugin_name):
     return os.path.isfile(os.path.expanduser("~/homebrew/plugins/{}/plugin.json".format(plugin_name)))
 
+
+def chk_hibernate():
+    file_path = "/etc/systemd/sleep.conf.d/sleep.conf"
+    expected_lines = ["#SuspendState=disk", "SuspendState=disk"]
+
+    try:
+        with open(file_path, "r") as file:
+            content = file.read()
+            for line in expected_lines:
+                if line in content:
+                    return True
+    except FileNotFoundError:
+        return False
+
+    return False
