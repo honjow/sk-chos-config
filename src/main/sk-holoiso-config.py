@@ -1,16 +1,12 @@
 #!/usr/bin/python
 # coding=utf-8
 
-import os
 import gi
-from component import AboutPage, ManagerItem, SwitchItem
-import installs
-import utils
+from pages.switch import SwitchPage
+from pages.manager import ManagerPage
+from pages.about import AboutPage
 
 from utils import (
-    check_decky_plugin_exists,
-    check_service_autostart,
-    check_service_exists,
     get_product_name,
 )
 
@@ -25,7 +21,7 @@ class SkHoloisoConfigApp(Gtk.Application):
             #  application_id="com.honjow.sk-holoiso-config",
             flags=Gio.ApplicationFlags.FLAGS_NONE,
         )
-        self.product_name = get_product_name()
+        # self.product_name = get_product_name()
         self.connect("activate", self.on_activate)
 
     def on_activate(self, app):
@@ -76,162 +72,11 @@ class SkHoloisoConfigApp(Gtk.Application):
         # vbox.pack_start(stack_switcher, False, False, 0)
         vbox.pack_start(stack, True, True, 0)
 
-        # 相关功能开关
-        switch_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        switch_box.set_margin_bottom(10)
-        # vbox.pack_start(switch_box, True, True, 0)
-
-        stack.add_titled(switch_box, "switch", "功能开关")
-
-        handycon_enabled = check_service_autostart("handycon.service")
-        switch_item_handycon = SwitchItem(
-            "HandyGCCS",
-            "用来驱动部分掌机的手柄按钮",
-            handycon_enabled,
-            installs.handycon_switch_callback,
-        )
-        switch_box.pack_start(switch_item_handycon, False, False, 0)
-
-        hibernate_enabled = utils.chk_hibernate()
-        switch_item_hibernate = SwitchItem(
-            "休眠",
-            "开启后按下电源键会进入休眠状态, 否则是睡眠状态",
-            hibernate_enabled,
-            installs.hibernate_switch_callback,
-        )
-        switch_box.pack_start(switch_item_hibernate, False, False, 0)
-
-        if self.product_name == "ONEXPLAYER 2 ARP23":
-            oxp2lsusb_enabled = check_service_autostart("oxp2-lsusb.service")
-            switch_item_oxp2lsusb = SwitchItem(
-                "OXP2手柄热插拔检测修复",
-                "修复OXP2手柄热插拔后不识别的问题",
-                oxp2lsusb_enabled,
-                installs.oxp2lsusb_switch_callback,
-            )
-            switch_box.pack_start(switch_item_oxp2lsusb, False, False, 0)
-
-            oxp2_volume_button_fix_enabled = check_service_autostart(
-                "oxp2-volume-button-fix.service"
-            )
-            switch_item_oxp2_volume_button_fix = SwitchItem(
-                "OXP2音量键修复",
-                "修复OXP2音量键问题",
-                oxp2_volume_button_fix_enabled,
-                installs.oxp2_volume_button_fix_switch_callback,
-            )
-            switch_box.pack_start(switch_item_oxp2_volume_button_fix, False, False, 0)
-
-        if self.product_name in (
-            "NEXT",
-            "NEXT Pro",
-            "NEXT Advance",
-            "AYANEO NEXT",
-            "AYANEO NEXT Pro",
-            "AYANEO NEXT Advance",
-            "AIR",
-            "AIR Pro",
-            "AIR Plus",
-            "AYANEO 2",
-            "GEEK",
-            "AYANEO 2S",
-        ):
-            aya_lc_suspend_file = "/usr/share/handygccs/aya-lc-suspend"
-            aya_lc_suspend_enabled = os.path.isfile(aya_lc_suspend_file)
-            switch_item_aya_lc_suspend = SwitchItem(
-                "AYANEO LC键睡眠",
-                "默认为截图, 开启后LC键作为睡眠键(如果没有效果，请先更新HandyGCCS)",
-                aya_lc_suspend_enabled,
-                installs.aya_lc_suspend_switch_callback,
-            )
-            switch_box.pack_start(switch_item_aya_lc_suspend, False, False, 0)
+        # 开关
+        stack.add_titled(SwitchPage(), "switch", "功能开关")
 
         # 管理
-        manager_page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
-        stack.add_titled(manager_page, "manager", "安装管理")
-
-        item_decky = ManagerItem(
-            "Decky",
-            "游戏模式的插件平台",
-            lambda: check_service_exists("plugin_loader.service"),
-            installs.simple_decky_install,
-        )
-        manager_page.pack_start(item_decky, False, False, 0)
-
-        item_handycon = ManagerItem(
-            "HandyGCCS",
-            "驱动部分掌机的手柄按钮",
-            lambda: check_service_exists("handycon.service"),
-            installs.handycon_install,
-            installs.handycon_uninstall,
-        )
-        manager_page.pack_start(item_handycon, False, False, 0)
-
-        if self.product_name in (
-            "AIR",
-            "AIR Pro",
-            "AIR Plus",
-            "AYANEO 2",
-            "GEEK",
-            "AYANEO 2S",
-            "GEEK 1S",
-        ):
-            item_ayaled = ManagerItem(
-                "AYANEO LED",
-                "AYANEO掌机LED灯控制Decky插件",
-                lambda: check_decky_plugin_exists("ayaled"),
-                installs.ayaled_install,
-                lambda: installs.remove_decky_plugin("ayaled"),
-            )
-            manager_page.pack_start(item_ayaled, False, False, 0)
-
-        item_power_control = ManagerItem(
-            "PowerControl",
-            "掌机功耗性能管理Decky插件",
-            lambda: check_decky_plugin_exists("PowerControl"),
-            installs.power_control_install,
-            lambda: installs.remove_decky_plugin("PowerControl"),
-        )
-        manager_page.pack_start(item_power_control, False, False, 0)
-
-        item_tomoon = ManagerItem(
-            "ToMoon",
-            "科学上网Decky插件",
-            lambda: check_decky_plugin_exists("tomoon"),
-            installs.tomoon_install,
-            lambda: installs.remove_decky_plugin("tomoon"),
-        )
-        manager_page.pack_start(item_tomoon, False, False, 0)
-
-        item_mesa_arch = ManagerItem(
-            "Mesa(Arch官方源)",
-            "Mesa显卡驱动, 使用 Arch 官方源安装",
-            True,
-            installs.mesa_arch_install,
-        )
-        manager_page.pack_start(item_mesa_arch, False, False, 0)
-
-        item_valve_arch = ManagerItem(
-            "Mesa(Valve 官方源)",
-            "Mesa显卡驱动, 使用 Valve main 源安装",
-            True,
-            installs.mesa_valve_install,
-        )
-        manager_page.pack_start(item_valve_arch, False, False, 0)
-
-        item_this_app = ManagerItem(
-            "本程序", "SkHoloisoConfig", True, installs.this_app_install
-        )
-        manager_page.pack_start(item_this_app, False, False, 0)
-
-        # def test_installed():
-        #     return True
-        # def test_install():
-        #     time.sleep(2)
-        # def test_uninstall():
-        #     time.sleep(2)
-        # item_test = ManagerItem("Test", "测试项目", True, test_install, test_uninstall)
-        # manager_page.pack_start(item_test, False, False, 0)
+        stack.add_titled(ManagerPage(), "manager", "安装管理")
 
         # 关于
         stack.add_titled(AboutPage(), "about", "关于")
