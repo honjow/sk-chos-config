@@ -123,7 +123,7 @@ def decky_plugin_update(git_url):
     git_directory = os.path.expanduser("~/.cache/sk-holoiso-config/git")
     repo_directory = os.path.expanduser("{}/{}".format(git_directory, name))
     if os.path.exists(repo_directory):
-        upt_command = "cd {} && git pull".format(repo_directory)
+        upt_command = "cd {} && git checkout . && git pull".format(repo_directory)
     else:
         upt_command = ("mkdir -p {} && cd {} && git clone {}").format(git_directory, git_directory, git_url)
     print("执行更新命令: {}".format(upt_command))
@@ -132,7 +132,7 @@ def decky_plugin_update(git_url):
     if not success:
         return success, ret_msg
 
-    build_command = "cd {} && sudo npm i -g pnpm && pnpm i && pnpm update decky-frontend-lib --latest && pnpm run build".format(repo_directory)
+    build_command = "cd {} && sudo npm i -g pnpm@8.5.1 && pnpm i && pnpm update decky-frontend-lib --latest && pnpm run build".format(repo_directory)
     success, ret_msg = run_command(build_command, name)
     if not success:
         return success, ret_msg
