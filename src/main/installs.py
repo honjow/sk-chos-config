@@ -30,6 +30,14 @@ HibernateDelaySec=30s
     # 生效  
     run_command("sudo systemctl kill -s HUP systemd-logind")
 
+def grub_quiet_boot_switch_callback(active):
+    if active:
+        run_command("/usr/share/sk-holoiso-config/grub_quiet_boot_enable.sh")
+    else:
+        run_command("/usr/share/sk-holoiso-config/grub_quiet_boot_disable.sh")
+    # 生效
+    run_command("sudo update-grub")
+
 # ayaneo 切换lc键睡眠
 def aya_lc_suspend_switch_callback(active):
     toggle_flag_file = '/usr/share/handygccs/aya-lc-suspend'

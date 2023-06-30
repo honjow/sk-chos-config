@@ -46,6 +46,15 @@ class SwitchPage(Gtk.Box):
         )
         self.pack_start(switch_item_hibernate, False, False, 0)
 
+        grub_quiet_boot_enabled = utils.chk_grub_quiet_boot()
+        switch_item_grub_quiet_boot = SwitchItem(
+            "静默启动",
+            "开启后启动时不显示GRUB命令行输出",
+            grub_quiet_boot_enabled,
+            installs.grub_quiet_boot_switch_callback,
+        )
+        self.pack_start(switch_item_grub_quiet_boot, False, False, 0)
+
         if self.product_name == "ONEXPLAYER 2 ARP23":
             oxp2lsusb_enabled = check_service_autostart("oxp2-lsusb.service")
             switch_item_oxp2lsusb = SwitchItem(

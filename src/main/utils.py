@@ -87,6 +87,19 @@ def chk_hibernate():
 
     return False
 
+def chk_grub_quiet_boot():
+    file_path = "/etc/default/grub_quiet"
+    if not os.path.isfile(file_path):
+        return False
+    try:
+        with open(file_path, "r") as file:
+            content = file.readline().strip()
+            if "quiet" == content:
+                return True
+    except FileNotFoundError:
+        return False
+    
+
 def clear_cache():
     command = "rm -rf ~/.cache/sk-holoiso-config/* && rm -rf ~/.local/share/pnpm/store/*"
     return run_command(command, "清除缓存")
