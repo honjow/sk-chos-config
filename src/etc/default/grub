@@ -12,8 +12,11 @@ if [[ -n "${SWAP_PARTUUID}" ]]; then
     RESUME_CMD="resume=PARTUUID=${SWAP_PARTUUID}"
 fi
 
-# quiet 忽略文件不存在的错误
-QUIET_CMD=$(cat /etc/default/grub_quiet 2>/dev/null)
+# quiet
+QUIET_CMD=""
+if [[ -f /etc/default/grub_quiet ]]; then
+    QUIET_CMD=$(cat /etc/default/grub_quiet)
+fi
 
 # Device specific configs
 DEVICENAME=$(cat /sys/devices/virtual/dmi/id/product_name)
