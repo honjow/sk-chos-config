@@ -1,3 +1,3 @@
 #!/bin/bash
-sudo echo "" > /etc/default/grub_quiet
+echo "" | sudo tee /etc/default/grub_quiet
 sudo update-grub

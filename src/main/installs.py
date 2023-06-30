@@ -32,9 +32,9 @@ HibernateDelaySec=30s
 
 def grub_quiet_boot_switch_callback(active):
     if active:
-        run_command("/usr/share/sk-holoiso-config/grub_quiet_boot_enable.sh")
+        run_command("sudo bash /usr/share/sk-holoiso-config/grub_quiet_boot_enable.sh")
     else:
-        run_command("/usr/share/sk-holoiso-config/grub_quiet_boot_disable.sh")
+        run_command("sudo bash /usr/share/sk-holoiso-config/grub_quiet_boot_disable.sh")
     # 生效
     run_command("sudo update-grub")
 
