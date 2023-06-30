@@ -2,6 +2,7 @@
 # coding=utf-8
 
 import gi
+from pages.advance import AdvancePage
 from pages.switch import SwitchPage
 from pages.manager import ManagerPage
 from pages.about import AboutPage
@@ -77,6 +78,9 @@ class SkHoloisoConfigApp(Gtk.Application):
 
         # 管理
         stack.add_titled(ManagerPage(), "manager", "安装管理")
+
+        # 高级
+        stack.add_titled(AdvancePage(), "advance", "高级")
 
         # 关于
         stack.add_titled(AboutPage(), "about", "关于")

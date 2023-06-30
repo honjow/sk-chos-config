@@ -86,3 +86,7 @@ def chk_hibernate():
         return False
 
     return False
+
+def clear_cache():
+    command = "rm -rf ~/.cache/sk-holoiso-config/* && rm -rf ~/.local/share/pnpm/store/*"
+    return run_command(command, "清除缓存")

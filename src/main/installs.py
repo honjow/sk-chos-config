@@ -123,7 +123,7 @@ def decky_plugin_update(git_url):
     git_directory = os.path.expanduser("~/.cache/sk-holoiso-config/git")
     repo_directory = os.path.expanduser("{}/{}".format(git_directory, name))
     if os.path.exists(repo_directory):
-        upt_command = "cd {} && git checkout . && git pull".format(repo_directory)
+        upt_command = "cd {} && rm -rf node_modules pnpm-lock.yaml && git checkout . && git pull".format(repo_directory)
     else:
         upt_command = ("mkdir -p {} && cd {} && git clone {}").format(git_directory, git_directory, git_url)
     print("执行更新命令: {}".format(upt_command))

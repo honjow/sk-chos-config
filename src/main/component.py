@@ -201,7 +201,7 @@ class ManagerItem(Gtk.Box):
         self.disable_buttons()
         threading.Thread(target=self.execute_callback, args=(self.uninstall_callback, False)).start()
 
-class UpdateFullButton(Gtk.Button):
+class AsyncActionFullButton(Gtk.Button):
     def __init__(self, title, callback=None):
         Gtk.Button.__init__(self, label=title)
 
@@ -215,11 +215,11 @@ class UpdateFullButton(Gtk.Button):
         self.function_name = title
         self.callback = callback
 
-        self.connect("clicked", self.on_update_clicked)
+        self.connect("clicked", self.on_clicked)
 
-    def on_update_clicked(self, button):
+    def on_clicked(self, button):
         self.set_sensitive(False)
-        self.set_label("更新中...")
+        self.set_label("处理中...")
 
         # 在一个新线程中执行回调函数
         threading.Thread(target=self.execute_callback).start()
@@ -244,7 +244,7 @@ class UpdateFullButton(Gtk.Button):
                 modal=True,
                 message_type=Gtk.MessageType.INFO,
                 buttons=Gtk.ButtonsType.OK,
-                text=ret_msg if ret_msg else "更新成功",
+                text=ret_msg if ret_msg else "处理成功",
             )
         else:
             dialog = Gtk.MessageDialog(
