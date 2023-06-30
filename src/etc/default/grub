@@ -12,6 +12,9 @@ if [[ -n "${SWAP_PARTUUID}" ]]; then
     RESUME_CMD="resume=PARTUUID=${SWAP_PARTUUID}"
 fi
 
+# quiet 忽略文件不存在的错误
+QUIET_CMD=$(cat /etc/default/grub_quiet 2>/dev/null)
+
 # Device specific configs
 DEVICENAME=$(cat /sys/devices/virtual/dmi/id/product_name)
 # OXP 一号本设备
@@ -19,40 +22,42 @@ OXP_LIST="ONE XPLAYER:ONEXPLAYER 1 T08:ONEXPLAYER 1S A08:ONEXPLAYER 1S T08:ONEXP
 # AYANEO AIR 设备
 AIR_LIST="AIR:AIR Pro"
 # AYANEO AYA 设备
-AYA_LIST="NEXT:NEXT Pro:NEXT Advance:AYANEO NEXT:AYANEO NEXT Pro:AYANEO NEXT Advance:AYA NEO Fouder:AYA NEO 2021:AYANEO 2021:AYANEO 2021 Pro:AYANEO 2021 Pro:AYANEO 2021 Pro Retro Power:AYANEO 2:GEEK"
+AYA_LIST="NEXT:NEXT Pro:NEXT Advance:AYANEO NEXT:AYANEO NEXT Pro:AYANEO NEXT Advance:AYA NEO Fouder:AYA NEO 2021:AYANEO 2021:AYANEO 2021 Pro:AYANEO 2021 Pro:AYANEO 2021 Pro Retro Power:AYANEO 2:GEEK:AYANEO 2S:GEEK 1S"
 # AOKZOE 奥克设备
 AOK_LIST="AOKZOE A1 AR07"
 # GPD 设备
 GPD_LIST="G1619-04:G1618-04"
 
+GRUB_CMDLINE_LINUX_DEFAULT="video=efifb ${RESUME_CMD} ${QUIET_CMD} splash loglevel=3 rd.udev.log_priority=3 vt.global_cursor_default=0 pci=noaer pcie_aspm=off"
+
 # Define default cmdlines for each device family
 if [[ "${DEVICENAME}" == "Win600" ]]; then
-        GRUB_CMDLINE_LINUX_DEFAULT="video=efifb fbcon=rotate:1 ${RESUME_CMD} quiet splash loglevel=3 rd.udev.log_priority=3 vt.global_cursor_default=0"
+        GRUB_CMDLINE_CUSTOM="fbcon=rotate:1"
 elif [[ ":$AIR_LIST:" =~ ":$DEVICENAME:"  ]]; then
-        GRUB_CMDLINE_LINUX_DEFAULT="video=efifb fbcon=rotate:3 ${RESUME_CMD} quiet splash loglevel=3 rd.udev.log_priority=3 vt.global_cursor_default=0"
+        GRUB_CMDLINE_CUSTOM="fbcon=rotate:3"
         GRUB_SAVEDEFAULT="false"
 elif [[ "${DEVICENAME}" == "AIR Plus" ]]; then
-        GRUB_CMDLINE_LINUX_DEFAULT="video=efifb fbcon=rotate:3 ${RESUME_CMD} quiet splash loglevel=3 rd.udev.log_priority=3 vt.global_cursor_default=0"
+        GRUB_CMDLINE_CUSTOM="fbcon=rotate:3"
 	GRUB_EARLY_INITRD_LINUX_CUSTOM="airplus_acpi_override"
 elif [[ "${DEVICENAME}" == "Jupiter 1" ]]; then
-        GRUB_CMDLINE_LINUX_DEFAULT="video=efifb fbcon=rotate:1 ${RESUME_CMD} quiet splash loglevel=3 rd.udev.log_priority=3 vt.global_cursor_default=0"
+        GRUB_CMDLINE_CUSTOM="fbcon=rotate:1"
 elif [[ ":$OXP_LIST:" =~ ":$DEVICENAME:"  ]]; then
-        GRUB_CMDLINE_LINUX_DEFAULT="video=efifb fbcon=rotate:3 ${RESUME_CMD} quiet splash loglevel=3 rd.udev.log_priority=3 vt.global_cursor_default=0"
+        GRUB_CMDLINE_CUSTOM="fbcon=rotate:3"
         GRUB_SAVEDEFAULT="false"
 elif [[ ":$AOK_LIST:" =~ ":$DEVICENAME:"  ]]; then
-        GRUB_CMDLINE_LINUX_DEFAULT="video=efifb fbcon=rotate:3 ${RESUME_CMD} quiet splash loglevel=3 rd.udev.log_priority=3 vt.global_cursor_default=0"
+        GRUB_CMDLINE_CUSTOM="fbcon=rotate:3"
         GRUB_SAVEDEFAULT="false"
 elif [[ ":$GPD_LIST:" =~ ":$DEVICENAME:"  ]]; then
-        GRUB_CMDLINE_LINUX_DEFAULT="video=efifb fbcon=rotate:0 ${RESUME_CMD} quiet splash loglevel=3 rd.udev.log_priority=3 vt.global_cursor_default=0"
+        GRUB_CMDLINE_CUSTOM="fbcon=rotate:0"
         GRUB_SAVEDEFAULT="false"
 elif [[ ":$AYA_LIST:" =~ ":$DEVICENAME:"  ]]; then
-        GRUB_CMDLINE_LINUX_DEFAULT="video=efifb fbcon=rotate:1 ${RESUME_CMD} quiet splash loglevel=3 rd.udev.log_priority=3 vt.global_cursor_default=0"
+        GRUB_CMDLINE_CUSTOM="fbcon=rotate:1"
         GRUB_SAVEDEFAULT="false"
 elif [[ -n "$(lspci | grep VGA | cut -d ':' -f 3 | grep NVIDIA)" ]]; then
-        GRUB_CMDLINE_LINUX_DEFAULT="nvidia-drm.modeset=1 video=efifb ${RESUME_CMD} quiet splash loglevel=3 rd.udev.log_priority=3 vt.global_cursor_default=0"
-else
-        GRUB_CMDLINE_LINUX_DEFAULT="${RESUME_CMD} quiet splash loglevel=3 rd.udev.log_priority=3 vt.global_cursor_default=0"
+        GRUB_CMDLINE_CUSTOM="nvidia-drm.modeset=1"
 fi
+
+GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_CUSTOM} ${GRUB_CMDLINE_LINUX_DEFAULT}"
 
 # Define "breeze" Steam Deck GRUB Theme here
 GRUB_THEME="/usr/share/grub/themes/breeze/theme.txt"
