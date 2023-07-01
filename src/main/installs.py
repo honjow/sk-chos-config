@@ -121,8 +121,8 @@ def this_app_install():
     return success, ret_msg
 
 def decky_plugin_update(git_url):
-    depends_command = "yay -Sy npm --noconfirm --needed"
-    success, ret_msg = run_command(depends_command, "npm")
+    depends_command = "yay -Sy npm --noconfirm --needed && sudo npm i -g pnpm"
+    success, ret_msg = run_command(depends_command, "npm pnpm")
     if not success:
         return success, ret_msg
 
@@ -140,7 +140,7 @@ def decky_plugin_update(git_url):
     if not success:
         return success, ret_msg
 
-    build_command = "cd {} && sudo npm i -g pnpm@8.5.1 && rm -rf node_modules pnpm-lock.yaml && pnpm i && pnpm update decky-frontend-lib --latest && pnpm run build".format(repo_directory)
+    build_command = "cd {} && rm -rf node_modules pnpm-lock.yaml && pnpm i && pnpm update decky-frontend-lib --latest && pnpm run build".format(repo_directory)
     success, ret_msg = run_command(build_command, name)
     if not success:
         return success, ret_msg
