@@ -7,6 +7,11 @@ if [[ "$ayaled_status" != "enabled" ]]; then
     sudo systemctl restart ayaled.service
 fi
 
+handycon_status=$(systemctl is-enabled handycon.service 2>/dev/null)
+if [[ "$handycon_status" != "enabled" ]]; then
+    sudo systemctl restart handycon.service
+fi
+
 # geek 唤醒重新加载触摸屏驱动
 if [[ "${DEVICENAME}" == "GEEK" ]];then
     sleep 3
