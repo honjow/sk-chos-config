@@ -56,10 +56,10 @@ def handycon_install():
     git_directory = os.path.expanduser("~/.cache/sk-holoiso-config/git/HandyGCCS")
     if os.path.exists(git_directory):
         print("更新git目录并执行更新")
-        command = "cd {} && git checkout dev && git pull && sudo make install".format(git_directory)
+        command = "cd {} && git checkout dev && git checkout . && git pull && sudo make install".format(git_directory)
     else:
         print("新建git目录并执行更新")
-        command = "mkdir -p ~/.cache/sk-holoiso-config/git && git clone https://github.com/honjow/HandyGCCS.git -b dev {} && sudo make install && sudo systemctl restart handycon.service".format(git_directory)
+        command = "mkdir -p ~/.cache/sk-holoiso-config/git && git clone https://github.com/honjow/HandyGCCS.git -b dev {} && cd HandyGCCS && sudo make install && sudo systemctl restart handycon.service".format(git_directory)
 
     return run_command(command, "HandyGCCS")
 
@@ -131,7 +131,7 @@ def decky_plugin_update(git_url):
     git_directory = os.path.expanduser("~/.cache/sk-holoiso-config/git")
     repo_directory = os.path.expanduser("{}/{}".format(git_directory, name))
     if os.path.exists(repo_directory):
-        upt_command = "cd {} && rm -rf node_modules pnpm-lock.yaml && git checkout . && git pull".format(repo_directory)
+        upt_command = "cd {} && git checkout . && git pull".format(repo_directory)
     else:
         upt_command = ("mkdir -p {} && cd {} && git clone {}").format(git_directory, git_directory, git_url)
     print("执行更新命令: {}".format(upt_command))
@@ -140,7 +140,7 @@ def decky_plugin_update(git_url):
     if not success:
         return success, ret_msg
 
-    build_command = "cd {} && sudo npm i -g pnpm@8.5.1 && pnpm i && pnpm update decky-frontend-lib --latest && pnpm run build".format(repo_directory)
+    build_command = "cd {} && sudo npm i -g pnpm@8.5.1 && rm -rf node_modules pnpm-lock.yaml && pnpm i && pnpm update decky-frontend-lib --latest && pnpm run build".format(repo_directory)
     success, ret_msg = run_command(build_command, name)
     if not success:
         return success, ret_msg
@@ -181,6 +181,10 @@ def power_control_install():
 
 def ayaled_install():
     git_url = "https://github.com/MiZai2/ayaled.git"
+    return decky_plugin_update(git_url)
+
+def mango_peel_install():
+    git_url = "https://github.com/Gawah/MangoPeel.git"
     return decky_plugin_update(git_url)
 
 

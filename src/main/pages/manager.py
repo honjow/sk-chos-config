@@ -71,6 +71,15 @@ class ManagerPage(Gtk.Box):
         )
         self.pack_start(item_power_control, False, False, 0)
 
+        item_mango_peel = ManagerItem(
+            "MangoPeel",
+            "性能监测自定义Decky插件",
+            lambda: check_decky_plugin_exists("MangoPeel"),
+            installs.mango_peel_install,
+            lambda: installs.remove_decky_plugin("MangoPeel"),
+        )
+        self.pack_start(item_mango_peel, False, False, 0)
+
         item_tomoon = ManagerItem(
             "ToMoon",
             "科学上网Decky插件",
