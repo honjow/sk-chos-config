@@ -1,0 +1,41 @@
+#!/bin/sh
+
+set -e
+
+ROTATE="normal"
+
+# Device specific configs
+DEVICENAME=$(cat /sys/devices/virtual/dmi/id/product_name)
+# OXP 一号本设备
+OXP_LIST="ONE XPLAYER:ONEXPLAYER 1 T08:ONEXPLAYER 1S A08:ONEXPLAYER 1S T08:ONEXPLAYER mini A07:ONEXPLAYER mini GA72:ONEXPLAYER mini GT72:ONEXPLAYER GUNDAM GA72:ONEXPLAYER 2 ARP23:ONEXPLAYER Mini Pro"
+# AYANEO AIR 设备
+AIR_LIST="AIR:AIR Pro"
+# AYANEO AYA 设备
+AYA_LIST="NEXT:NEXT Pro:NEXT Advance:AYANEO NEXT:AYANEO NEXT Pro:AYANEO NEXT Advance:AYA NEO Fouder:AYA NEO 2021:AYANEO 2021:AYANEO 2021 Pro:AYANEO 2021 Pro:AYANEO 2021 Pro Retro Power:AYANEO 2:GEEK:AYANEO 2S:GEEK 1S"
+# AOKZOE 奥克设备
+AOK_LIST="AOKZOE A1 AR07"
+# GPD 设备
+GPD_LIST="G1619-04:G1618-04"
+
+if [[ "${DEVICENAME}" == "Win600" ]]; then
+        ROTATE="right"
+elif [[ ":$AIR_LIST:" =~ ":$DEVICENAME:"  ]]; then
+        ROTATE="left"
+elif [[ "${DEVICENAME}" == "AIR Plus" ]]; then
+        ROTATE="left"
+elif [[ "${DEVICENAME}" == "ROG Ally RC71L_RC71L" ]]; then
+        ROTATE="normal"
+elif [[ "${DEVICENAME}" == "Jupiter 1" ]]; then
+        ROTATE="right"
+elif [[ ":$OXP_LIST:" =~ ":$DEVICENAME:"  ]]; then
+        ROTATE="left"
+elif [[ ":$AOK_LIST:" =~ ":$DEVICENAME:"  ]]; then
+        ROTATE="left"
+elif [[ ":$GPD_LIST:" =~ ":$DEVICENAME:"  ]]; then
+        ROTATE="normal"
+elif [[ ":$AYA_LIST:" =~ ":$DEVICENAME:"  ]]; then
+        ROTATE="right"
+fi
+
+# Rotate the builtin screen every time so it's the right way around.
+xrandr --output "eDP" --rotate "${ROTATE}"
