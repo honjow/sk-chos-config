@@ -33,8 +33,8 @@ GPD_LIST="G1619-04:G1618-04"
 
 GRUB_CMDLINE_LINUX_DEFAULT="video=efifb ${RESUME_CMD} ${QUIET_CMD} splash loglevel=3 rd.udev.log_priority=3 vt.global_cursor_default=0 pci=noaer pcie_aspm=off"
 
-GRUB_DEFAULT=saved
-GRUB_SAVEDEFAULT=true
+GRUB_DEFAULT=0
+GRUB_SAVEDEFAULT=false
 
 # Define default cmdlines for each device family
 if [[ "${DEVICENAME}" == "Win600" ]]; then
