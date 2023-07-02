@@ -1,4 +1,4 @@
-GRUB_TIMEOUT=3
+GRUB_TIMEOUT=2
 
 # swap uuid
 swap_dev=$(awk '$2 == "partition" && $1 ~ "^/dev/" {print $1}' /proc/swaps)
@@ -33,29 +33,29 @@ GPD_LIST="G1619-04:G1618-04"
 
 GRUB_CMDLINE_LINUX_DEFAULT="video=efifb ${RESUME_CMD} ${QUIET_CMD} splash loglevel=3 rd.udev.log_priority=3 vt.global_cursor_default=0 pci=noaer pcie_aspm=off"
 
+GRUB_DEFAULT=saved
+GRUB_SAVEDEFAULT=true
+
 # Define default cmdlines for each device family
 if [[ "${DEVICENAME}" == "Win600" ]]; then
         GRUB_CMDLINE_CUSTOM="fbcon=rotate:1"
 elif [[ ":$AIR_LIST:" =~ ":$DEVICENAME:"  ]]; then
         GRUB_CMDLINE_CUSTOM="fbcon=rotate:3"
-        GRUB_SAVEDEFAULT="false"
 elif [[ "${DEVICENAME}" == "AIR Plus" ]]; then
         GRUB_CMDLINE_CUSTOM="fbcon=rotate:3"
 	GRUB_EARLY_INITRD_LINUX_CUSTOM="airplus_acpi_override"
+elif [[ "${DEVICENAME}" == "ROG Ally RC71L_RC71L" ]]; then
+	GRUB_EARLY_INITRD_LINUX_CUSTOM="rogally_acpi_override"
 elif [[ "${DEVICENAME}" == "Jupiter 1" ]]; then
         GRUB_CMDLINE_CUSTOM="fbcon=rotate:1"
 elif [[ ":$OXP_LIST:" =~ ":$DEVICENAME:"  ]]; then
         GRUB_CMDLINE_CUSTOM="fbcon=rotate:3"
-        GRUB_SAVEDEFAULT="false"
 elif [[ ":$AOK_LIST:" =~ ":$DEVICENAME:"  ]]; then
         GRUB_CMDLINE_CUSTOM="fbcon=rotate:3"
-        GRUB_SAVEDEFAULT="false"
 elif [[ ":$GPD_LIST:" =~ ":$DEVICENAME:"  ]]; then
         GRUB_CMDLINE_CUSTOM="fbcon=rotate:0"
-        GRUB_SAVEDEFAULT="false"
 elif [[ ":$AYA_LIST:" =~ ":$DEVICENAME:"  ]]; then
         GRUB_CMDLINE_CUSTOM="fbcon=rotate:1"
-        GRUB_SAVEDEFAULT="false"
 elif [[ -n "$(lspci | grep VGA | cut -d ':' -f 3 | grep NVIDIA)" ]]; then
         GRUB_CMDLINE_CUSTOM="nvidia-drm.modeset=1"
 fi
