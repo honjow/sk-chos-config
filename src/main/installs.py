@@ -59,7 +59,7 @@ def handycon_install():
         command = "cd {} && git checkout main && git checkout . && git pull && sudo make install".format(git_directory)
     else:
         print("新建git目录并执行更新")
-        command = "mkdir -p ~/.cache/sk-holoiso-config/git && git clone https://github.com/honjow/HandyGCCS.git -b main {} && cd HandyGCCS && sudo make install && sudo systemctl restart handycon.service".format(git_directory)
+        command = "mkdir -p ~/.cache/sk-holoiso-config/git/{} && git clone https://github.com/honjow/HandyGCCS.git -b main {} && cd HandyGCCS && sudo make install && sudo systemctl restart handycon.service".format(git_directory)
 
     return run_command(command, "HandyGCCS")
 
