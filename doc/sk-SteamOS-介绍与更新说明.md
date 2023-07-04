@@ -1,4 +1,4 @@
-# SK-SteamOS-for-AYANEO-GEEK&AirPlus
+# SK-SteamOS-介绍与更新说明
 
 ## 介绍
 
