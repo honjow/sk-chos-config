@@ -139,6 +139,12 @@ def decky_plugin_update(git_url):
     print("执行Decky插件更新操作 {} {}".format(name, git_url))
     git_directory = os.path.expanduser("~/.cache/sk-holoiso-config/git")
     repo_directory = os.path.expanduser("{}/{}".format(git_directory, name))
+
+    if os.path.exists(repo_directory):
+        delete_command = "rm -rf {}".format(repo_directory)
+        print("执行删除命令: {}".format(delete_command))
+        success, ret_msg = run_command(delete_command, name)
+
     if os.path.exists(repo_directory):
         upt_command = "cd {} && git checkout . && git pull".format(repo_directory)
     else:
@@ -193,7 +199,7 @@ def ayaled_install():
     return decky_plugin_update(git_url)
 
 def mango_peel_install():
-    git_url = "https://github.com/Gawah/MangoPeel.git"
+    git_url = "https://github.com/honjow/MangoPeel.git"
     return decky_plugin_update(git_url)
 
 
