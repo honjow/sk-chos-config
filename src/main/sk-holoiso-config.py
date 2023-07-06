@@ -7,9 +7,6 @@ from pages.switch import SwitchPage
 from pages.manager import ManagerPage
 from pages.about import AboutPage
 
-from utils import (
-    get_product_name,
-)
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gio
@@ -22,7 +19,6 @@ class SkHoloisoConfigApp(Gtk.Application):
             #  application_id="com.honjow.sk-holoiso-config",
             flags=Gio.ApplicationFlags.FLAGS_NONE,
         )
-        # self.product_name = get_product_name()
         self.connect("activate", self.on_activate)
 
     def on_activate(self, app):

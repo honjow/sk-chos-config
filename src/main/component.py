@@ -125,7 +125,7 @@ class ManagerItem(Gtk.Box):
 
         if self.install_callback is not None:
             self.install_button = Gtk.Button()
-            self.install_button.set_label("更新" if self.current_installed else "安装")
+            self.install_button.set_label("重新安装" if self.current_installed else "安装")
             self.install_button.set_valign(Gtk.Align.CENTER)
             self.install_button.connect("clicked", self.on_install_clicked)
             self.pack_start(self.install_button, False, False, 0)
@@ -152,7 +152,7 @@ class ManagerItem(Gtk.Box):
     
         if self.current_installed:
             if self.install_button is not None:
-                self.install_button.set_label("更新")
+                self.install_button.set_label("重新安装")
             if self.uninstall_button is not None:
                 self.uninstall_button.show()
         else:
