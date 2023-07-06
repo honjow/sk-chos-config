@@ -52,6 +52,10 @@ def aya_lc_suspend_switch_callback(active):
 
 def handycon_install():
     print("执行 HandyGCCS 更新操作")
+
+    # 解决 pip install 时 error: externally-managed-environment 问题
+    os.system("sudo rm -f /usr/lib/python3.11/EXTERNALLY-MANAGED")
+
     # 判断 ~/.cache/sk-holoiso-config/git/HandyGCCS 是否存在
     git_directory = os.path.expanduser("~/.cache/sk-holoiso-config/git/HandyGCCS")
     if os.path.exists(git_directory):
