@@ -99,6 +99,15 @@ def chk_grub_quiet_boot():
     except FileNotFoundError:
         return False
     
+def chk_override_bitrate():
+    file_path = "/usr/share/wireplumber/main.lua.d/50-alsa-config.lua"
+    try:
+        with open(file_path, "r") as file:
+            content = file.read()
+            return not "--[\"audio.format\"]" in content
+    except FileNotFoundError:
+        return False
+    
 
 def clear_cache():
     command = "rm -rf ~/.cache/sk-holoiso-config/* && rm -rf ~/.local/share/pnpm/store/*"

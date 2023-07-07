@@ -55,6 +55,15 @@ class SwitchPage(Gtk.Box):
         )
         self.pack_start(switch_item_grub_quiet_boot, False, False, 0)
 
+        override_bitrate_enabled = utils.chk_override_bitrate()
+        switch_item_override_bitrate = SwitchItem(
+            "破音修复",
+            "强制16bit音频输出",
+            override_bitrate_enabled,
+            installs.override_bitrate_switch_callback,
+        )
+        self.pack_start(switch_item_override_bitrate, False, False, 0)
+
         if self.product_name == "ONEXPLAYER 2 ARP23":
             oxp2lsusb_enabled = check_service_autostart("oxp2-lsusb.service")
             switch_item_oxp2lsusb = SwitchItem(
