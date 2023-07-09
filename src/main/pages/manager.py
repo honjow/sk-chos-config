@@ -44,6 +44,14 @@ class ManagerPage(Gtk.Box):
         )
         self.pack_start(item_handycon, False, False, 0)
 
+        # item_override_bitrate = ManagerItem(
+        #     "破音修复",
+        #     "强制16bit音频输出",
+        #     False,
+        #     installs.override_bitrate_install,
+        # )
+        # self.pack_start(item_override_bitrate, False, False, 0)
+
         if self.product_name in (
             "AIR",
             "AIR Pro",
