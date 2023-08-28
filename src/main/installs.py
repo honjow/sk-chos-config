@@ -121,8 +121,12 @@ def decky_update_callback():
     return success, ret_msg
 
 def simple_decky_install():
-    command = "curl -Lk https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/install_release.sh | sed 's#prerelease == \"false\"#prerelease == \"true\"#' | sudo sh"
+    command = "curl -Lk https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/install_release.sh | sed 's#prerelease == \"false\"#prerelease == \"true\"#' | sh"
     return run_command(command, "Decky")
+
+def simple_cn_decky_install():
+    command = "curl -L http://dl.ohmydeck.net | sh"
+    return run_command(command, "Decky (CN)")
 
 def tomoon_install():
     command = "curl -L http://i.ohmydeck.net | sed 's#curl#curl -k#g' | sh"

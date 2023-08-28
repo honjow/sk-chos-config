@@ -35,6 +35,14 @@ class ManagerPage(Gtk.Box):
         )
         self.pack_start(item_decky, False, False, 0)
 
+        item_decky_cn = ManagerItem(
+            "Decky(CN源)",
+            "游戏模式的插件平台",
+            lambda: check_service_exists("plugin_loader.service"),
+            installs.simple_cn_decky_install,
+        )
+        self.pack_start(item_decky_cn, False, False, 0)
+
         item_handycon = ManagerItem(
             "HandyGCCS",
             "驱动部分掌机的手柄按钮",
