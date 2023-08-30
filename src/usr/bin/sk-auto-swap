@@ -31,8 +31,9 @@ swapon /dev/$SWAP_PARTITION
 # Check if swap is now enabled
 if [[ $(grep -c ^ /proc/swaps) -gt 1 && $(awk 'NR==2{print $1}' /proc/swaps) == "/dev/"* ]]; then
     echo "Swap enabled successfully."
-    holoiso-grub-update
+    # holoiso-grub-update
     #refind-update
+    update-grub
 else
     echo "Failed to enable swap."
 fi

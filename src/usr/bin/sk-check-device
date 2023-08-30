@@ -9,7 +9,7 @@ last_device=$(cat /etc/default/last_device)
 # 检查当前设备名称是否与上次设备名称一致
 if [ "$current_device" != "$last_device" ]; then
     echo "执行指定命令"
-    LANG="zh_CN.UTF-8" holoiso-grub-update
+    LANG="zh_CN.UTF-8" update-grub
     if [[ "${current_device}" == "Air Plus" ]]; then
         sudo systemctl enable --now ayaled.service
     else
