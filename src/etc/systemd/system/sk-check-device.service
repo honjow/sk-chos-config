@@ -1,0 +1,10 @@
+[Unit]
+Description=Check Device Service
+#After=network.target
+After=local-fs.target
+
+[Service]
+ExecStart=/usr/bin/sk-check-device
+
+[Install]
+WantedBy=multi-user.target

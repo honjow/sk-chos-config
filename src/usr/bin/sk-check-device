@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# 读取当前设备名称
+current_device=$(cat /sys/devices/virtual/dmi/id/product_name)
+
+# 读取上次设备名称
+last_device=$(cat /etc/default/last_device)
+
+# 检查当前设备名称是否与上次设备名称一致
+if [ "$current_device" != "$last_device" ]; then
+    echo "执行指定命令"
+    LANG="zh_CN.UTF-8" holoiso-grub-update
+    if [[ "${current_device}" == "Air Plus" ]]; then
+        sudo systemctl enable --now ayaled.service
+    else
+        sudo systemctl disable --now ayaled.service
+    fi
+
+    # 如果指定命令执行成功，则更新设备名称
+    if [ $? -eq 0 ]; then
+        echo "$current_device" > /etc/default/last_device
+        echo "已更新设备名称"
+        sudo reboot
+    else
+        echo "指定命令执行失败"
+    fi
+else
+    echo "当前设备名称与上次设备名称一致，跳过执行指定命令"
+fi
