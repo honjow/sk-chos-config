@@ -3,12 +3,12 @@ DEVICENAME=$(cat /sys/devices/virtual/dmi/id/product_name)
 VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
 
 ayaled_status=$(systemctl is-enabled ayaled.service 2>/dev/null)
-if [[ "$ayaled_status" != "enabled" ]]; then
+if [[ "$ayaled_status" == "enabled" ]]; then
     sudo systemctl restart ayaled.service
 fi
 
 handycon_status=$(systemctl is-enabled handycon.service 2>/dev/null)
-if [[ "$handycon_status" != "enabled" ]]; then
+if [[ "$handycon_status" == "enabled" ]]; then
     sudo systemctl restart handycon.service
 fi
 
