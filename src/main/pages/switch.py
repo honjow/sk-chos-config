@@ -28,6 +28,8 @@ class SwitchPage(Gtk.Box):
         self.create_page()
 
     def create_page(self):
+        is_sk_holo2 = utils.is_sk_holo2()
+
         handycon_enabled = check_service_autostart("handycon.service")
         switch_item_handycon = SwitchItem(
             "HandyGCCS",
@@ -98,7 +100,7 @@ class SwitchPage(Gtk.Box):
             "AYANEO 2",
             "GEEK",
             "AYANEO 2S",
-        ):
+        ) and not is_sk_holo2:
             aya_lc_suspend_file = "/usr/share/handygccs/aya-lc-suspend"
             aya_lc_suspend_enabled = os.path.isfile(aya_lc_suspend_file)
             switch_item_aya_lc_suspend = SwitchItem(

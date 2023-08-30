@@ -112,3 +112,15 @@ def chk_override_bitrate():
 def clear_cache():
     command = "rm -rf ~/.cache/sk-holoiso-config/* && rm -rf ~/.local/share/pnpm/store/*"
     return run_command(command, "清除缓存")
+
+def is_sk_holo2():
+    file_path = "/etc/sk-holo/version"
+    if not os.path.isfile(file_path):
+        return False
+    try:
+        with open(file_path, "r") as file:
+            content = file.readline().strip()
+            if "2" == content:
+                return True
+    except FileNotFoundError:
+        return False

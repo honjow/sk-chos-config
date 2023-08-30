@@ -63,7 +63,7 @@ fi
 GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_CUSTOM} ${GRUB_CMDLINE_LINUX_DEFAULT}"
 
 # Define "breeze" Steam Deck GRUB Theme here
-GRUB_THEME="/usr/share/grub/themes/breeze/theme.txt"
+# GRUB_THEME="/usr/share/grub/themes/breeze/theme.txt"
 
 GRUB_DISABLE_OS_PROBER=false
 GRUB_DISABLE_LINUX_PARTUUID=false
