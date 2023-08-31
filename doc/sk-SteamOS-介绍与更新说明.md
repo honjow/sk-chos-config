@@ -2,7 +2,7 @@
 
 ## 介绍
 
-这是一个基于 HoloISO 镜像制作的 SteamOS 系统，理论适用于大多数 AMD 平台的掌机，但是本人手头只有 AYANEO Geek 和 Air Plus，所以只测试了这两个机型。其他机型请自行测试。Rog Ally 目前正在适配中。
+这是一个基于 HoloISO 镜像制作的 SteamOS 系统，理论适用于大多数 AMD 平台的掌机。
 
 ### 特点
 
@@ -15,6 +15,25 @@
 ## 镜像发布
 
 下载链接: [https://pan.baidu.com/s/1W2jIySkrEuqlpixlZ00rtA?pwd=aabb](https://pan.baidu.com/s/1W2jIySkrEuqlpixlZ00rtA?pwd=aabb)
+
+### 2.0
+
+- 基于最新 HoloISO 5 进行制作，因为变动较大，不再支持单独更新root分区
+- 使用 chimeraos 最新 6.5 内核，修正了很多设备相关的问题
+- 改用 Timeshift 进行系统快照管理，自带图形界面，可以方便的进行系统回滚
+- 安装 steam-patch 工具，可以直接使用steam内置的功耗控制条来调整TDP,未适配的上限为25W
+- 修正 7840U 和 Z1E 的 GPU 调度问题，现在游戏性能没问题了
+- 预装 HandyGCCS, 驱动手柄
+- 不再预装 Proton-GE 兼容层，大家用工具自己安装吧
+- 不再预装 PowerControl ，调整 TDP 的话，用steam-patch就可以了，如果有风扇控制需求，可以自己安装
+- 预装了一些常用的软件
+
+#### 特别说明
+
+- Rog Ally 使用 HandyGCCS 有时会碰到一些问题，建议 Rog Ally 直接停用 HandyGCCS。home键和快捷菜单键已经通过 steam-patch 映射好了，不需要再额外设置。停用 HandyGCCS 的方法是在终端执行 `sudo systemctl disable --now handycon`，然后重启系统即可
+- 依然预装 Sk-holo-iso 配置工具。后续的小调整小修正会通过这个工具的更新附带完成。计划增加 chimeraos 内核的更新，steam-patch 的安装更新等。
+- 目前测试 7840u的机型和 Rog Ally,睡眠都存在问题，休眠则正常多。所以依然默认使用休眠方式。可以通过配置工具切换
+- Rog Ally 安装 PowerControl 可能会导致休眠不能正常进行。目前不要装
 
 ### 1.7
 
