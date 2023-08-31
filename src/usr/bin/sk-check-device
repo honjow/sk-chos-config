@@ -10,7 +10,7 @@ last_device=$(cat /etc/default/last_device)
 if [ "$current_device" != "$last_device" ]; then
     echo "执行指定命令"
     LANG="zh_CN.UTF-8" update-grub
-    if [[ "${current_device}" == "Air Plus" ]]; then
+    if [[ "${current_device}" == "AIR Plus" ]]; then
         sudo systemctl enable --now ayaled.service 2> /dev/null
     else
         sudo systemctl disable --now ayaled.service 2> /dev/null
