@@ -1,0 +1,54 @@
+#!/bin/bash
+export LANG=en_US.UTF-8
+
+# 获取 /home 分区的设备路径
+home_device=$(df -h /home | awk 'NR==2 {print $1}')
+
+# 从设备路径中提取磁盘设备路径和分区号
+disk_device=$(echo $home_device | sed 's/p\?[0-9]*$//')
+partition_number=$(echo $home_device | awk -F '/' '{print $NF}' | sed 's/.*\([0-9]\+\)$/\1/g')
+
+# 使用 parted 命令获取与 home 分区相邻的未分配空间的起始扇区和结束扇区
+unallocated_start_sector=$(sudo parted $disk_device unit s print free | awk -v partition_number="$partition_number" 'prev==partition_number && /Free Space/ {print $1} {prev=$1; prev_line=$1}' | tr -d 's')
+
+unallocated_end_sector=$(sudo parted $disk_device unit s print free | awk -v partition_number="$partition_number" 'prev==partition_number && /Free Space/ {print $2} {prev=$1; prev_line=$1}' | tr -d 's')
+
+# 计算与 home 分区相邻的未分配空间的大小（以 MiB 为单位）
+unallocated_space=$(( ($unallocated_end_sector - $unallocated_start_sector + 1) / 2048 ))
+echo "相邻未分配空间大小 ${unallocated_space}MiB"
+
+# 获取 /home 分区的文件系统类型
+home_filesystem=$(blkid -s TYPE -o value $home_device)
+
+# 获取 /home 分区的大小（以 MiB 为单位）
+home_size=$(lsblk -b -n -o SIZE $home_device | awk '{print int($1/1024/1024)}')
+
+echo "当前home大小 ${home_size}MiB"
+
+# 检查 home 分区大小和未分配空间
+if [[ $home_size -lt 20480 && $unallocated_space -gt 0 ]]; then
+    # 计算要扩展的大小（以 MiB 为单位）    
+    extend_size=$(( $home_size + $unallocated_space ))
+
+    echo "扩展大小${extend_size}MiB"
+
+    # 使用 parted 命令扩展 home 分区    
+    parted $disk_device resizepart $partition_number ${unallocated_end_sector}s
+
+    sleep 3
+    # 根据文件系统类型选择相应的命令扩展分区    
+    if [[ $home_filesystem == "ext4" ]]; then
+        # 使用 resize2fs 命令重新调整 ext4 文件系统大小        
+        resize2fs $home_device
+    elif [[ $home_filesystem == "btrfs" ]]; then
+        # 使用 btrfs filesystem resize 命令扩展 btrfs 文件系统        
+        btrfs filesystem resize max $home_device
+    else
+        echo "不支持的文件系统类型"
+        exit 1
+    fi
+
+    echo "Home 分区已成功扩展为 ${extend_size}MiB"
+else
+    echo "不需要扩展 Home 分区"
+fi
