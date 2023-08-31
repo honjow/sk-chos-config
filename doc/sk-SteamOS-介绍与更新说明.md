@@ -18,6 +18,15 @@
 
 ### 2.0
 
+#### 2.0热更新
+
+热更新是指不需要重新安装2.0系统，只需要更新一些系统文件即可。新安装的系统请按照以下步骤进行依次更新
+热更新可能会不断添加
+
+- 修正部分设备的旋转问题，和gamescope的问题等， 请使用控制台或者ssh执行 `yay -Syy holo-gs-auto-update && yay -Syy gamescope-holoiso` 进行更新
+
+#### 2.0特点
+
 - 基于最新 HoloISO 5 进行制作，因为变动较大，不再支持单独更新root分区
 - 使用 chimeraos 最新 6.5 内核，修正了很多设备相关的问题
 - 改用 Timeshift 进行系统快照管理，自带图形界面，可以方便的进行系统回滚
@@ -28,10 +37,10 @@
 - 不再预装 PowerControl ，调整 TDP 的话，用steam-patch就可以了，如果有风扇控制需求，可以自己安装
 - 预装了一些常用的软件
 
-#### 特别说明
+#### 2.0特别说明
 
 - Rog Ally 使用 HandyGCCS 有时会碰到一些问题，建议 Rog Ally 直接停用 HandyGCCS。home键和快捷菜单键已经通过 steam-patch 映射好了，不需要再额外设置。停用 HandyGCCS 的方法是在终端执行 `sudo systemctl disable --now handycon`，然后重启系统即可
-- 依然预装 Sk-holo-iso 配置工具。后续的小调整小修正会通过这个工具的更新附带完成。计划增加 chimeraos 内核的更新，steam-patch 的安装更新等。
+- 依然预装 Sk-holoiso 配置工具。后续的小调整小修正会通过这个工具的更新附带完成。计划增加 chimeraos 内核的更新，steam-patch 的安装更新等。
 - 目前测试 7840u的机型和 Rog Ally,睡眠都存在问题，休眠则正常多。所以依然默认使用休眠方式。可以通过配置工具切换
 - Rog Ally 安装 PowerControl 可能会导致休眠不能正常进行。目前不要装
 
