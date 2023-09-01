@@ -219,11 +219,13 @@ def mesa_arch_install():
     return run_command(command, "Mesa Arch")
 
 def mesa_valve_install():
-    # check gpu vendor
-    # chk_780m_command = "lspci | grep VGA |grep -i amd | grep -i 780m"
-    # chk_780m_result = os.popen(chk_780m_command).read()
-    # if chk_780m_result:
-    #     return False, "暂不支持 Radeon 780M"
-
     command = "sudo /usr/share/sk-holoiso-config/install_mesa_valve.sh"
     return run_command(command, "Mesa Valve")
+
+def steam_patch_install():
+    command = "/usr/share/sk-holoiso-config/steam_patch_install.sh"
+    return run_command(command, "Steam Patch")
+
+def steam_patch_uninstall():
+    command = "/usr/share/sk-holoiso-config/steam_patch_uninstall.sh"
+    return run_command(command, "Steam Patch")

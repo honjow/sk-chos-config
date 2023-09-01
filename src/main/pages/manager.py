@@ -52,6 +52,15 @@ class ManagerPage(Gtk.Box):
         )
         self.pack_start(item_handycon, False, False, 0)
 
+        item_steam_patch = ManagerItem(
+            "Steam-Patch",
+            "通过自带TDP控制条来调节功耗",
+            lambda: check_service_exists("steam-patch.service"),
+            installs.steam_patch_install,
+            installs.steam_patch_uninstall,
+        )
+        self.pack_start(item_steam_patch, False, False, 0)
+
         # item_override_bitrate = ManagerItem(
         #     "破音修复",
         #     "强制16bit音频输出",
