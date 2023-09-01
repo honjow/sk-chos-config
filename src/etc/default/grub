@@ -31,7 +31,7 @@ AOK_LIST="AOKZOE A1 AR07"
 # GPD 设备
 GPD_LIST="G1619-04:G1618-04"
 
-GRUB_CMDLINE_LINUX_DEFAULT="video=efifb ${RESUME_CMD} ${QUIET_CMD} splash loglevel=3 rd.udev.log_priority=3 vt.global_cursor_default=0 pci=noaer ibt=off split_lock_detect=off iomem=relaxed nowatchdog"
+GRUB_CMDLINE_LINUX_DEFAULT="video=efifb ${RESUME_CMD} ${QUIET_CMD} splash loglevel=3 rd.udev.log_priority=3 vt.global_cursor_default=0 pci=noaer ibt=off split_lock_detect=off iomem=relaxed nowatchdog amd_pstate=guided"
 
 GRUB_DEFAULT=0
 GRUB_SAVEDEFAULT=false
