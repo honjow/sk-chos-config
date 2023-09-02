@@ -1,5 +1,7 @@
 GRUB_TIMEOUT=2
 
+SK_HOLO_VERSION=$(cat /etc/sk-holo/version 2>/dev/null)
+
 # swap uuid
 swap_dev=$(awk '$2 == "partition" && $1 ~ "^/dev/" {print $1}' /proc/swaps)
 if [[ -n "$swap_dev" ]]; then
@@ -44,7 +46,7 @@ elif [[ ":$AIR_LIST:" =~ ":$DEVICENAME:"  ]]; then
 elif [[ "${DEVICENAME}" == "AIR Plus" ]]; then
         GRUB_CMDLINE_CUSTOM="fbcon=rotate:3"
 	GRUB_EARLY_INITRD_LINUX_CUSTOM="airplus_acpi_override"
-elif [[ "${DEVICENAME}" == "ROG Ally RC71L_RC71L" ]]; then
+elif [[ "${DEVICENAME}" == "ROG Ally RC71L_RC71L" && "${SK_HOLO_VERSION}" != "2" ]]; then
 	GRUB_EARLY_INITRD_LINUX_CUSTOM="rogally_acpi_override"
 elif [[ "${DEVICENAME}" == "Jupiter 1" ]]; then
         GRUB_CMDLINE_CUSTOM="fbcon=rotate:1"
