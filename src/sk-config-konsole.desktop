@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Name=Sk HoloISO Config with konsole
+Name[zh_CN]=SK SteamOS 配置(带输出)
+Type=Application
+Icon=logisim
+Exec=konsole -e /usr/bin/sk-holoiso-config
+Comment[zh_CN]=SK SteamOS 的个配置工具
+Comment=custom config for sk-holoiso
+Terminal=false
+Categories=System;
+Keywords=system;
