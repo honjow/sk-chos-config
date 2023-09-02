@@ -3,6 +3,7 @@
 WORKING_FOLDER="${HOME}/.auto-clear-modes"
 
 mkdir -p "${WORKING_FOLDER}"
+mkdir -p "${HOME}/.config/systemd/user/"
 
 # Add new service file
 cat > "${WORKING_FOLDER}/auto-clear-modes.service" <<- EOF
