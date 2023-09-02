@@ -17,7 +17,7 @@ ExecStart=rm ${HOME}/.config/gamescope/modes.cfg
 WorkingDirectory=${WORKING_FOLDER}
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
 EOF
 
 # cp to user systemd folder
