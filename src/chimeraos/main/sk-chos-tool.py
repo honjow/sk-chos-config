@@ -6,6 +6,7 @@ from pages.advance import AdvancePage
 from pages.switch import SwitchPage
 from pages.manager import ManagerPage
 from pages.about import AboutPage
+import utils
 
 
 gi.require_version("Gtk", "3.0")
@@ -23,6 +24,9 @@ class SkHoloisoConfigApp(Gtk.Application):
 
     def on_activate(self, app):
         print("启动Sk chirmeaos Tool")
+
+        utils.run_command("sudo frzr-unlock")
+
         # 创建主窗口
         window = Gtk.ApplicationWindow(application=app)
         window.set_default_size(600, 500)
