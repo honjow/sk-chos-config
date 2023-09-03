@@ -26,7 +26,7 @@ jobs:
         - name: Publish AUR package
           uses: KSXGitHub/github-actions-deploy-aur@v2.7.0
           with:
-                pkgname: sk-holoiso-config
+                pkgname: sk-chos-tool
                 pkgbuild: pkgbuild_chimeraos/PKGBUILD
                 assets: pkgbuild_chimeraos/*.install
                 commit_username: ${{ secrets.AUR_USERNAME }}
