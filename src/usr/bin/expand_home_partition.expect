@@ -1,7 +1,8 @@
 #!/usr/bin/expect -f
 
 set timeout -1
-# 执行 expand_home_partition 命令spawn sudo /usr/bin/expand_home_partition
+# 执行 expand_home_partition 命令
+spawn sudo /usr/bin/expand_home_partition
 
 # 匹配对话框，选择 "Yes"
 expect {
