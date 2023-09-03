@@ -22,7 +22,7 @@ pkgver() {
 }
 
 package() {
-    source_dir="${srcdir}/sk-holoiso-config/src"
+    source_dir="${srcdir}/sk-holoiso-config/src/holoiso"
     install -dm755 "${pkgdir}/usr/share/${pkgname}"
 
     # oxp2 fix 

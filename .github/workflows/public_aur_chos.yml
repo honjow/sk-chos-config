@@ -1,4 +1,4 @@
-name: Public AUR HoloISO Tool
+name: Public AUR sk ChimeraOS Tool
 
 on:
     push:
@@ -27,8 +27,8 @@ jobs:
           uses: KSXGitHub/github-actions-deploy-aur@v2.7.0
           with:
                 pkgname: sk-holoiso-config
-                pkgbuild: pkgbuild_holoiso/PKGBUILD
-                assets: pkgbuild_holoiso/*.install
+                pkgbuild: pkgbuild_chimeraos/PKGBUILD
+                assets: pkgbuild_chimeraos/*.install
                 commit_username: ${{ secrets.AUR_USERNAME }}
                 commit_email: ${{ secrets.AUR_EMAIL }}
                 ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
