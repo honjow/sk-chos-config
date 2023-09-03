@@ -1,9 +1,9 @@
 [Desktop Entry]
 Version=1.0
-Name=Sk ChimeraOS Config with command
+Name=Sk ChimeraOS Tool
 Name[zh_CN]=SK ChimeraOS 配置
 Type=Application
-Icon=logisim
+Icon=org.gnome.tweaks
 Exec=/usr/bin/sk-chos-tool
 Comment[zh_CN]=SK ChimeraOS 的配置工具
 Comment=custom config for sk-ChimeraOS
