@@ -17,7 +17,7 @@ jobs:
         - name: Update PKGBUILD
           id: update
           run: |
-            cd pkgbuild
+            cd pkgbuild_holoiso
             git fetch --unshallow
             pkgver=$(printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)")
             echo "Updating PKGBUILD to version $pkgver"
