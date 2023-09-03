@@ -129,7 +129,7 @@ def simple_cn_decky_install():
     return run_command(command, "Decky (CN)")
 
 def tomoon_install():
-    command = "curl -L http://i.ohmydeck.net | sed 's#/home/deck#/home/gamer#s' | sed 's#curl#curl -k#g' | sh"
+    command = "curl -L http://i.ohmydeck.net | sed 's#/home/deck#/home/gamer#' | sed 's#curl#curl -k#g' | sh"
     return run_command(command, "ToMoon")
 
 def this_app_install():
