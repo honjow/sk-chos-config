@@ -32,17 +32,17 @@ HibernateDelaySec=30s
 
 def grub_quiet_boot_switch_callback(active):
     if active:
-        run_command("sudo bash /usr/share/sk-holoiso-config/grub_quiet_boot_enable.sh")
+        run_command("sudo bash /usr/share/sk-chos-tool/grub_quiet_boot_enable.sh")
     else:
-        run_command("sudo bash /usr/share/sk-holoiso-config/grub_quiet_boot_disable.sh")
+        run_command("sudo bash /usr/share/sk-chos-tool/grub_quiet_boot_disable.sh")
     # 生效
     run_command("sudo update-grub")
 
 def override_bitrate_switch_callback(active):
     if active:
-        run_command("sudo bash /usr/share/sk-holoiso-config/override_bitrate_enable.sh")
+        run_command("sudo bash /usr/share/sk-chos-tool/override_bitrate_enable.sh")
     else:
-        run_command("sudo bash /usr/share/sk-holoiso-config/override_bitrate_disable.sh")
+        run_command("sudo bash /usr/share/sk-chos-tool/override_bitrate_disable.sh")
 
 
 # ayaneo 切换lc键睡眠
@@ -214,17 +214,17 @@ def mango_peel_install():
 
 
 def mesa_arch_install():
-    command = "sudo /usr/share/sk-holoiso-config/install_mesa_arch.sh"
+    command = "sudo /usr/share/sk-chos-tool/install_mesa_arch.sh"
     return run_command(command, "Mesa Arch")
 
 def mesa_valve_install():
-    command = "sudo /usr/share/sk-holoiso-config/install_mesa_valve.sh"
+    command = "sudo /usr/share/sk-chos-tool/install_mesa_valve.sh"
     return run_command(command, "Mesa Valve")
 
 def steam_patch_install():
-    command = "/usr/share/sk-holoiso-config/steam_patch_install.sh"
+    command = "/usr/share/sk-chos-tool/steam_patch_install.sh"
     return run_command(command, "Steam Patch")
 
 def steam_patch_uninstall():
-    command = "/usr/share/sk-holoiso-config/steam_patch_uninstall.sh"
+    command = "/usr/share/sk-chos-tool/steam_patch_uninstall.sh"
     return run_command(command, "Steam Patch")
