@@ -121,7 +121,8 @@ def decky_update_callback():
     return success, ret_msg
 
 def simple_decky_install():
-    command = "curl -Lk https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/install_release.sh | sed 's#prerelease == \"false\"#prerelease == \"true\"#' | sh"
+    # command = "curl -Lk https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/install_release.sh | sed 's#prerelease == \"false\"#prerelease == \"true\"#' | sh"
+    command = "curl -Lk https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/install_release.sh | sh"
     return run_command(command, "Decky")
 
 def simple_cn_decky_install():
