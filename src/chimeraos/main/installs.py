@@ -63,6 +63,8 @@ def handycon_install():
     # 解决 pip install 时 error: externally-managed-environment 问题
     os.system("sudo rm -f /usr/lib/python3.11/EXTERNALLY-MANAGED")
 
+    os.system("sudo pacman -Sy python-installer python-build python-wheel python-setuptools")
+
     # 判断 ~/.cache/sk-holoiso-config/git/HandyGCCS 是否存在
     git_directory = os.path.expanduser("~/.cache/sk-holoiso-config/git/HandyGCCS")
     if os.path.exists(git_directory):
@@ -82,13 +84,15 @@ def handycon_install():
 def handycon_uninstall():
     print("执行 HandyGCCS 卸载操作")
     command = ("sudo systemctl stop handycon && sudo systemctl disable handycon;"
-                "sudo rm -v /usr/lib/modules-load.d/handycon.conf;"
-                "sudo rm -v /usr/lib/systemd/system/handycon.service;"
-                "sudo rm -v /usr/lib/udev/rules.d/60-handycon.rules;"
-                "sudo rm -v /usr/share/handygccs/scripts/constants.py;"
-                "sudo rm -v /usr/share/handygccs/scripts/handycon.py;"
-                "sudo rm -v /usr/share/libretro/autoconfig/udev/HandyGCCS-Controller.cfg;"
-                "sudo udevadm control -R"
+                "sudo rm -rf /usr/lib/python3*/site-packages/handycon*;"
+                "sudo rm /usr/bin/handycon;"
+                "sudo rm -rf /usr/share/handygccs;"
+                "sudo rm -rf /etc/handygccs;"
+                "sudo rm /usr/lib/systemd/system/handycon.service;"
+                "sudo rm /usr/lib/udev/hwdb.d/59-handygccs-ayaneo.hwdb;"
+                "sudo rm /usr/lib/udev/rules.d/60-handycon.rules;"
+                "sudo systemd-hwdb update;"
+                "sudo udevadm control -R;"
                 )
     return run_command(command, "HandyGCCS")
 
