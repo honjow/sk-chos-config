@@ -72,6 +72,7 @@ def handycon_install():
         command = ("cd {} && git checkout main"
                    " && git checkout . && git pull"
                    " && sudo ./build.sh && sleep 3"
+                   " && sudo systemctl daemon-reload"
                    " && sudo systemctl restart handycon.service"
                    ).format(git_directory)
     else:
@@ -82,6 +83,7 @@ def handycon_install():
                    " && cd HandyGCCS "
                    " && sudo ./build.sh"
                    " && sleep 3"
+                   " && sudo systemctl daemon-reload"
                    " && sudo systemctl restart handycon.service"
                    ).format(git_directory)
 
