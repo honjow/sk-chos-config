@@ -87,26 +87,22 @@ class SwitchPage(Gtk.Box):
         #     )
         #     self.pack_start(switch_item_oxp2_volume_button_fix, False, False, 0)
 
-        # if self.product_name in (
-        #     "NEXT",
-        #     "NEXT Pro",
-        #     "NEXT Advance",
-        #     "AYANEO NEXT",
-        #     "AYANEO NEXT Pro",
-        #     "AYANEO NEXT Advance",
-        #     "AIR",
-        #     "AIR Pro",
-        #     "AIR Plus",
-        #     "AYANEO 2",
-        #     "GEEK",
-        #     "AYANEO 2S",
-        # ) and not is_sk_holo2:
-        #     aya_lc_suspend_file = "/usr/share/handygccs/aya-lc-suspend"
-        #     aya_lc_suspend_enabled = os.path.isfile(aya_lc_suspend_file)
-        #     switch_item_aya_lc_suspend = SwitchItem(
-        #         "AYANEO LC键睡眠",
-        #         "默认为截图, 开启后LC键作为睡眠键(如果没有效果，请先更新HandyGCCS)",
-        #         aya_lc_suspend_enabled,
-        #         installs.aya_lc_suspend_switch_callback,
-        #     )
-        #     self.pack_start(switch_item_aya_lc_suspend, False, False, 0)
+        if self.product_name in (
+            "AIR",
+            "AIR 1S",
+            "AIR Pro",
+            "AIR Plus",
+            "AYANEO 2",
+            "GEEK",
+            "GEEK 1S",
+            "AYANEO 2S",
+        ):
+            aya_lc_suspend_file = "/etc/handygccs/special_suspend"
+            aya_lc_suspend_enabled = os.path.isfile(aya_lc_suspend_file)
+            switch_item_aya_lc_suspend = SwitchItem(
+                "AYANEO LC键睡眠",
+                "默认为截图, 开启后LC键作为睡眠键(需要开启HandyGCCS)",
+                aya_lc_suspend_enabled,
+                installs.aya_lc_suspend_switch_callback,
+            )
+            self.pack_start(switch_item_aya_lc_suspend, False, False, 0)

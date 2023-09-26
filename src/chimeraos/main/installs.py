@@ -47,14 +47,14 @@ def override_bitrate_switch_callback(active):
 
 # ayaneo 切换lc键睡眠
 def aya_lc_suspend_switch_callback(active):
-    toggle_flag_file = '/usr/share/handygccs/aya-lc-suspend'
+    toggle_flag_file = '/etc/handygccs/special_suspend'
     toggle_flag_file_exists = os.path.isfile(toggle_flag_file)
     if active and not toggle_flag_file_exists:
-        # 创建文件 并 重启服务
-        run_command('sudo touch {} && sudo systemctl restart handycon.service'.format(toggle_flag_file))
+        # 创建文件
+        run_command('sudo touch {}'.format(toggle_flag_file))
     elif not active and toggle_flag_file_exists:
-        # 删除文件 并 重启服务
-        run_command('sudo rm {} && sudo systemctl restart handycon.service'.format(toggle_flag_file))
+        # 删除文件
+        run_command('sudo rm {}'.format(toggle_flag_file))
 
 
 def handycon_install():
