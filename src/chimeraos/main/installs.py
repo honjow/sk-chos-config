@@ -63,7 +63,7 @@ def handycon_install():
     # 解决 pip install 时 error: externally-managed-environment 问题
     os.system("sudo rm -f /usr/lib/python3.11/EXTERNALLY-MANAGED")
 
-    os.system("sudo pacman -Sy python-installer python-build python-wheel python-setuptools base-devel --needed --noconfirm")
+    os.system("sudo pacman -Sy python-installer python-build python-wheel python-setuptools --needed --noconfirm")
 
     # 判断 ~/.cache/sk-holoiso-config/git/HandyGCCS 是否存在
     git_directory = os.path.expanduser("~/.cache/sk-holoiso-config/git/HandyGCCS")
@@ -76,7 +76,7 @@ def handycon_install():
                    " && cd ~/.cache/sk-holoiso-config/git "
                    " && git clone https://github.com/honjow/HandyGCCS.git -b main HandyGCCS "
                    " && cd HandyGCCS "
-                   " && sudo make install "
+                   " && sudo ./build.sh"
                    " && sudo systemctl restart handycon.service").format(git_directory)
 
     return run_command(command, "HandyGCCS")
