@@ -241,3 +241,9 @@ def steam_patch_install():
 def steam_patch_uninstall():
     command = "/usr/share/sk-chos-tool/steam_patch_uninstall.sh"
     return run_command(command, "Steam Patch")
+
+def firmware_override_switch_callback(enable):
+    if enable:
+        run_command("sudo sk-firmware-override enable")
+    else:
+        run_command("sudo sk-firmware-override disable")

@@ -124,3 +124,15 @@ def is_sk_holo2():
                 return True
     except FileNotFoundError:
         return False
+    
+def chk_firmware_override():
+    file_path = "/etc/device-quirks/device-quirks.conf"
+    if not os.path.isfile(file_path):
+        return False
+    try:
+        with open(file_path, "r") as file:
+            content = file.readline().strip()
+            if "USE_FIRMWARE_OVERRIDES=1" == content:
+                return True
+    except FileNotFoundError:
+        return False

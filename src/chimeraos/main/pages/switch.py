@@ -48,6 +48,15 @@ class SwitchPage(Gtk.Box):
         )
         self.pack_start(switch_item_hibernate, False, False, 0)
 
+        firmware_override_enabled = utils.chk_firmware_override()
+        switch_item_firmware_override = SwitchItem(
+            "firmware固件覆盖",
+            "启用DSDT覆盖等, 用于修复部分掌机的问题，切换后需要重启",
+            firmware_override_enabled,
+            installs.firmware_override_switch_callback,
+        )
+        self.pack_start(switch_item_firmware_override, False, False, 0)
+
         # grub_quiet_boot_enabled = utils.chk_grub_quiet_boot()
         # switch_item_grub_quiet_boot = SwitchItem(
         #     "静默启动",

@@ -1,0 +1,51 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root or with sudo."
+    exit 1
+fi
+
+# enable/disable the override
+ACTION=$1
+
+function clear_boot_entries() {
+    # clear the boot entries
+    line=$(sed -n "3p" /boot/loader/entries/frzr.conf)
+    # if ends with "_override" then remove line
+    if [[ $line == *"_override" ]]; then
+        sed -i "3d" /boot/loader/entries/frzr.conf
+    fi
+}
+
+function enable_override() {
+    # enable the override
+    echo "Enabling the firmware override..."
+    clear_boot_entries
+    sed -i "s/USE_FIRMWARE_OVERRIDES=0/USE_FIRMWARE_OVERRIDES=1/" /etc/device-quirks/device-quirks.conf
+    frzr-tweaks
+    echo "Done."
+}
+
+function disable_override() {
+    # disable the override
+    echo "Disabling the firmware override..."
+    clear_boot_entries
+    sed -i "s/USE_FIRMWARE_OVERRIDES=1/USE_FIRMWARE_OVERRIDES=0/" /etc/device-quirks/device-quirks.conf
+    echo "Done."
+}
+
+# case enable or disable
+case "$ACTION" in
+    enable)
+        enable_override
+        ;;
+    disable)
+        disable_override
+        ;;
+    *)
+        echo "Usage: $0 [enable|disable]"
+        exit 1
+        ;;
+esac
+
+
