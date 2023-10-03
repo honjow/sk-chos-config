@@ -131,8 +131,9 @@ def chk_firmware_override():
         return False
     try:
         with open(file_path, "r") as file:
-            content = file.readline().strip()
-            if "USE_FIRMWARE_OVERRIDES=1" == content:
-                return True
+            content = file.readlines()
+            for line in content:
+                if "USE_FIRMWARE_OVERRIDES=1" in line:
+                    return True
     except FileNotFoundError:
         return False
