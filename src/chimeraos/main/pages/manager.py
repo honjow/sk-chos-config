@@ -99,7 +99,7 @@ class ManagerPage(Gtk.Box):
 
         item_tomoon = ManagerItem(
             "ToMoon",
-            "科学上网Decky插件",
+            "网络加速Decky插件",
             lambda: check_decky_plugin_exists("tomoon"),
             installs.tomoon_install,
             lambda: installs.remove_decky_plugin("tomoon"),

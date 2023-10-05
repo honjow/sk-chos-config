@@ -153,4 +153,6 @@ def get_github_clone_cdn():
     config_file = "/etc/sk-chos-tool/github_cdn.conf"
     cdn = get_config_value(config_file, "clone", "server")
     print("github clone cdn:", cdn)
+    if not cdn is None:
+        clear_cache()
     return cdn

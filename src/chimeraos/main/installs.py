@@ -142,10 +142,10 @@ def decky_update_callback():
 def simple_decky_install():
     # command = "curl -Lk https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/install_release.sh | sed 's#prerelease == \"false\"#prerelease == \"true\"#' | sh"
     git_url="https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/install_release.sh"
-    github_cdn_url = get_github_clone_cdn()
-    if github_cdn_url:
-        git_url = git_url.replace("https://github.com", github_cdn_url)
-    command = "curl -Lk {} | sh".format(git_url)
+    # github_cdn_url = get_github_clone_cdn()
+    # if github_cdn_url:
+    #     git_url = git_url.replace("https://github.com", github_cdn_url)
+    command = "curl -sLk {} | sh".format(git_url)
     return run_command(command, "Decky")
 
 def simple_cn_decky_install():
@@ -255,7 +255,8 @@ def mesa_valve_install():
     return run_command(command, "Mesa Valve")
 
 def steam_patch_install():
-    command = "/usr/share/sk-chos-tool/steam_patch_install.sh"
+    github_cdn_url = get_github_clone_cdn()
+    command = "/usr/share/sk-chos-tool/steam_patch_install.sh {}".format(github_cdn_url)
     return run_command(command, "Steam Patch")
 
 def steam_patch_uninstall():
