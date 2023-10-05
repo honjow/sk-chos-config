@@ -4,7 +4,7 @@ import os
 import urllib.request
 
 # import utils
-from utils import run_command, toggle_service
+from utils import get_github_clone_cdn, run_command, toggle_service
 
 
 def handycon_switch_callback(active):
@@ -59,6 +59,10 @@ def aya_lc_suspend_switch_callback(active):
 
 def handycon_install():
     print("执行 HandyGCCS 更新操作")
+    github_cdn_url = get_github_clone_cdn()
+    git_url = "https://github.com/honjow/HandyGCCS.git"
+    if github_cdn_url:
+        git_url = git_url.replace("https://github.com", github_cdn_url)
 
     # 解决 pip install 时 error: externally-managed-environment 问题
     os.system("sudo rm -f /usr/lib/python3.11/EXTERNALLY-MANAGED")
@@ -79,13 +83,13 @@ def handycon_install():
         print("新建git目录并执行更新")
         command = ("mkdir -p ~/.cache/sk-holoiso-config/git "
                    " && cd ~/.cache/sk-holoiso-config/git "
-                   " && git clone https://github.com/honjow/HandyGCCS.git -b main HandyGCCS "
+                   " && git clone {} -b main HandyGCCS "
                    " && cd HandyGCCS "
                    " && sudo ./build.sh"
                    " && sleep 3"
                    " && sudo systemctl daemon-reload"
                    " && sudo systemctl restart handycon.service"
-                   ).format(git_directory)
+                   ).format(git_url, git_directory)
 
     return run_command(command, "HandyGCCS")
 
@@ -108,6 +112,7 @@ def handycon_uninstall():
 def decky_update_callback():
     success = True
     ret_msg = None
+    github_cdn_url = get_github_clone_cdn()
     print("执行Decky更新操作")
     
     # 判断 ~/.cache/sk-holoiso-config/user_install_script.sh 是否存在
@@ -117,6 +122,8 @@ def decky_update_callback():
         os.remove(script_path)
     # 下载最新的脚本文件
     script_url = "https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/user_install_script.sh"
+    if github_cdn_url:
+        script_url = script_url.replace("https://github.com", github_cdn_url)
     try:
         urllib.request.urlretrieve(script_url, script_path)
         print("脚本文件下载完成")
@@ -134,7 +141,11 @@ def decky_update_callback():
 
 def simple_decky_install():
     # command = "curl -Lk https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/install_release.sh | sed 's#prerelease == \"false\"#prerelease == \"true\"#' | sh"
-    command = "curl -Lk https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/install_release.sh | sh"
+    git_url="https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/install_release.sh"
+    github_cdn_url = get_github_clone_cdn()
+    if github_cdn_url:
+        git_url = git_url.replace("https://github.com", github_cdn_url)
+    command = "curl -Lk {} | sh".format(git_url)
     return run_command(command, "Decky")
 
 def simple_cn_decky_install():
@@ -215,14 +226,23 @@ def remove_decky_plugin(plugin_name):
 
 def power_control_install():
     git_url = "https://github.com/mengmeet/PowerControl.git"
+    github_cdn_url = get_github_clone_cdn()
+    if github_cdn_url:
+        git_url = git_url.replace("https://github.com", github_cdn_url)
     return decky_plugin_update(git_url)
 
 def ayaled_install():
     git_url = "https://github.com/MiZai2/ayaled.git"
+    github_cdn_url = get_github_clone_cdn()
+    if github_cdn_url:
+        git_url = git_url.replace("https://github.com", github_cdn_url)
     return decky_plugin_update(git_url)
 
 def mango_peel_install():
     git_url = "https://github.com/honjow/MangoPeel.git"
+    github_cdn_url = get_github_clone_cdn()
+    if github_cdn_url:
+        git_url = git_url.replace("https://github.com", github_cdn_url)
     return decky_plugin_update(git_url)
 
 

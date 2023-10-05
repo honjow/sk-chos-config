@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # coding=utf-8
 
+import configparser
 import os
 import subprocess
 
@@ -137,3 +138,25 @@ def chk_firmware_override():
                     return True
     except FileNotFoundError:
         return False
+    
+def get_config_value(filename, section, key):
+    config = configparser.ConfigParser()
+    config.read(filename)
+
+    if config.has_section(section) and config.has_option(section, key):
+        value = config.get(section, key)
+        return value
+    else:
+        return None
+    
+def get_github_clone_cdn():
+    config_file = "/etc/sk-chos_tool/github_cdn.conf"
+    cdns = get_config_value(config_file, "clone", "server")
+    print("github clone cdn:", cdns)
+    # if cdns is multiple, return the random one
+    if cdns is not None:
+        cdns = cdns.split()
+        import random
+        return random.choice(cdns)
+    else:
+        return None
