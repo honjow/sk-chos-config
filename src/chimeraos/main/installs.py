@@ -256,7 +256,8 @@ def mesa_valve_install():
 
 def steam_patch_install():
     github_cdn_url = get_github_clone_cdn()
-    command = "/usr/share/sk-chos-tool/steam_patch_install.sh {}".format(github_cdn_url)
+    github_prefix = github_cdn_url.replace("https://github.com", "")
+    command = "/usr/share/sk-chos-tool/steam_patch_install.sh {}".format(github_prefix)
     return run_command(command, "Steam Patch")
 
 def steam_patch_uninstall():
