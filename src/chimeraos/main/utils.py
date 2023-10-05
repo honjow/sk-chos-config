@@ -150,13 +150,7 @@ def get_config_value(filename, section, key):
         return None
     
 def get_github_clone_cdn():
-    config_file = "/etc/sk-chos_tool/github_cdn.conf"
-    cdns = get_config_value(config_file, "clone", "server")
-    print("github clone cdn:", cdns)
-    # if cdns is multiple, return the random one
-    if cdns is not None:
-        cdns = cdns.split()
-        import random
-        return random.choice(cdns)
-    else:
-        return None
+    config_file = "/etc/sk-chos-tool/github_cdn.conf"
+    cdn = get_config_value(config_file, "clone", "server")
+    print("github clone cdn:", cdn)
+    return cdn
