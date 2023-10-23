@@ -63,8 +63,8 @@ class ManagerPage(Gtk.Box):
 
         if self.product_name in (
             "AIR",
+            "AIR 1S",
             "AIR Pro",
-            "AIR Plus",
             "AYANEO 2",
             "GEEK",
             "AYANEO 2S",
