@@ -2,8 +2,11 @@ name: Public AUR HoloISO Tool
 
 on:
     push:
-        branches:
-            - master
+        # branches:
+        #     - master
+        paths:
+          - 'pkgbuild_holoiso/PKGBUILD'
+          - 'pkgbuild_holoiso/*.install'
     workflow_dispatch:
     
 

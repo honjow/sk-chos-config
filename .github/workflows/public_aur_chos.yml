@@ -2,8 +2,11 @@ name: Public AUR sk ChimeraOS Tool
 
 on:
     push:
-        branches:
-            - master
+        # branches:
+        #     - master
+        paths:
+            - 'pkgbuild_chimeraos/PKGBUILD'
+            - 'pkgbuild_chimeraos/*.install'
     workflow_dispatch:
     
 
