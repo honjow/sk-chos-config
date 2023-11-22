@@ -88,9 +88,18 @@ class ManagerPage(Gtk.Box):
             )
             self.pack_start(item_ayaled, False, False, 0)
 
-        item_power_control = ManagerItem(
+        item_power_control_bin = ManagerItem(
             "PowerControl",
-            "掌机功耗性能管理Decky插件",
+            "掌机功耗性能管理Decky插件，直接安装版",
+            lambda: check_decky_plugin_exists("PowerControl"),
+            installs.power_control_bin_install,
+            lambda: installs.remove_decky_plugin("PowerControl"),
+        )
+        self.pack_start(item_power_control_bin, False, False, 0)
+
+        item_power_control = ManagerItem(
+            "PowerControl (编译版)",
+            "下载最新github源码编译安装",
             lambda: check_decky_plugin_exists("PowerControl"),
             installs.power_control_install,
             lambda: installs.remove_decky_plugin("PowerControl"),

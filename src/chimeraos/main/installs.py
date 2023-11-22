@@ -231,6 +231,12 @@ def power_control_install():
         git_url = git_url.replace("https://github.com", github_cdn_url)
     return decky_plugin_update(git_url)
 
+def power_control_bin_install():
+    github_cdn_url = get_github_clone_cdn()
+    github_prefix = github_cdn_url.replace("https://github.com", "")
+    command = "/usr/share/sk-chos-tool/power_control_install.sh {}".format(github_prefix)
+    return run_command(command, "PowerControl bin")
+
 def ayaled_install():
     git_url = "https://github.com/honjow/ayaled.git"
     github_cdn_url = get_github_clone_cdn()
