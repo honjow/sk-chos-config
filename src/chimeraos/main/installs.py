@@ -250,6 +250,7 @@ def simple_decky_TDP_install():
     github_cdn_url = get_github_clone_cdn()
     if github_cdn_url:
         git_url = git_url.replace("https://github.com", github_cdn_url)
+    return decky_plugin_update(git_url)
 
 
 def mesa_arch_install():
