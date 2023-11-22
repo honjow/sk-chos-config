@@ -52,6 +52,15 @@ class ManagerPage(Gtk.Box):
         )
         self.pack_start(item_handycon, False, False, 0)
 
+        item_simple_decky_TDP = ManagerItem(
+            "SimpleDeckyTDP",
+            "掌机功耗性能管理 Decky插件, 只有TDP相关功能",
+            lambda: check_decky_plugin_exists("SimpleDeckyTDP"),
+            installs.simple_decky_TDP_install,
+            lambda: installs.remove_decky_plugin("SimpleDeckyTDP"),
+        )
+        self.pack_start(item_simple_decky_TDP, False, False, 0)
+
         item_steam_patch = ManagerItem(
             "Steam-Patch",
             "通过自带TDP控制条来调节功耗",

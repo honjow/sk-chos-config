@@ -145,7 +145,7 @@ def simple_decky_install():
     # github_cdn_url = get_github_clone_cdn()
     # if github_cdn_url:
     #     git_url = git_url.replace("https://github.com", github_cdn_url)
-    command = "curl -sLk {} | sh".format(git_url)
+    command = "curl -sLk {} | sed 's#prerelease == \"false\"#prerelease == \"true\"#' | sh".format(git_url)
     return run_command(command, "Decky")
 
 def simple_cn_decky_install():
@@ -203,7 +203,7 @@ def decky_plugin_update(git_url):
         plugin_json = json.load(f)
     plugin_name = plugin_json["name"]
     plugin_parent_directory = os.path.expanduser("~/homebrew/plugins")
-    plugin_directory = os.path.expanduser("{}/{}".format(plugin_parent_directory, plugin_name))
+    plugin_directory = os.path.expanduser("{}/{}/".format(plugin_parent_directory, plugin_name))
 
     deploy_command = (f"chmod -v 755 {plugin_parent_directory} "
                         f" && mkdir -p {plugin_directory} "
@@ -244,6 +244,12 @@ def mango_peel_install():
     if github_cdn_url:
         git_url = git_url.replace("https://github.com", github_cdn_url)
     return decky_plugin_update(git_url)
+
+def simple_decky_TDP_install():
+    git_url = "https://github.com/aarron-lee/SimpleDeckyTDP.git"
+    github_cdn_url = get_github_clone_cdn()
+    if github_cdn_url:
+        git_url = git_url.replace("https://github.com", github_cdn_url)
 
 
 def mesa_arch_install():
