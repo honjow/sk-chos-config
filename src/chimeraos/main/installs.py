@@ -244,6 +244,13 @@ def ayaled_install():
         git_url = git_url.replace("https://github.com", github_cdn_url)
     return decky_plugin_update(git_url)
 
+def LegionGoRemapper_install():
+    git_url = "https://github.com/aarron-lee/LegionGoRemapper.git"
+    github_cdn_url = get_github_clone_cdn()
+    if github_cdn_url:
+        git_url = git_url.replace("https://github.com", github_cdn_url)
+    return decky_plugin_update(git_url)
+
 def mango_peel_install():
     git_url = "https://github.com/honjow/MangoPeel.git"
     github_cdn_url = get_github_clone_cdn()

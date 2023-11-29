@@ -54,7 +54,7 @@ class ManagerPage(Gtk.Box):
 
         item_simple_decky_TDP = ManagerItem(
             "SimpleDeckyTDP",
-            "掌机功耗性能管理 Decky插件, 只有TDP相关功能",
+            "掌机功耗性能管理 Decky插件, 只有 TDP 相关功能",
             lambda: check_decky_plugin_exists("SimpleDeckyTDP"),
             installs.simple_decky_TDP_install,
             lambda: installs.remove_decky_plugin("SimpleDeckyTDP"),
@@ -88,9 +88,21 @@ class ManagerPage(Gtk.Box):
             )
             self.pack_start(item_ayaled, False, False, 0)
 
+        # Lenovo Legion Go
+        if self.product_name == "83E1":
+            item_LegionGoRemapper = ManagerItem(
+                "LegionGoRemapper",
+                "Lenovo Legion Go 手柄按键映射, 灯光控制 Decky 插件",
+                lambda: check_decky_plugin_exists("LegionGoRemapper"),
+                installs.LegionGoRemapper_install,
+                lambda: installs.remove_decky_plugin("LegionGoRemapper"),
+            )
+            self.pack_start(item_LegionGoRemapper, False, False, 0)
+
+
         item_power_control_bin = ManagerItem(
             "PowerControl",
-            "掌机功耗性能管理Decky插件，直接安装版",
+            "掌机功耗性能管理Decky插件, 直接安装版",
             lambda: check_decky_plugin_exists("PowerControl"),
             installs.power_control_bin_install,
             lambda: installs.remove_decky_plugin("PowerControl"),

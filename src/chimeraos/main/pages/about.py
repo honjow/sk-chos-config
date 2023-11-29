@@ -45,7 +45,7 @@ class AboutPage(Gtk.Box):
 
         # 版本号
         version_label = Gtk.Label()
-        version_label.set_text("版本 1.0")
+        version_label.set_text("版本 1.5")
         version_label.set_halign(Gtk.Align.CENTER)
         version_label.set_valign(Gtk.Align.CENTER)
         self.pack_start(version_label, False, False, 0)
