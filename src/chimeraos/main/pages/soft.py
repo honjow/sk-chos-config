@@ -27,3 +27,8 @@ class SoftManagerPage(Gtk.Box):
             installs.emudeck_install,
         )
         self.pack_start(item_emudeck, False, False, 0)
+
+        item_this_app = ManagerItem(
+            "本程序", "Sk ChimeraOS Tool", True, installs.this_app_install
+        )
+        self.pack_start(item_this_app, False, False, 0)
