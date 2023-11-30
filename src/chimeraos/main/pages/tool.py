@@ -136,6 +136,15 @@ class ToolManagerPage(Gtk.Box):
         )
         self.pack_start(item_tomoon, False, False, 0)
 
+        item_emudeck_decky_controls = ManagerItem(
+            "emudeck-decky-controls",
+            "Decky Plugin to show Hotkeys in game",
+            lambda: check_decky_plugin_exists("emudeck-decky-controls"),
+            installs.emudeck_decky_controls_install,
+            lambda: installs.remove_decky_plugin("emudeck-decky-controls"),
+        )
+        self.pack_start(item_emudeck_decky_controls, False, False, 0)
+
         # item_mesa_arch = ManagerItem(
         #     "Mesa(Arch官方源)",
         #     "Mesa显卡驱动, 使用 Arch 官方源安装",

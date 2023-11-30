@@ -265,6 +265,12 @@ def simple_decky_TDP_install():
         git_url = git_url.replace("https://github.com", github_cdn_url)
     return decky_plugin_update(git_url)
 
+def emudeck_decky_controls_install():
+    git_url = "https://github.com/EmuDeck/emudeck-decky-controls.git"
+    github_cdn_url = get_github_clone_cdn()
+    if github_cdn_url:
+        git_url = git_url.replace("https://github.com", github_cdn_url)
+    return decky_plugin_update(git_url)
 
 def mesa_arch_install():
     command = "sudo /usr/share/sk-chos-tool/install_mesa_arch.sh"
