@@ -11,6 +11,8 @@ sudo systemctl --user disable steam-patch 2> /dev/null
 sudo systemctl stop steam-patch 2> /dev/null
 sudo systemctl disable steam-patch 2> /dev/null
 
+sudo rm -f /etc/systemd/system/steam-patch.service
+
 yay -Sy sk-steam-patch-git --overwrite "*" --needed --noconfirm
 
 sudo systemctl daemon-reload
