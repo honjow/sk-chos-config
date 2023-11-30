@@ -16,7 +16,7 @@ from utils import (
 )
 
 
-class ManagerPage(Gtk.Box):
+class ToolManagerPage(Gtk.Box):
     def __init__(self):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=10)
         # self.set_margin_start(20)

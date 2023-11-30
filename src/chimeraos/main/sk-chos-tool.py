@@ -4,7 +4,8 @@
 import gi
 from pages.advance import AdvancePage
 from pages.switch import SwitchPage
-from pages.manager import ManagerPage
+from pages.tool import ToolManagerPage
+from pages.soft import SoftManagerPage
 from pages.about import AboutPage
 import utils
 
@@ -76,8 +77,11 @@ class SkHoloisoConfigApp(Gtk.Application):
         # 开关
         stack.add_titled(SwitchPage(), "switch", "功能开关")
 
-        # 管理
-        stack.add_titled(ManagerPage(), "manager", "安装管理")
+        # 工具管理
+        stack.add_titled(ToolManagerPage(), "tool", "工具")
+
+        # 软件和游戏
+        stack.add_titled(SoftManagerPage(), "soft", "软件&游戏")
 
         # 高级
         stack.add_titled(AdvancePage(), "advance", "高级")

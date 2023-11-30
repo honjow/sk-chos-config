@@ -156,3 +156,9 @@ def get_github_clone_cdn():
     if not cdn is None:
         clear_cache()
     return cdn
+
+def check_emudeck_exists():
+    appimage_path = "~/Applications/EmuDeck.AppImage"
+    # check if appimage exists
+    return os.path.isfile(os.path.expanduser(appimage_path))
+    
