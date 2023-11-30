@@ -270,7 +270,7 @@ def emudeck_decky_controls_install():
     github_cdn_url = get_github_clone_cdn()
     if github_cdn_url:
         git_url = git_url.replace("https://github.com", github_cdn_url)
-    return decky_plugin_update(git_url)
+    return decky_plugin_update(git_url, p_name="emudeck-decky-controls")
 
 def mesa_arch_install():
     command = "sudo /usr/share/sk-chos-tool/install_mesa_arch.sh"
