@@ -163,7 +163,7 @@ def this_app_install():
         ret_msg = "更新完成, 请重新启动应用"
     return success, ret_msg
 
-def decky_plugin_update(git_url):
+def decky_plugin_update(git_url, p_name=None):
     depends_command = "yay -Sy npm --noconfirm --needed && sudo npm i -g pnpm"
     success, ret_msg = run_command(depends_command, "npm pnpm")
     if not success:
@@ -201,7 +201,7 @@ def decky_plugin_update(git_url):
     import json
     with open(plugin_json_path, "r") as f:
         plugin_json = json.load(f)
-    plugin_name = plugin_json["name"]
+    plugin_name = p_name if p_name else plugin_json["name"]
     plugin_parent_directory = os.path.expanduser("~/homebrew/plugins")
     plugin_directory = os.path.expanduser("{}/{}/".format(plugin_parent_directory, plugin_name))
 

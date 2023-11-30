@@ -140,7 +140,7 @@ class ToolManagerPage(Gtk.Box):
             "emudeck-decky-controls",
             "Decky Plugin to show Hotkeys in game",
             lambda: check_decky_plugin_exists("emudeck-decky-controls"),
-            installs.emudeck_decky_controls_install,
+            lambda: installs.emudeck_decky_controls_install("emudeck-decky-controls"),
             lambda: installs.remove_decky_plugin("emudeck-decky-controls"),
         )
         self.pack_start(item_emudeck_decky_controls, False, False, 0)
