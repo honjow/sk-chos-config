@@ -291,5 +291,6 @@ def firmware_override_switch_callback(enable):
         run_command("sudo sk-firmware-override disable")
 
 def emudeck_install():
-    command = "bash /usr/share/sk-chos-tool/emudeck_install.sh"
+    github_cdn_url = get_github_clone_cdn()
+    command = "bash /usr/share/sk-chos-tool/emudeck_install.sh {}".format(github_cdn_url)
     return run_command(command, "EmuDeck")
