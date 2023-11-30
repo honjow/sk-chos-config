@@ -50,14 +50,14 @@ def check_service_autostart(service_name):
         # 如果命令执行出错，则服务可能不存在或无法访问
         return False
 
-# 检查服务是否存在
+# 检查服务
 def check_service_exists(service_name):
     try:
         # 使用`systemctl is-active`命令检查服务状态
         subprocess.run(['systemctl', 'is-active', service_name], check=True, capture_output=True)
         return True
     except subprocess.CalledProcessError:
-        print (f"服务 {service_name} 不存在")
+        print (f"服务 {service_name} 不存在或未运行")
         return False
 
 def toggle_service(service_name, enable):
