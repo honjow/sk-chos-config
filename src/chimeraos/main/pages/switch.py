@@ -39,6 +39,17 @@ class SwitchPage(Gtk.Box):
         )
         self.pack_start(switch_item_handycon, False, False, 0)
 
+        sk_auto_keep_boot_entry_switch_enabled = check_service_autostart(
+            "sk-auto-keep-boot-entry-switch.service"
+        )
+        switch_item_sk_auto_keep_boot_entry_switch = SwitchItem(
+            "SK Chimeraos 启动项守护服务",
+            "开启后, 每次启动 Sk-Chimeraos 都会将自身启动项作为下次启动项, 解决双系统启动项维持问题。最好配合 Windows 启动到 Sk-Chimeraos 的功能使用, 否则建议关闭。",
+            sk_auto_keep_boot_entry_switch_enabled,
+            installs.sk_auto_keep_boot_entry_switch_callback,
+        )
+        self.pack_start(switch_item_sk_auto_keep_boot_entry_switch, False, False, 0)
+
         hibernate_enabled = utils.chk_hibernate()
         switch_item_hibernate = SwitchItem(
             "休眠",

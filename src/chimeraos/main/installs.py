@@ -16,6 +16,8 @@ def oxp2lsusb_switch_callback(active):
 def oxp2_volume_button_fix_switch_callback(active):
     toggle_service("oxp2-volume-button-fix.service", active)
 
+def sk_auto_keep_boot_entry_switch_callback(active):
+    toggle_service("sk-auto-keep-boot-entry.service", active)
 
 def hibernate_switch_callback(active):
     if active:
