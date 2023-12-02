@@ -40,7 +40,7 @@ class SwitchPage(Gtk.Box):
         self.pack_start(switch_item_handycon, False, False, 0)
 
         sk_auto_keep_boot_entry_switch_enabled = check_service_autostart(
-            "sk-auto-keep-boot-entry-switch.service"
+            "sk-auto-keep-boot-entry.service"
         )
         switch_item_sk_auto_keep_boot_entry_switch = SwitchItem(
             "SK Chimeraos 启动项守护服务",
