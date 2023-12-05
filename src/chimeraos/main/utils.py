@@ -5,6 +5,8 @@ import configparser
 import os
 import subprocess
 
+SK_TOOL_PATH = "/usr/share/sk-chos-tool/"
+
 def get_product_name():
     # get from /sys/devices/virtual/dmi/id/product_name
     product_name = ""
@@ -113,6 +115,14 @@ def chk_override_bitrate():
 def clear_cache():
     command = "sudo rm -rf ~/.cache/sk-holoiso-config/* && sudo rm -rf ~/.local/share/pnpm/store/*"
     return run_command(command, "清除缓存")
+
+def etc_repair():
+    command = "sudo ${SK_TOOL_PATH}/etc_repair.sh"
+    return run_command(command, "修复 /etc")
+
+def etc_repair_full():
+    command = "sudo ${SK_TOOL_PATH}/etc_repair.sh full"
+    return run_command(command, "修复 /etc (完全)")
 
 def is_sk_holo2():
     file_path = "/etc/sk-holo/version"
