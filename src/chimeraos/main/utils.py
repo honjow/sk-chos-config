@@ -118,11 +118,17 @@ def clear_cache():
 
 def etc_repair():
     command = f"sudo {SK_TOOL_PATH}/etc_repair.sh"
-    return run_command(command, "修复 /etc")
+    success, ret_msg = run_command(command, "修复 /etc")
+    if success:
+        ret_msg = "重置完成, 重启生效"
+    return success, ret_msg
 
 def etc_repair_full():
     command = f"sudo {SK_TOOL_PATH}/etc_repair.sh full"
-    return run_command(command, "修复 /etc (完全)")
+    success, ret_msg = run_command(command, "修复 /etc (完全)")
+    if success:
+        ret_msg = "重置完成, 重启生效"
+    return success, ret_msg
 
 def is_sk_holo2():
     file_path = "/etc/sk-holo/version"
