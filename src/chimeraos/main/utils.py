@@ -5,7 +5,7 @@ import configparser
 import os
 import subprocess
 
-SK_TOOL_PATH = "/usr/share/sk-chos-tool/"
+SK_TOOL_PATH = "/usr/share/sk-chos-tool"
 
 def get_product_name():
     # get from /sys/devices/virtual/dmi/id/product_name
@@ -117,11 +117,11 @@ def clear_cache():
     return run_command(command, "清除缓存")
 
 def etc_repair():
-    command = "sudo ${SK_TOOL_PATH}/etc_repair.sh"
+    command = f"sudo {SK_TOOL_PATH}/etc_repair.sh"
     return run_command(command, "修复 /etc")
 
 def etc_repair_full():
-    command = "sudo ${SK_TOOL_PATH}/etc_repair.sh full"
+    command = f"sudo {SK_TOOL_PATH}/etc_repair.sh full"
     return run_command(command, "修复 /etc (完全)")
 
 def is_sk_holo2():
