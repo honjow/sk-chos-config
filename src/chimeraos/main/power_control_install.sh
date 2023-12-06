@@ -13,6 +13,14 @@ temp=$(mktemp -d)
 
 # Download latest release
 RELEASE=$(curl -s "${github_prefix}https://api.github.com/repos/mengmeet/PowerControl/releases/latest")
+
+MESSAGE=$(echo "$RELEASE" | jq -r '.message')
+
+if [[ "$MESSAGE" != "null" ]]; then
+  echo "$MESSAGE" >&2
+  exit 1
+fi
+
 RELEASE_VERSION=$(echo "$RELEASE" | jq -r '.tag_name')
 RELEASE_URL=$(echo "$RELEASE" | jq -r '.assets[0].browser_download_url')
 

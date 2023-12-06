@@ -27,6 +27,9 @@ class AdvancePage(Gtk.Box):
         clear_cache_button = AsyncActionFullButton(title="清除缓存", callback=utils.clear_cache)
         self.pack_start(clear_cache_button, False, False, 0)
 
+        boot_repair_button = AsyncActionFullButton(title="修复项启动", callback=utils.boot_repair)
+        self.pack_start(boot_repair_button, False, False, 0)
+
         etc_repair_button = AsyncActionFullButton(title="修复 /etc", callback=utils.etc_repair)
         self.pack_start(etc_repair_button, False, False, 0)
 

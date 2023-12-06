@@ -116,6 +116,10 @@ def clear_cache():
     command = "sudo rm -rf ~/.cache/sk-holoiso-config/* && sudo rm -rf ~/.local/share/pnpm/store/*"
     return run_command(command, "清除缓存")
 
+def boot_repair():
+    command = "sudo bootctl install && sudo bootctl update"
+    return run_command(command, "修复启动项")
+
 def etc_repair():
     command = f"sudo {SK_TOOL_PATH}/etc_repair.sh"
     success, ret_msg = run_command(command, "修复 /etc")
