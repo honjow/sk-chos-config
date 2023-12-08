@@ -117,7 +117,7 @@ def clear_cache():
     return run_command(command, "清除缓存")
 
 def boot_repair():
-    command = "sudo bootctl install && sudo bootctl update"
+    command = "sudo /usr/bin/sk-chos-boot-fix"
     return run_command(command, "修复启动项")
 
 def etc_repair():
