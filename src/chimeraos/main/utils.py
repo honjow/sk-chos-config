@@ -56,7 +56,7 @@ def check_service_autostart(service_name):
 def check_service_exists(service_name):
     try:
         # 使用`systemctl is-active`命令检查服务状态
-        subprocess.run(['systemctl', 'is-active', service_name], check=True, capture_output=True)
+        subprocess.run(['sudo', 'systemctl', 'is-active', service_name], check=True, capture_output=True)
         return True
     except subprocess.CalledProcessError:
         print (f"服务 {service_name} 不存在或未运行")
