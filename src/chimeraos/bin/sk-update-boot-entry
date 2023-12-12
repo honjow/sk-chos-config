@@ -46,7 +46,14 @@ echo "start frzr-unlock"
 frzr-unlock
 
 
-/usr/bin/sk-chos-boot-fix 2>/dev/null
+if efibootmgr | grep -q "Linux Boot Manager.*systemd-bootx64.efi"; then
+    # Linux Boot Manager 已存在，不需要再次添加
+    echo "Linux Boot Manager exists, no need to add it"
+else
+    # Linux Boot Manager 不存在，添加
+    echo "Linux Boot Manager not exists, add it"
+    /usr/bin/sk-chos-boot-fix 2>/dev/null
+fi
 
 service_status=$(systemctl is-enabled update_boot_config.service 2>/dev/null)
 if [[ "$service_status" == "enabled" ]]; then
