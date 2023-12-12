@@ -1,0 +1,11 @@
+[Unit]
+Description=Auto clear gamescope modes
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=rm "${HOME}/.config/gamescope/modes.cfg"
+
+[Install]
+WantedBy=default.target
+

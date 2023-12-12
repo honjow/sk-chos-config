@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# 使用efibootmgr获取当前的启动项编号
+boot_current=$(efibootmgr | grep "BootCurrent" | awk -F' ' '{print $2}')
+
+# 如果没有找到启动项编号，则输出错误信息并退出
+if [ -z "$boot_current" ]; then
+  echo "无法获取当前的启动项编号"
+  exit 1
+fi
+
+# 使用efibootmgr -n设置新的启动项编号
+efibootmgr -n "$boot_current"
+
+echo "已将启动项设置为: $boot_current"

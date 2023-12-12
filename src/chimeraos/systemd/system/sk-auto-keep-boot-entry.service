@@ -1,0 +1,10 @@
+[Unit]
+Description=Auto keep next boot entry
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/sk-set-next-boot-entry
+
+[Install]
+WantedBy=multi-user.target

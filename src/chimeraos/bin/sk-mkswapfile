@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# 检查路径是否存在
+if [ ! -d "/frzr_root/swap" ]; then
+    echo "/frzr_root/swap路径不存在, 将创建子卷"
+    
+    # 创建子卷
+    btrfs subvolume create /frzr_root/swap
+    
+    if [ $? -eq 0 ]; then
+        echo "子卷创建成功"
+    else
+        echo "子卷创建失败"
+        exit 1
+    fi
+else
+    # 检查路径是否是Btrfs子卷
+    if btrfs subvolume show "/frzr_root/swap" &> /dev/null; then
+        echo "/frzr_root/swap是Btrfs子卷"
+    else
+        echo "/frzr_root/swap存在但不是Btrfs子卷, 将删除路径并创建子卷"
+        rm -rf /frzr_root/swap
+        btrfs subvolume create /frzr_root/swap
+        echo "子卷创建成功"
+    fi
+fi
+
+chattr +C /frzr_root/swap
+
+# 使用dmidecode查找RAM信息，然后使用grep和awk提取RAM大小
+ram_info=$(sudo dmidecode -t 17 | grep Size)
+ram_size=$(echo "$ram_info" | awk '{sum += $2} END {print sum}')
+
+# 检查swapfile是否存在
+if [ -f "/frzr_root/swap/swapfile" ]; then
+    echo "swapfile已存在, 将删除swapfile"
+    
+    # 删除swapfile
+    rm -f /frzr_root/swap/swapfile
+    
+    if [ $? -eq 0 ]; then
+        echo "swapfile删除成功"
+    else
+        echo "swapfile删除失败"
+        exit 1
+    fi
+fi
+
+# 创建swapfile
+mkswapfile /frzr_root/swap/swapfile "$ram_size"GiB

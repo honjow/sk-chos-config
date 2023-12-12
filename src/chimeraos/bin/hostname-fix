@@ -1,0 +1,28 @@
+#!/bin/bash
+
+DEFAULT_HOSTNAME="SkChimeraOS"
+
+# 获取当前主机名
+current_hostname=$(hostnamectl --static)
+
+# 如果为空，设置为默认值
+if [ -z "$current_hostname" ]; then
+    current_hostname="$DEFAULT_HOSTNAME"
+fi
+
+echo "Current hostname: $current_hostname"
+
+# 使用sed过滤
+new_hostname=$(echo "$current_hostname" | sed -e 's/[^a-zA-Z0-9_]//g')
+
+# 设置新的主机名
+hostnamectl set-hostname "$new_hostname"
+
+echo "New hostname: $new_hostname"
+
+if [[ "$current_hostname" != "$new_hostname" ]];then
+    sk-set-next-boot-entry && reboot
+fi
+
+# 通知系统更新主机名
+systemctl restart systemd-hostnamed

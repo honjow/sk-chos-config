@@ -1,0 +1,17 @@
+#!/usr/bin/expect -f
+
+set timeout -1
+# 执行 expand_home_partition 命令
+spawn /usr/bin/expand_home_partition
+
+# 匹配对话框，选择 "Yes"
+expect {
+    "Yes/No?" {
+        send "Yes\r"
+        exp_continue
+    }
+    eof
+}
+
+# 退出 expect
+exit

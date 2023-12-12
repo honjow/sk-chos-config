@@ -1,0 +1,11 @@
+[Unit]
+Description=Local system resume actions
+After=suspend.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/sk-resume
+
+[Install]
+WantedBy=suspend.target

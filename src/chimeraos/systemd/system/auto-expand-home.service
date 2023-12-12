@@ -1,0 +1,12 @@
+[Unit]
+Description=Home Partition Resize
+Before=frzr_swap-swap-swapfile.swap sk-update-boot-entry.service
+
+[Service]
+#Type=oneshot
+User=root
+ExecStart=/usr/bin/expand_home_partition.expect
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target
