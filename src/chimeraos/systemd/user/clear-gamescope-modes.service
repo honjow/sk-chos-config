@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=rm "${HOME}/.config/gamescope/modes.cfg"
+ExecStart=sed -i '/Internal screen/d' "${HOME}/.config/gamescope/modes.cfg"
 
 [Install]
 WantedBy=default.target
