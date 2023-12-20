@@ -127,6 +127,13 @@ def etc_repair():
         ret_msg = "重置完成, 重启生效"
     return success, ret_msg
 
+def make_swapfile():
+    command = f"sudo {SK_TOOL_PATH}/make_swapfile"
+    success, ret_msg = run_command(command, "重新创建swapfile")
+    if success:
+        ret_msg = "重新创建swapfile完成, 重启生效"
+    return success, ret_msg
+
 def etc_repair_full():
     command = f"sudo {SK_TOOL_PATH}/etc_repair.sh full"
     success, ret_msg = run_command(command, "修复 /etc (完全)")
