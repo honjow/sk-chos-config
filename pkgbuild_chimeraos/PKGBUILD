@@ -31,15 +31,15 @@ package() {
 
     # conf
     install -dm755 "${pkgdir}/etc/${pkgname}"
-    install -m755 -t "${pkgdir}/etc/${pkgname}" "${source_dir}/etc/${pkgname}"/*.conf
+    install -m644 -t "${pkgdir}/etc/${pkgname}" "${source_dir}/etc/${pkgname}"/*.conf
 
     # service
     install -dm755 "${pkgdir}/usr/lib/systemd/system"
-    install -m755 -t "${pkgdir}/usr/lib/systemd/system" "${source_dir}/systemd/system"/*
+    install -m644 -t "${pkgdir}/usr/lib/systemd/system" "${source_dir}/systemd/system"/*
 
     # user service
     install -dm755 "${pkgdir}/usr/lib/systemd/user"
-    install -m755 -t "${pkgdir}/usr/lib/systemd/user" "${source_dir}/systemd/user"/*
+    install -m644 -t "${pkgdir}/usr/lib/systemd/user" "${source_dir}/systemd/user"/*
 
     # 主程序
     install -dm755 "${pkgdir}/usr/share/${pkgname}/pages"
