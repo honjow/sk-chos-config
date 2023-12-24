@@ -2,16 +2,8 @@
 
 # if kgx is installed
 if [ -f /usr/bin/kgx ]; then
-    # if kgx is not in the path
-    if ! command -v kgx &> /dev/null
-    then
-        kgx -- /usr/bin/sk-chos-tool
-    fi
+    kgx -- /usr/bin/sk-chos-tool
 # if konsole is installed
 elif [ -f /usr/bin/konsole ]; then
-    # if konsole is not in the path
-    if ! command -v konsole &> /dev/null
-    then
-        konsole -e /usr/bin/sk-chos-tool
-    fi
+    konsole -e /usr/bin/sk-chos-tool
 fi
