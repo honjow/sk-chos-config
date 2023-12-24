@@ -128,7 +128,7 @@ def etc_repair():
     return success, ret_msg
 
 def make_swapfile():
-    command = f"sudo {SK_TOOL_PATH}/make_swapfile"
+    command = f"sudo {SK_TOOL_PATH}/make_swapfile.sh"
     success, ret_msg = run_command(command, "重新创建swapfile")
     if success:
         ret_msg = "重新创建swapfile完成, 重启生效"
