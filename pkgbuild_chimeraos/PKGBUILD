@@ -29,6 +29,10 @@ package() {
     install -dm755 "${pkgdir}/usr/bin/"
     install -m755 -t "${pkgdir}/usr/bin/" "${source_dir}/bin"/*
 
+    # icon
+    install -dm755 "${pkgdir}/usr/share/icons/hicolor/scalable/apps"
+    install -m644 -t "${pkgdir}/usr/share/icons/hicolor/scalable/apps" "${source_dir}/icon"/*.svg
+
     # conf
     install -dm755 "${pkgdir}/etc/${pkgname}"
     install -m644 -t "${pkgdir}/etc/${pkgname}" "${source_dir}/etc/${pkgname}"/*.conf
