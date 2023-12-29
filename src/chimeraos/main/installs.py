@@ -20,17 +20,19 @@ def sk_auto_keep_boot_entry_switch_callback(active):
     toggle_service("sk-auto-keep-boot-entry.service", active)
 
 def hibernate_switch_callback(active):
+    old_file = "/etc/systemd/sleep.conf.d/sleep.conf"
+    # 判断文件是否存在
+    old_file_exists = os.path.isfile(old_file)
+    if old_file_exists:
+        run_command("sudo rm -f /etc/systemd/sleep.conf.d/sleep.conf")
+        run_command("sudo systemctl kill -s HUP systemd-logind")
+
     if active:
-        sleep_conf = """[Sleep]
-SuspendMode=platform shutdown
-SuspendState=disk
-HibernateDelaySec=30s
-"""
-        run_command("sudo mkdir -p /etc/systemd/sleep.conf.d && sudo tee /etc/systemd/sleep.conf.d/sleep.conf << EOF\n{}\nEOF".format(sleep_conf))
+        run_command("sudo cp /lib/systemd/system/systemd-hibernate.service /etc/systemd/system/systemd-suspend.service")
     else:
-        run_command("sudo rm -f /etc/systemd/sleep.conf.d/*.conf")
-    # 生效  
-    run_command("sudo systemctl kill -s HUP systemd-logind")
+        run_command("sudo rm -f /etc/systemd/system/systemd-suspend.service")
+    # 生效
+    run_command("sudo systemctl daemon-reload")
 
 def grub_quiet_boot_switch_callback(active):
     if active:
