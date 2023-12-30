@@ -76,14 +76,14 @@ def check_decky_plugin_exists(plugin_name):
 
 
 def chk_hibernate():
-    file_path = "/etc/systemd/sleep.conf.d/sleep.conf"
-    expected_lines = ["#SuspendState=disk", "SuspendState=disk"]
+    file_path = "/etc/systemd/system/systemd-suspend.service"
+    check_content = "systemd-sleep hibernate"
 
     try:
         with open(file_path, "r") as file:
-            content = file.read()
-            for line in expected_lines:
-                if line in content:
+            lines = file.readlines()
+            for line in lines:
+                if check_content in line:
                     return True
     except FileNotFoundError:
         return False
