@@ -24,8 +24,8 @@ function mount_overlay() {
 
     # mount the overlay
     echo "Mounting the overlay..."
-    mount -t overlay overlay -o lowerdir=$low_font_dir,upperdir=$up_font_dir,workdir=$work_font_dir $low_font_dir
-    mount -t overlay overlay -o lowerdir=$low_fontconfig_dir,upperdir=$up_fontconfig_dir,workdir=$work_fontconfig_dir $low_fontconfig_dir
+    mount -t overlay overlay -o lowerdir=$low_font_dir,upperdir=$up_font_dir,workdir=$work_font_dir,index=off $low_font_dir
+    mount -t overlay overlay -o lowerdir=$low_fontconfig_dir,upperdir=$up_fontconfig_dir,workdir=$work_fontconfig_dir,index=off $low_fontconfig_dir
 
     echo "Overlay mounted."
 }
