@@ -25,13 +25,13 @@ class SoftManagerPage(Gtk.Box):
         )
         self.pack_start(item_emudeck, False, False, 0)
 
-        item_noto_fonts_cjk = ManagerItem(
-            "Noto CJK 字体", "Noto CJK 字体, 因为字体太大不内置到系统中, 可以单独安装, 不受系统更新影响", 
-            lambda: utils.user_noto_fonts_cjk_exists(),
-            installs.noto_fonts_cjk_install,
-            installs.noto_fonts_cjk_uninstall,
-        )
-        self.pack_start(item_noto_fonts_cjk, False, False, 0)
+        # item_noto_fonts_cjk = ManagerItem(
+        #     "Noto CJK 字体", "Noto CJK 字体, 因为字体太大不内置到系统中, 可以单独安装, 不受系统更新影响", 
+        #     lambda: utils.user_noto_fonts_cjk_exists(),
+        #     installs.noto_fonts_cjk_install,
+        #     installs.noto_fonts_cjk_uninstall,
+        # )
+        # self.pack_start(item_noto_fonts_cjk, False, False, 0)
 
         item_this_app = ManagerItem(
             "本程序", "Sk ChimeraOS Tool", True, installs.this_app_install
