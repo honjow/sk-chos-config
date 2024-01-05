@@ -1,0 +1,9 @@
+[Unit]
+Description=Mount Overlay File System for Fonts
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/overlay-fonts mount
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,49 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root or with sudo."
+    exit 1
+fi
+
+# action is mount or umount
+ACTION=$1
+
+low_font_dir=/usr/share/fonts
+up_font_dir=/var/sharefonts/fonts
+work_font_dir=/var/sharefonts/.fonts
+
+low_fontconfig_dir=/usr/share/fontconfig
+up_fontconfig_dir=/var/sharefonts/fontconfig
+work_fontconfig_dir=/var/sharefonts/.fontconfig
+
+function mount_overlay() {
+    mkdir -p $up_font_dir
+    mkdir -p $up_fontconfig_dir
+    mkdir -p $work_font_dir
+    mkdir -p $work_fontconfig_dir
+
+    # mount the overlay
+    echo "Mounting the overlay..."
+    mount -t overlay overlay -o lowerdir=$low_font_dir,upperdir=$up_font_dir,workdir=$work_font_dir $low_font_dir
+    mount -t overlay overlay -o lowerdir=$low_fontconfig_dir,upperdir=$up_fontconfig_dir,workdir=$work_fontconfig_dir $low_fontconfig_dir
+}
+
+function umount_overlay() {
+    # unmount the overlay
+    echo "Unmounting the overlay..."
+    umount $low_font_dir
+    umount $low_fontconfig_dir
+}
+
+# case statement to determine action
+case "$ACTION" in
+    mount)
+        mount_overlay
+        ;;
+    umount)
+        umount_overlay
+        ;;
+    *)
+        echo "Usage: $0 {mount|umount}"
+        exit 1
+esac
