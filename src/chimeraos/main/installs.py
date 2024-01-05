@@ -307,9 +307,9 @@ def emudeck_install():
     return run_command(command, "EmuDeck")
 
 def noto_fonts_cjk_install():
-    command = f"sudo {SK_TOOL_PATH}/noto_fonts_cjk_install.sh install"
+    command = f"{SK_TOOL_PATH}/noto_fonts_cjk_install.sh install"
     return run_command(command, "Noto CJK Fonts")
 
 def noto_fonts_cjk_uninstall():
-    command = f"sudo {SK_TOOL_PATH}/noto_fonts_cjk_install.sh uninstall"
+    command = f"{SK_TOOL_PATH}/noto_fonts_cjk_install.sh uninstall"
     return run_command(command, "Noto CJK Fonts")
