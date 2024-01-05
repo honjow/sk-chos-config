@@ -4,7 +4,7 @@ import os
 import urllib.request
 
 # import utils
-from utils import get_github_clone_cdn, run_command, toggle_service
+from utils import get_github_clone_cdn, run_command, toggle_service, SK_TOOL_PATH
 
 
 def handycon_switch_callback(active):
@@ -36,17 +36,17 @@ def hibernate_switch_callback(active):
 
 def grub_quiet_boot_switch_callback(active):
     if active:
-        run_command("sudo bash /usr/share/sk-chos-tool/grub_quiet_boot_enable.sh")
+        run_command(f"sudo bash {SK_TOOL_PATH}/grub_quiet_boot_enable.sh")
     else:
-        run_command("sudo bash /usr/share/sk-chos-tool/grub_quiet_boot_disable.sh")
+        run_command(f"sudo bash {SK_TOOL_PATH}/grub_quiet_boot_disable.sh")
     # 生效
     run_command("sudo update-grub")
 
 def override_bitrate_switch_callback(active):
     if active:
-        run_command("sudo bash /usr/share/sk-chos-tool/override_bitrate_enable.sh")
+        run_command(f"sudo bash {SK_TOOL_PATH}/override_bitrate_enable.sh")
     else:
-        run_command("sudo bash /usr/share/sk-chos-tool/override_bitrate_disable.sh")
+        run_command(f"sudo bash {SK_TOOL_PATH}/override_bitrate_disable.sh")
 
 
 # ayaneo 切换lc键睡眠
@@ -238,7 +238,7 @@ def power_control_install():
 def power_control_bin_install():
     github_cdn_url = get_github_clone_cdn()
     github_prefix = github_cdn_url.replace("https://github.com", "")
-    command = "/usr/share/sk-chos-tool/power_control_install.sh {}".format(github_prefix)
+    command = f"{SK_TOOL_PATH}/power_control_install.sh {github_prefix}"
     return run_command(command, "PowerControl bin")
 
 def ayaled_install():
@@ -277,21 +277,21 @@ def emudeck_decky_controls_install():
     return decky_plugin_update(git_url, p_name="emudeck-decky-controls")
 
 def mesa_arch_install():
-    command = "sudo /usr/share/sk-chos-tool/install_mesa_arch.sh"
+    command = f"sudo {SK_TOOL_PATH}/install_mesa_arch.sh"
     return run_command(command, "Mesa Arch")
 
 def mesa_valve_install():
-    command = "sudo /usr/share/sk-chos-tool/install_mesa_valve.sh"
+    command = f"sudo {SK_TOOL_PATH}/install_mesa_valve.sh"
     return run_command(command, "Mesa Valve")
 
 def steam_patch_install():
     github_cdn_url = get_github_clone_cdn()
     github_prefix = github_cdn_url.replace("https://github.com", "")
-    command = "/usr/share/sk-chos-tool/steam_patch_install.sh {}".format(github_prefix)
+    command = f"{SK_TOOL_PATH}/steam_patch_install.sh {github_prefix}"
     return run_command(command, "Steam Patch")
 
 def steam_patch_uninstall():
-    command = "/usr/share/sk-chos-tool/steam_patch_uninstall.sh"
+    command = f"{SK_TOOL_PATH}/steam_patch_uninstall.sh"
     return run_command(command, "Steam Patch")
 
 def firmware_override_switch_callback(enable):
@@ -303,5 +303,13 @@ def firmware_override_switch_callback(enable):
 def emudeck_install():
     github_cdn_url = get_github_clone_cdn()
     github_prefix = github_cdn_url.replace("https://github.com", "")
-    command = "bash /usr/share/sk-chos-tool/emudeck_install.sh {}".format(github_prefix)
+    command = f"bash {SK_TOOL_PATH}/emudeck_install.sh {github_prefix}"
     return run_command(command, "EmuDeck")
+
+def noto_fonts_cjk_install():
+    command = f"sudo {SK_TOOL_PATH}/noto_fonts_cjk_install.sh install"
+    return run_command(command, "Noto CJK Fonts")
+
+def noto_fonts_cjk_uninstall():
+    command = f"sudo {SK_TOOL_PATH}/noto_fonts_cjk_install.sh uninstall"
+    return run_command(command, "Noto CJK Fonts")

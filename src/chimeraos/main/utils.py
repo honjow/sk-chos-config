@@ -189,3 +189,5 @@ def check_emudeck_exists():
     # check if appimage exists
     return os.path.isfile(os.path.expanduser(appimage_path))
     
+def user_noto_fonts_cjk_exists():
+    return os.path.isdir(os.path.expanduser("~/.fonts/noto-cjk"))
