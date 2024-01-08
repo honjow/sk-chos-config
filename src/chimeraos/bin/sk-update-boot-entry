@@ -161,8 +161,10 @@ if [ -f "/boot/loader/entries/frzr.conf" ]; then
     # 检查文件中是否已存在 fbcon=，如果不存在，则添加
     if ! grep -q "fbcon=" "/boot/loader/entries/frzr.conf" ; then
 
-        echo "Add FBCON to frzr.conf"
-        sed -i "s/ splash / splash ${FBCON} /" "/boot/loader/entries/frzr.conf"
+        if [[ -n "${FBCON}" ]]; then
+            echo "Add FBCON to frzr.conf"
+            sed -i "s/ splash / splash ${FBCON} /" "/boot/loader/entries/frzr.conf"
+        fi
 
     else
         # 获取已存在的 fbcon= 行的内容
