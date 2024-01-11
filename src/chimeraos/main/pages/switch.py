@@ -48,7 +48,7 @@ class SwitchPage(Gtk.Box):
             hhd_enabled = check_service_autostart(f"hhd@{user}.service")
             switch_item_hhd = SwitchItem(
                 "HHD",
-                "Handheld Daemon, 另一个手柄驱动程序, 通过模拟 PS5 手柄支持陀螺仪和背键能等功能. 不能和 HandyGCCS 同时使用",
+                "Handheld Daemon, 另一个手柄驱动程序, 通过模拟 PS5 手柄支持陀螺仪和背键能等功能. 不能和 HandyGCCS 同时使用. 请配合HHD Decky插件使用.",
                 hhd_enabled,
                 installs.hhd_switch_callback,
                 turnOnCallback = lambda: switch_item_handycon.switch.set_active(False),

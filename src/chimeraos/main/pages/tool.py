@@ -52,6 +52,19 @@ class ToolManagerPage(Gtk.Box):
         )
         self.pack_start(item_handycon, False, False, 0)
 
+        if self.product_name in (
+            "83E1",
+            "ROG Ally RC71L_RC71L",
+        ):
+            item_hhd_decky = ManagerItem(
+                "HHD Decky",
+                "HHD Decky 插件, 配合 HHD 使用",
+                lambda: check_decky_plugin_exists("hhd-decky"),
+                installs.hhd_decky_install,
+                lambda: installs.remove_decky_plugin("hhd-decky"),
+            )
+            self.pack_start(item_hhd_decky, False, False, 0)
+
         item_simple_decky_TDP = ManagerItem(
             "SimpleDeckyTDP",
             "掌机功耗性能管理 Decky插件, 只有 TDP 相关功能",
