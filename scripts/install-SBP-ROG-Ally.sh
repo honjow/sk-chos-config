@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$EUID" -eq 0 ]; then
+    echo "Please run this script as a normal user, not root."
+    exit 1
+fi
+
 git_url="https://github.com/semakusut/SBP-ROG-Ally.git"
 commit_id="fd803c1bb95eedf98df749460d96e980de3d45d2"
 

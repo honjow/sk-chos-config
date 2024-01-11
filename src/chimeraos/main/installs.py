@@ -325,3 +325,17 @@ def noto_fonts_cjk_install():
 def noto_fonts_cjk_uninstall():
     command = f"{SK_TOOL_PATH}/noto_fonts_cjk_install.sh uninstall"
     return run_command(command, "Noto CJK Fonts")
+
+def spb_ally_exist():
+    path = "~/homebrew/theme/SBP-ROG-Ally"
+    path = os.path.expanduser(path)
+    return os.path.exists(path)
+
+def spb_ally_install():
+    command = "curl -L https://raw.githubusercontent.com/honjow/sk-holoiso-config/master/scripts/install-SBP-ROG-Ally.sh | sh"
+    return run_command(command, "SBP-ROG-Ally")
+
+def spb_ally_uninstall():
+    path = "~/homebrew/theme/SBP-ROG-Ally"
+    command = f"rm -rf {path}"
+    return run_command(command, "SBP-ROG-Ally")

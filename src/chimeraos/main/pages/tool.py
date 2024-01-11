@@ -64,6 +64,18 @@ class ToolManagerPage(Gtk.Box):
                 lambda: installs.remove_decky_plugin("hhd-decky"),
             )
             self.pack_start(item_hhd_decky, False, False, 0)
+        
+        if self.product_name in (
+            "ROG Ally RC71L_RC71L",
+        ):
+            item_spb_ally = ManagerItem(
+                "SBP-ROG-Ally",
+                "配合 HHD 使用的 CSS Loader 皮肤, 把按钮显示为 ROG Ally 的样式",
+                installs.spb_ally_exist,
+                installs.spb_ally_install,
+                installs.spb_ally_uninstall,
+            )
+            self.pack_start(item_spb_ally, False, False, 0)
 
         item_simple_decky_TDP = ManagerItem(
             "SimpleDeckyTDP",
