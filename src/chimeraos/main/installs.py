@@ -327,7 +327,7 @@ def noto_fonts_cjk_uninstall():
     return run_command(command, "Noto CJK Fonts")
 
 def spb_ally_exist():
-    path = "~/homebrew/theme/SBP-ROG-Ally"
+    path = "~/homebrew/themes/SBP-ROG-Ally"
     path = os.path.expanduser(path)
     return os.path.exists(path)
 
@@ -336,6 +336,6 @@ def spb_ally_install():
     return run_command(command, "SBP-ROG-Ally")
 
 def spb_ally_uninstall():
-    path = "~/homebrew/theme/SBP-ROG-Ally"
+    path = "~/homebrew/themes/SBP-ROG-Ally"
     command = f"rm -rf {path}"
     return run_command(command, "SBP-ROG-Ally")
