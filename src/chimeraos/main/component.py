@@ -10,7 +10,7 @@ from gi.repository import GLib, Gtk, Pango
 
 
 class SwitchItem(Gtk.Box):
-    def __init__(self, title, description, initial_value=False, callback=None):
+    def __init__(self, title, description, initial_value=False, callback=None, turnOnCallback=None, turnOffCallback=None):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
         self.set_margin_start(2)
         self.set_margin_end(2)
@@ -19,39 +19,41 @@ class SwitchItem(Gtk.Box):
 
         self.callback = callback
         self.last_value = initial_value
+        self.turnOnCallback = turnOnCallback
+        self.turnOffCallback = turnOffCallback
 
         # 左边文字部分
         left_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
         self.pack_start(left_box, True, True, 0)
 
-        switch_label = Gtk.Label()
-        switch_label.set_text(title)
-        switch_label.set_halign(Gtk.Align.START)
-        switch_label.set_valign(Gtk.Align.START)
-        left_box.pack_start(switch_label, False, False, 0)
+        self.switch_label = Gtk.Label()
+        self.switch_label.set_text(title)
+        self.switch_label.set_halign(Gtk.Align.START)
+        self.switch_label.set_valign(Gtk.Align.START)
+        left_box.pack_start(self.switch_label, False, False, 0)
 
-        desc_label = Gtk.Label()
-        desc_label.set_text(description)
-        desc_label.set_halign(Gtk.Align.START)
-        desc_label.set_valign(Gtk.Align.START)
-        desc_label.set_xalign(0)
-        desc_label.set_yalign(0)
-        desc_label.set_line_wrap(True)
-        desc_label.set_line_wrap_mode(Pango.WrapMode.WORD)
-        desc_label.set_ellipsize(Pango.EllipsizeMode.NONE)
-        desc_label.set_markup("<small>" + desc_label.get_text() + "</small>")
-        left_box.pack_start(desc_label, False, False, 0)
+        self.desc_label = Gtk.Label()
+        self.desc_label.set_text(description)
+        self.desc_label.set_halign(Gtk.Align.START)
+        self.desc_label.set_valign(Gtk.Align.START)
+        self.desc_label.set_xalign(0)
+        self.desc_label.set_yalign(0)
+        self.desc_label.set_line_wrap(True)
+        self.desc_label.set_line_wrap_mode(Pango.WrapMode.WORD)
+        self.desc_label.set_ellipsize(Pango.EllipsizeMode.NONE)
+        self.desc_label.set_markup("<small>" + self.desc_label.get_text() + "</small>")
+        left_box.pack_start(self.desc_label, False, False, 0)
 
         # 右边开关部分
-        switch = Gtk.Switch()
-        switch.props.valign = Gtk.Align.CENTER
-        # switch.set_size_request(80, 40)
-        switch.connect("notify::active", self.on_switch_activated)
-        switch.set_active(initial_value)
+        self.switch = Gtk.Switch()
+        self.switch.props.valign = Gtk.Align.CENTER
+        # self.switch.set_size_request(80, 40)
+        self.switch.connect("notify::active", self.on_switch_activated)
+        self.switch.set_active(initial_value)
         switch_box = Gtk.Box()
         switch_box.set_margin_start(10)
         switch_box.set_valign(Gtk.Align.CENTER)
-        switch_box.pack_start(switch, False, False, 0)
+        switch_box.pack_start(self.switch, False, False, 0)
         self.pack_end(switch_box, False, False, 0)
 
     def on_switch_activated(self, switch, gparam):
@@ -59,6 +61,15 @@ class SwitchItem(Gtk.Box):
         if self.callback and active != self.last_value:
             self.callback(active)
             self.last_value = active
+            if active:
+                if callable(self.turnOnCallback):
+                    self.turnOnCallback()
+            else:
+                if callable(self.turnOffCallback):
+                    self.turnOffCallback()
+    
+    def set_value(self, value):
+        self.switch.set_active(value)
 
 
 class ManagerItem(Gtk.Box):

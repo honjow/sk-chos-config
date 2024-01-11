@@ -8,7 +8,12 @@ from utils import get_github_clone_cdn, run_command, toggle_service, SK_TOOL_PAT
 
 
 def handycon_switch_callback(active):
+    toggle_service(f"hhd@{os.getenv('USER')}.service", not active)
     toggle_service("handycon.service", active)
+
+def hhd_switch_callback(active):
+    toggle_service("handycon.service", not active)
+    toggle_service(f"hhd@{os.getenv('USER')}.service", active)
 
 def oxp2lsusb_switch_callback(active):
     toggle_service("oxp2-lsusb.service", active)

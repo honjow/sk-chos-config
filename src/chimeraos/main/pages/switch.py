@@ -36,8 +36,24 @@ class SwitchPage(Gtk.Box):
             "用来驱动部分掌机的手柄按钮",
             handycon_enabled,
             installs.handycon_switch_callback,
+            turnOnCallback = lambda: switch_item_hhd.switch.set_active(False),
         )
         self.pack_start(switch_item_handycon, False, False, 0)
+
+        if self.product_name in (
+            "83E1",
+            "ROG Ally RC71L_RC71L",
+        ):
+            user = os.getenv("USER")
+            hhd_enabled = check_service_autostart(f"hhd@{user}.service")
+            switch_item_hhd = SwitchItem(
+                "HHD",
+                "Handheld Daemon, 另一个手柄驱动程序, 通过模拟 PS5 手柄支持陀螺仪和背键能等功能. 不能和 HandyGCCS 同时使用",
+                hhd_enabled,
+                installs.hhd_switch_callback,
+                turnOnCallback = lambda: switch_item_handycon.switch.set_active(False),
+            )
+            self.pack_start(switch_item_hhd, False, False, 0)
 
         sk_auto_keep_boot_entry_switch_enabled = check_service_autostart(
             "sk-auto-keep-boot-entry.service"
