@@ -19,6 +19,8 @@ if [ "$commit_id" != "" ]; then
     git checkout $commit_id
 fi
 
+sed -i 's/Legion Go - PS5 controller emulator to xbox glyphs/PS5 controller emulator to xbox glyphs/g' theme.json
+
 mkdir -p $HOME/homebrew/themes
 
 if [ -d $HOME/homebrew/themes/$theme_name ]; then
