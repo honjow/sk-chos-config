@@ -73,7 +73,7 @@ class ToolManagerPage(Gtk.Box):
         ):
             item_spb_ally = ManagerItem(
                 "SBP-ROG-Ally-Theme",
-                "配合 HHD 使用的 CSS Loader 皮肤, 把按钮显示为 ROG Ally 的样式",
+                "配合 HHD 使用的 CSS Loader 皮肤, 把模拟的 PS5 手柄按钮显示为 ROG Ally 的样式",
                 installs.spb_ally_exist,
                 installs.spb_ally_install,
                 installs.spb_ally_uninstall,
@@ -85,12 +85,25 @@ class ToolManagerPage(Gtk.Box):
         ):
             item_spb_lego = ManagerItem(
                 "SBP-Legion-Go-Theme",
-                "配合 HHD 使用的 CSS Loader 皮肤, 把按钮显示为 Legion Go 的样式",
+                "配合 HHD 使用的 CSS Loader 皮肤, 把模拟的 PS5 按钮显示为 Legion Go 的样式",
                 installs.spb_lego_exist,
                 installs.spb_lego_install,
                 installs.spb_lego_uninstall,
             )
             self.pack_start(item_spb_lego, False, False, 0)
+
+        if self.product_name not in (
+            "83E1",
+            "ROG Ally RC71L_RC71L",
+        ):
+            item_ps5_to_xbox = ManagerItem(
+                "PS5-to-Xbox-glyphs",
+                "配合 HHD 使用的 CSS Loader 皮肤, 把模拟的 PS5 手柄按钮显示为 Xbox 的样式",
+                installs.ps5_to_xbox_exist,
+                installs.ps5_to_xbox_install,
+                installs.ps5_to_xbox_uninstall,
+            )
+            self.pack_start(item_ps5_to_xbox, False, False, 0)
 
         item_simple_decky_TDP = ManagerItem(
             "SimpleDeckyTDP",

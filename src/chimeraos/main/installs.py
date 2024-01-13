@@ -352,3 +352,17 @@ def spb_lego_uninstall():
     path = "~/homebrew/themes/SBP-Legion-Go-Theme"
     command = f"rm -rf {path}"
     return run_command(command, "SBP-Legion-Go-Theme")
+
+def ps5_to_xbox_exist():
+    path = "~/homebrew/themes/PS5-to-Xbox-glyphs"
+    path = os.path.expanduser(path)
+    return os.path.exists(path)
+
+def ps5_to_xbox_install():
+    command = "curl -L https://raw.githubusercontent.com/honjow/sk-holoiso-config/master/scripts/install-PS5-to-Xbox-glyphs.sh | sh"
+    return run_command(command, "PS5-to-Xbox-glyphs")
+
+def ps5_to_xbox_uninstall():
+    path = "~/homebrew/themes/PS5-to-Xbox-glyphs"
+    command = f"rm -rf {path}"
+    return run_command(command, "PS5-to-Xbox-glyphs")
