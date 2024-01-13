@@ -55,6 +55,8 @@ class ToolManagerPage(Gtk.Box):
         if self.product_name in (
             "83E1",
             "ROG Ally RC71L_RC71L",
+            "G1618-04",
+            "G1617-01",
         ):
             item_hhd_decky = ManagerItem(
                 "HHD Decky",
