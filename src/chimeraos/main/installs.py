@@ -339,3 +339,17 @@ def spb_ally_uninstall():
     path = "~/homebrew/themes/SBP-ROG-Ally"
     command = f"rm -rf {path}"
     return run_command(command, "SBP-ROG-Ally")
+
+def spb_lego_exist():
+    path = "~/homebrew/themes/SBP-Legion-Go-Theme"
+    path = os.path.expanduser(path)
+    return os.path.exists(path)
+
+def spb_lego_install():
+    command = "curl -L https://raw.githubusercontent.com/honjow/sk-holoiso-config/master/scripts/install-SBP-Legion-Go-Theme.sh | sh"
+    return run_command(command, "SBP-Legion-Go-Theme")
+
+def spb_lego_uninstall():
+    path = "~/homebrew/themes/SBP-Legion-Go-Theme"
+    command = f"rm -rf {path}"
+    return run_command(command, "SBP-Legion-Go-Theme")

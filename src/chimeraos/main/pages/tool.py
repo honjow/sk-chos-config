@@ -71,13 +71,25 @@ class ToolManagerPage(Gtk.Box):
             "ROG Ally RC71L_RC71L",
         ):
             item_spb_ally = ManagerItem(
-                "SBP-ROG-Ally",
+                "SBP-ROG-Ally-Theme",
                 "配合 HHD 使用的 CSS Loader 皮肤, 把按钮显示为 ROG Ally 的样式",
                 installs.spb_ally_exist,
                 installs.spb_ally_install,
                 installs.spb_ally_uninstall,
             )
             self.pack_start(item_spb_ally, False, False, 0)
+
+        if self.product_name in (
+            "83E1",
+        ):
+            item_spb_lego = ManagerItem(
+                "SBP-Legion-Go-Theme",
+                "配合 HHD 使用的 CSS Loader 皮肤, 把按钮显示为 Legion Go 的样式",
+                installs.spb_lego_exist,
+                installs.spb_lego_install,
+                installs.spb_lego_uninstall,
+            )
+            self.pack_start(item_spb_lego, False, False, 0)
 
         item_simple_decky_TDP = ManagerItem(
             "SimpleDeckyTDP",
