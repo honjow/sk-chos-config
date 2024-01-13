@@ -1,14 +1,25 @@
 import logging
-import utils
+
+SK_TOOL_PATH = "/usr/share/sk-chos-tool"
 
 LOG_LOCATION = "/tmp/sk-chos-tool.log"
 logging.basicConfig(
     level = logging.INFO,
-    filename = LOG_LOCATION,
     format="[%(asctime)s | %(filename)s:%(lineno)s:%(funcName)s] %(levelname)s: %(message)s",
-    filemode = 'w',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler(LOG_LOCATION, mode="a", encoding="utf-8")
+    ],
     force = True)
 
-SK_TOOL_PATH = "/usr/share/sk-chos-tool"
+def get_product_name():
+    product_name = ""
+    try:
+        with open("/sys/devices/virtual/dmi/id/product_name", "r") as f:
+            product_name = f.readline().strip()
+    except Exception as e:
+        logging.error(f"读取设备名称失败: {e}")
+    logging.info(f"设备名称: {product_name}")
+    return product_name
 
-PRODUCT_NAME = utils.get_product_name()
+PRODUCT_NAME = get_product_name()

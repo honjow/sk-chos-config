@@ -34,7 +34,8 @@ class SkHoloisoConfigApp(Gtk.Application):
         window.set_default_size(600, 500)
         window.set_title("Sk ChimeraOS 配置")
 
-        window.set_icon_name("logisim")
+        # window.set_icon_name("logisim")
+        window.set_icon_name("sk-chos-tool")
 
         scrolled_window = Gtk.ScrolledWindow()
         scrolled_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)

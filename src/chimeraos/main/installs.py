@@ -138,7 +138,7 @@ def decky_update_callback():
         urllib.request.urlretrieve(script_url, script_path)
         logging.info("脚本文件下载完成")
     except Exception as e:
-        logging.error("下载脚本文件时出现错误:", str(e))
+        logging.error(f"下载脚本文件时出现错误: {e}")
         success = False
         ret_msg = str(e)
         return success, ret_msg
@@ -180,7 +180,7 @@ def decky_plugin_update(git_url, p_name=None):
         return success, ret_msg
 
     name = git_url.split("/")[-1].split(".")[0]
-    logging.info("执行Decky插件更新操作 {} {}".format(name, git_url))
+    logging.info(f"执行Decky插件更新操作 {name} {git_url}")
     git_directory = os.path.expanduser("~/.cache/sk-holoiso-config/git")
     repo_directory = os.path.expanduser("{}/{}".format(git_directory, name))
 
@@ -193,7 +193,7 @@ def decky_plugin_update(git_url, p_name=None):
         upt_command = "cd {} && git checkout . && git pull".format(repo_directory)
     else:
         upt_command = ("mkdir -p {} && cd {} && git clone {}").format(git_directory, git_directory, git_url)
-    logging.info("执行更新命令: {}".format(upt_command))
+    logging.info(f"执行更新命令: {upt_command}")
 
     success, ret_msg = run_command(upt_command, name)
     if not success:

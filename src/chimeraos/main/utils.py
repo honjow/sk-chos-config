@@ -7,17 +7,6 @@ import subprocess
 
 from config import logging, SK_TOOL_PATH
 
-def get_product_name():
-    # get from /sys/devices/virtual/dmi/id/product_name
-    product_name = ""
-    try:
-        with open("/sys/devices/virtual/dmi/id/product_name", "r") as f:
-            product_name = f.readline().strip()
-    except Exception as e:
-        logging.error("读取设备名称失败:", str(e))
-    logging.info("设备名称:", product_name)
-    return product_name
-
 # 执行命令
 def run_command(command, name=""):
     success = True
@@ -59,7 +48,7 @@ def check_service_exists(service_name):
         subprocess.run(['sudo', 'systemctl', 'is-active', service_name], check=True, capture_output=True)
         return True
     except subprocess.CalledProcessError:
-        logging.error(f"服务 {service_name} 不存在或未运行")
+        logging.info(f"服务 {service_name} 不存在或未运行")
         return False
 
 def toggle_service(service_name, enable):
@@ -69,7 +58,9 @@ def toggle_service(service_name, enable):
         subprocess.run(sudo_cmd, check=True)
         logging.info(f"服务 {service_name} {action}成功")
     except subprocess.CalledProcessError as e:
-        logging.error(f"服务 {service_name} {action}失败:", str(e))
+        logging.error(f"服务 {service_name} {action}失败: {e}")
+    except Exception as e:
+        logging.error(f"服务 {service_name} {action}失败: {e}")
 
 def check_decky_plugin_exists(plugin_name):
     return os.path.isfile(os.path.expanduser("~/homebrew/plugins/{}/plugin.json".format(plugin_name)))
@@ -179,7 +170,7 @@ def get_config_value(filename, section, key):
 def get_github_clone_cdn():
     config_file = "/etc/sk-chos-tool/github_cdn.conf"
     cdn = get_config_value(config_file, "clone", "server")
-    logging.info("github clone cdn:", cdn)
+    logging.info(f"github clone cdn: {cdn}")
     if not cdn is None:
         clear_cache()
     return cdn
