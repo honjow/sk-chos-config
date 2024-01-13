@@ -12,8 +12,9 @@ import installs
 from utils import (
     check_decky_plugin_exists,
     check_service_exists,
-    get_product_name,
 )
+
+from config import PRODUCT_NAME, logging
 
 
 class ToolManagerPage(Gtk.Box):
@@ -23,7 +24,7 @@ class ToolManagerPage(Gtk.Box):
         # self.set_margin_end(20)
         # self.set_margin_top(20)
         # self.set_margin_bottom(20)
-        self.product_name = get_product_name()
+        self.product_name = PRODUCT_NAME
         self.create_page()
 
     def create_page(self):
@@ -183,20 +184,3 @@ class ToolManagerPage(Gtk.Box):
             lambda: installs.remove_decky_plugin("emudeck-decky-controls"),
         )
         self.pack_start(item_emudeck_decky_controls, False, False, 0)
-
-        # item_mesa_arch = ManagerItem(
-        #     "Mesa(Arch官方源)",
-        #     "Mesa显卡驱动, 使用 Arch 官方源安装",
-        #     True,
-        #     installs.mesa_arch_install,
-        # )
-        # self.pack_start(item_mesa_arch, False, False, 0)
-
-        # item_valve_arch = ManagerItem(
-        #     "Mesa(Valve 官方源)",
-        #     "Mesa显卡驱动, 使用 Valve main 源安装",
-        #     True,
-        #     installs.mesa_valve_install,
-        # )
-        # self.pack_start(item_valve_arch, False, False, 0)
-

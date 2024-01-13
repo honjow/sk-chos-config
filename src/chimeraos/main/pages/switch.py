@@ -13,9 +13,9 @@ import utils
 
 from utils import (
     check_service_autostart,
-    get_product_name,
 )
 
+from config import PRODUCT_NAME, logging
 
 class SwitchPage(Gtk.Box):
     def __init__(self):
@@ -24,7 +24,7 @@ class SwitchPage(Gtk.Box):
         # self.set_margin_end(20)
         # self.set_margin_top(20)
         # self.set_margin_bottom(20)
-        self.product_name = get_product_name()
+        self.product_name = PRODUCT_NAME
         self.create_page()
 
     def create_page(self):

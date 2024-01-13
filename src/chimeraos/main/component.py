@@ -8,6 +8,8 @@ gi.require_version("Gtk", "3.0")
 import threading
 from gi.repository import GLib, Gtk, Pango
 
+from config import logging
+
 
 class SwitchItem(Gtk.Box):
     def __init__(self, title, description, initial_value=False, callback=None, turnOnCallback=None, turnOffCallback=None):
@@ -93,8 +95,6 @@ class ManagerItem(Gtk.Box):
         else:
             self.current_installed = self.installed_cb
 
-        # print ("{} current_installed: {}".format(self.title, self.current_installed))
-
         # 左边文字部分
         left_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
         self.pack_start(left_box, True, True, 0)
@@ -175,7 +175,7 @@ class ManagerItem(Gtk.Box):
     def completed(self, success, install=True, msg=None):
         self.reload_installed()
         self.enable_buttons()
-        print ("Completed: success: {}, install: {}, msg: {}".format(success, install, msg))
+        logging.info("Completed: success: {}, install: {}, msg: {}".format(success, install, msg))
         # 根据回调函数的运行结果显示对话框内容
         if success:
             dialog = Gtk.MessageDialog(
@@ -203,12 +203,10 @@ class ManagerItem(Gtk.Box):
         GLib.idle_add(self.completed, success, install, ret_msg)
 
     def on_install_clicked(self, button):
-        print("Installing...")
         self.disable_buttons()
         threading.Thread(target=self.execute_callback, args=(self.install_callback, True)).start()
 
     def on_uninstall_clicked(self, button):
-        print("Uninstalling...")
         self.disable_buttons()
         threading.Thread(target=self.execute_callback, args=(self.uninstall_callback, False)).start()
 

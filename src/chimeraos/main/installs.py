@@ -4,8 +4,9 @@ import os
 import urllib.request
 
 # import utils
-from utils import get_github_clone_cdn, run_command, toggle_service, SK_TOOL_PATH
+from utils import get_github_clone_cdn, run_command, toggle_service
 
+from config import SK_TOOL_PATH, logging
 
 def handycon_switch_callback(active):
     toggle_service(f"hhd@{os.getenv('USER')}.service", not active)
@@ -67,7 +68,7 @@ def aya_lc_suspend_switch_callback(active):
 
 
 def handycon_install():
-    print("执行 HandyGCCS 更新操作")
+    logging.info("执行 HandyGCCS 更新操作")
     github_cdn_url = get_github_clone_cdn()
     git_url = "https://github.com/honjow/HandyGCCS.git"
     if github_cdn_url:
@@ -81,7 +82,7 @@ def handycon_install():
     # 判断 ~/.cache/sk-holoiso-config/git/HandyGCCS 是否存在
     git_directory = os.path.expanduser("~/.cache/sk-holoiso-config/git/HandyGCCS")
     if os.path.exists(git_directory):
-        print("更新git目录并执行更新")
+        logging.info("更新git目录并执行更新")
         command = ("cd {} && git checkout main"
                    " && git checkout . && git pull"
                    " && sudo ./build.sh && sleep 3"
@@ -89,7 +90,7 @@ def handycon_install():
                    " && sudo systemctl restart handycon.service"
                    ).format(git_directory)
     else:
-        print("新建git目录并执行更新")
+        logging.info("新建git目录并执行更新")
         command = ("mkdir -p ~/.cache/sk-holoiso-config/git "
                    " && cd ~/.cache/sk-holoiso-config/git "
                    " && git clone {} -b main HandyGCCS "
@@ -103,7 +104,7 @@ def handycon_install():
     return run_command(command, "HandyGCCS")
 
 def handycon_uninstall():
-    print("执行 HandyGCCS 卸载操作")
+    logging.info("执行 HandyGCCS 卸载操作")
     command = ("sudo systemctl stop handycon && sudo systemctl disable handycon;"
                 "sudo rm -rf /usr/lib/python3*/site-packages/handycon*;"
                 "sudo rm /usr/bin/handycon;"
@@ -122,7 +123,7 @@ def decky_update_callback():
     success = True
     ret_msg = None
     github_cdn_url = get_github_clone_cdn()
-    print("执行Decky更新操作")
+    logging.info("执行Decky更新操作")
     
     # 判断 ~/.cache/sk-holoiso-config/user_install_script.sh 是否存在
     script_path = os.path.expanduser("~/.cache/sk-holoiso-config/user_install_script.sh")
@@ -135,9 +136,9 @@ def decky_update_callback():
         script_url = script_url.replace("https://github.com", github_cdn_url)
     try:
         urllib.request.urlretrieve(script_url, script_path)
-        print("脚本文件下载完成")
+        logging.info("脚本文件下载完成")
     except Exception as e:
-        print("下载脚本文件时出现错误:", str(e))
+        logging.error("下载脚本文件时出现错误:", str(e))
         success = False
         ret_msg = str(e)
         return success, ret_msg
@@ -145,7 +146,7 @@ def decky_update_callback():
     os.chmod(script_path, 0o755)
     # 在bash中执行脚本文件
     os.system("sudo sh {}".format(script_path))
-    print("Decky更新完成")
+    logging.info("Decky更新完成")
     return success, ret_msg
 
 def simple_decky_install():
@@ -179,20 +180,20 @@ def decky_plugin_update(git_url, p_name=None):
         return success, ret_msg
 
     name = git_url.split("/")[-1].split(".")[0]
-    print("执行Decky插件更新操作 {} {}".format(name, git_url))
+    logging.info("执行Decky插件更新操作 {} {}".format(name, git_url))
     git_directory = os.path.expanduser("~/.cache/sk-holoiso-config/git")
     repo_directory = os.path.expanduser("{}/{}".format(git_directory, name))
 
     if os.path.exists(repo_directory):
         delete_command = "rm -rf {}".format(repo_directory)
-        print("执行删除命令: {}".format(delete_command))
+        logging.info("执行删除命令: {}".format(delete_command))
         success, ret_msg = run_command(delete_command, name)
 
     if os.path.exists(repo_directory):
         upt_command = "cd {} && git checkout . && git pull".format(repo_directory)
     else:
         upt_command = ("mkdir -p {} && cd {} && git clone {}").format(git_directory, git_directory, git_url)
-    print("执行更新命令: {}".format(upt_command))
+    logging.info("执行更新命令: {}".format(upt_command))
 
     success, ret_msg = run_command(upt_command, name)
     if not success:
@@ -225,8 +226,6 @@ def decky_plugin_update(git_url, p_name=None):
                         " && sudo systemctl restart plugin_loader.service "
                         )
     
-    # print ("执行部署命令: {}".format(deploy_command))
-    # os.system(deploy_command)
     return run_command(deploy_command, name)
 
 def remove_decky_plugin(plugin_name):

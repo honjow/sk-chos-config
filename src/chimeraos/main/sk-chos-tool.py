@@ -8,6 +8,7 @@ from pages.tool import ToolManagerPage
 from pages.soft import SoftManagerPage
 from pages.about import AboutPage
 import utils
+from config import logging
 
 
 gi.require_version("Gtk", "3.0")
@@ -24,7 +25,7 @@ class SkHoloisoConfigApp(Gtk.Application):
         self.connect("activate", self.on_activate)
 
     def on_activate(self, app):
-        print("启动Sk chirmeaos Tool")
+        logging.info("启动Sk chirmeaos Tool")
 
         utils.run_command("sudo frzr-unlock")
 

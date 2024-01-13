@@ -14,7 +14,6 @@ import utils
 class AdvancePage(Gtk.Box):
     def __init__(self):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=10)
-        self.product_name = utils.get_product_name()
         self.create_page()
 
     def create_page(self):

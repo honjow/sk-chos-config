@@ -5,7 +5,7 @@ import configparser
 import os
 import subprocess
 
-SK_TOOL_PATH = "/usr/share/sk-chos-tool"
+from config import logging, SK_TOOL_PATH
 
 def get_product_name():
     # get from /sys/devices/virtual/dmi/id/product_name
@@ -14,32 +14,32 @@ def get_product_name():
         with open("/sys/devices/virtual/dmi/id/product_name", "r") as f:
             product_name = f.readline().strip()
     except Exception as e:
-        print("读取设备名称失败:", str(e))
-    print("设备名称:", product_name)
+        logging.error("读取设备名称失败:", str(e))
+    logging.info("设备名称:", product_name)
     return product_name
 
 # 执行命令
 def run_command(command, name=""):
     success = True
     ret_msg = ""
-    print(f"执行{name}操作")
+    logging.info(f"执行{name}操作")
     try:
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         for line in process.stdout:
-            print(line.strip())
+            logging.info(line.strip())
         stdout, stderr = process.communicate()
         return_code = process.returncode
 
         if return_code != 0:
             success = False
             ret_msg = stderr.strip()
-            print(f"{name}操作失败: {ret_msg}")
+            logging.error(f"{name}操作失败: {ret_msg}")
         else:
-            print(f"{name}操作完成")
+            logging.info(f"{name}操作完成")
     except Exception as e:
         success = False
         ret_msg = str(e)
-        print(f"{name}操作失败: {ret_msg}")
+        logging.error(f"{name}操作失败: {ret_msg}")
     
     return success, ret_msg
 
@@ -59,7 +59,7 @@ def check_service_exists(service_name):
         subprocess.run(['sudo', 'systemctl', 'is-active', service_name], check=True, capture_output=True)
         return True
     except subprocess.CalledProcessError:
-        print (f"服务 {service_name} 不存在或未运行")
+        logging.error(f"服务 {service_name} 不存在或未运行")
         return False
 
 def toggle_service(service_name, enable):
@@ -67,9 +67,9 @@ def toggle_service(service_name, enable):
     try:
         sudo_cmd = ['sudo', 'systemctl', action, '--now', service_name]
         subprocess.run(sudo_cmd, check=True)
-        print(f"服务 {service_name} {action}成功")
+        logging.info(f"服务 {service_name} {action}成功")
     except subprocess.CalledProcessError as e:
-        print(f"服务 {service_name} {action}失败:", str(e))
+        logging.error(f"服务 {service_name} {action}失败:", str(e))
 
 def check_decky_plugin_exists(plugin_name):
     return os.path.isfile(os.path.expanduser("~/homebrew/plugins/{}/plugin.json".format(plugin_name)))
@@ -179,7 +179,7 @@ def get_config_value(filename, section, key):
 def get_github_clone_cdn():
     config_file = "/etc/sk-chos-tool/github_cdn.conf"
     cdn = get_config_value(config_file, "clone", "server")
-    print("github clone cdn:", cdn)
+    logging.info("github clone cdn:", cdn)
     if not cdn is None:
         clear_cache()
     return cdn
