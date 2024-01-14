@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [ "$EUID" -eq 0 ]; then
     echo "Please run this script as a normal user, not root."
     exit 1

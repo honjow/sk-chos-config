@@ -6,6 +6,8 @@ if ! [ -x "$(command -v jq)" ]; then
   exit 1
 fi
 
+set -e
+
 github_prefix=$1
 echo "github_prefix: ${github_prefix}"
 
