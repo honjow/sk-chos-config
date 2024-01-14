@@ -1,5 +1,6 @@
 [Unit]
 Description=Mount Overlay File System for Fonts
+After=systemd-remount-fs.service
 
 [Service]
 Type=oneshot

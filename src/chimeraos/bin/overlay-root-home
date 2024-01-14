@@ -1,0 +1,46 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root or with sudo."
+    exit 1
+fi
+
+# action is mount or umount
+ACTION=$1
+
+low_root_home=/root
+up_root_home=/var/root
+work_root_home=/var/.root
+
+function mount_overlay() {
+    mkdir -p $up_root_home
+    mkdir -p $work_root_home
+
+    # mount the overlay
+    echo "Mounting the overlay..."
+    mount -t overlay overlay -o lowerdir=$low_root_home,upperdir=$up_root_home,workdir=$work_root_home,index=off $low_root_home
+
+    echo "Overlay mounted."
+}
+
+function umount_overlay() {
+    # unmount the overlay
+    echo "Unmounting the overlay..."
+    umount $low_font_dir
+    umount $low_fontconfig_dir
+
+    echo "Overlay unmounted."
+}
+
+# case statement to determine action
+case "$ACTION" in
+    mount)
+        mount_overlay
+        ;;
+    umount)
+        umount_overlay
+        ;;
+    *)
+        echo "Usage: $0 {mount|umount}"
+        exit 1
+esac

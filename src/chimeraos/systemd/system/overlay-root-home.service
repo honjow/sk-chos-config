@@ -1,0 +1,10 @@
+[Unit]
+Description=Mount Overlay File System for Root Home Directory
+After=systemd-remount-fs.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/overlay-root-home mount
+
+[Install]
+WantedBy=multi-user.target
