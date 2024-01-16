@@ -1,0 +1,10 @@
+[Unit]
+Description=Sk-ChimeraOS Bind Mount Service
+After=systemd-remount-fs.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/sk-bind-mount
+
+[Install]
+WantedBy=default.target
