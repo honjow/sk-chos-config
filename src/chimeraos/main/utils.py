@@ -182,3 +182,12 @@ def check_emudeck_exists():
     
 def user_noto_fonts_cjk_exists():
     return os.path.isdir(os.path.expanduser("~/.fonts/noto-cjk"))
+
+def check_nix_exists():
+    # 检查是否存在 nix 命令
+    try:
+        subprocess.run(['nix', '--version'], check=True, capture_output=True)
+        return True
+    except subprocess.CalledProcessError:
+        logging.info("nix 未安装")
+        return False

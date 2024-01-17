@@ -1,0 +1,82 @@
+#!/bin/bash
+
+# action is install or uninstall
+ACTION=$1
+
+set -e
+
+nix_bash_backup=/etc/bashrc.backup-before-nix
+nix_bash_backup2=/etc/bash.bashrc.backup-before-nix
+nix_zsh_backup=/etc/zsh/zshrc.backup-before-nix
+nix_zsh_backup2=/etc/zshrc.backup-before-nix
+nix_profile=/etc/profile.d/nix.sh
+nix_profile_backup=/etc/profile.d/nix.sh.backup-before-nix
+
+function install_nix() {
+    sudo systemctl enable --now sk-bind-mount.service
+
+    sudo systemctl stop nix-daemon.socket || true
+    sudo systemctl stop nix-daemon.service || true
+
+    if [ -f "$nix_bash_backup" ]; then
+        sudo mv $nix_bash_backup /etc/bashrc
+    fi
+
+    if [ -f "$nix_bash_backup2" ]; then
+        sudo mv $nix_bash_backup2 /etc/bash.bashrc
+    fi
+
+    if [ -f "$nix_zsh_backup" ]; then
+        sudo mv $nix_zsh_backup /etc/zshrc
+    fi
+
+    if [ -f "$nix_zsh_backup2" ]; then
+        sudo mv $nix_zsh_backup2 /etc/zshrc
+    fi
+    
+    if [ -f "$nix_profile_backup" ]; then
+        sudo mv /etc/profile.d/nix.sh.backup-before-nix /etc/profile.d/nix.sh
+    fi
+
+    curl -L https://mirrors.tuna.tsinghua.edu.cn/nix/latest/install | sudo sh -s -- --daemon --no-channel-add && \
+    source /etc/profile.d/nix.sh
+
+    sudo mkdir -p /etc/nix
+    echo 'substituters = https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store https://cache.nixos.org/' | sudo tee /etc/nix/nix.conf
+
+    sudo nix-channel --add https://mirrors.tuna.tsinghua.edu.cn/nix-channels/nixpkgs-unstable nixpkgs
+    sudo nix-channel --update
+
+    sudo systemctl enable --now nix-daemon.socket
+    sudo systemctl enable --now nix-daemon.service
+
+}
+
+function uninstall_nix() {
+    sudo systemctl disable --now nix-daemon.socket || true
+    sudo systemctl disable --now nix-daemon.service || true
+
+    sudo mv $nix_bash_backup /etc/bashrc || true
+    sudo mv $nix_bash_backup2 /etc/bash.bashrc || true
+    sudo mv $nix_zsh_backup /etc/zsh/zshrc || true
+    sudo mv $nix_zsh_backup2 /etc/zshrc || true
+
+    sudo rm -f $nix_profile_backup || true
+    sudo rm -f /etc/profile.d/nix.sh || true
+    sudo rm -rf /nix/*
+
+}
+
+
+# case statement to determine action
+case "$ACTION" in
+    install)
+        install_nix
+        ;;
+    uninstall)
+        uninstall_nix
+        ;;
+    *)
+        echo "Usage: $0 {install|uninstall}"
+        exit 1
+esac

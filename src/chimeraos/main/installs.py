@@ -366,3 +366,11 @@ def ps5_to_xbox_uninstall():
     path = "~/homebrew/themes/PS5-to-Xbox-glyphs"
     command = f"rm -rf {path}"
     return run_command(command, "PS5-to-Xbox-glyphs")
+
+def nix_install():
+    command = f"/usr/bin/sk-nix-install install"
+    return run_command(command, "Nix")
+
+def nix_uninstall():
+    command = f"/usr/bin/sk-nix-install uninstall"
+    return run_command(command, "Nix")
