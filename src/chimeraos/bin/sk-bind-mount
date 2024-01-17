@@ -8,6 +8,8 @@ fi
 src=/home/.nix
 dst=/nix
 
+frzr-unlock
+
 mkdir -p $src
 mkdir -p $dst
 
