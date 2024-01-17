@@ -184,10 +184,10 @@ def user_noto_fonts_cjk_exists():
     return os.path.isdir(os.path.expanduser("~/.fonts/noto-cjk"))
 
 def check_nix_exists():
-    # 检查是否存在 nix 命令
+    # 检查是否存在 nix 命令, which nix
     try:
-        subprocess.run(['nix', '--version'], check=True, capture_output=True)
+        subprocess.run(['which', 'nix'], check=True, capture_output=True)
         return True
-    except subprocess.CalledProcessError:
-        logging.info("nix 未安装")
+    except Exception as e:
+        logging.debug("nix 未安装")
         return False
