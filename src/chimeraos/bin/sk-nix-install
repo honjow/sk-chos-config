@@ -42,19 +42,22 @@ function install_nix() {
     source /etc/profile.d/nix.sh
 
     sudo mkdir -p /etc/nix
-    echo 'substituters = https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store https://cache.nixos.org/' | sudo tee /etc/nix/nix.conf
+
+    # add trusted user
+    sudo echo "trusted-users = root $USER" | sudo tee /etc/nix/nix.conf && \
+    echo 'substituters = https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store https://cache.nixos.org/' | sudo tee -a /etc/nix/nix.conf
+
+    sudo systemctl restart nix-daemon
 
     sudo nix-channel --add https://mirrors.tuna.tsinghua.edu.cn/nix-channels/nixpkgs-unstable nixpkgs
     sudo nix-channel --update
 
-    sudo systemctl enable --now nix-daemon.socket
-    sudo systemctl enable --now nix-daemon.service
+    sudo systemctl enable --now nix-daemon
 
 }
 
 function uninstall_nix() {
-    sudo systemctl disable --now nix-daemon.socket || true
-    sudo systemctl disable --now nix-daemon.service || true
+    sudo systemctl disable --now nix-daemon || true
 
     sudo mv $nix_bash_backup /etc/bashrc || true
     sudo mv $nix_bash_backup2 /etc/bash.bashrc || true
