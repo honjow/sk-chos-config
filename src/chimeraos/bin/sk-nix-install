@@ -12,9 +12,9 @@ nix_zsh_backup2=/etc/zshrc.backup-before-nix
 nix_profile=/etc/profile.d/nix.sh
 nix_profile_backup=/etc/profile.d/nix.sh.backup-before-nix
 
-nix_path = /nix
-mount_path = /frzr_root
-nix_frzr_path = $mount_path/nix
+nix_path=/nix
+mount_path=/frzr_root
+nix_frzr_path=$mount_path/nix
 
 function check_mount() {
     # check nix subvolume
@@ -23,7 +23,7 @@ function check_mount() {
         sudo btrfs subvolume create $nix_frzr_path
     else
         # check if subvolume exists
-        if btrfs subvolume show $nix_frzr_path; then
+        if sudo btrfs subvolume show $nix_frzr_path; then
             echo "nix subvolume found"
         else
             echo "$nix_frzr_path exists but is not a Btrfs subvolume."
@@ -41,7 +41,12 @@ function check_mount() {
     fi
 
     # mount
-    sudo mount -a
+    if mount | grep -q $nix_path; then
+        echo "nix already mounted"
+    else
+        echo "nix not mounted, mounting..."
+        sudo mount -a
+    fi
 }
 
 function install_nix() {
@@ -71,22 +76,20 @@ function install_nix() {
     fi
 
     curl -L https://mirrors.tuna.tsinghua.edu.cn/nix/latest/install | sudo sh -s -- --daemon --no-channel-add
+    source /etc/profile.d/nix.sh
 
     sudo mkdir -p /etc/nix
 
     # add trusted user
     sudo echo "trusted-users = root $USER" | sudo tee /etc/nix/nix.conf && \
     echo 'substituters = https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store https://cache.nixos.org/' | sudo tee -a /etc/nix/nix.conf
-
     sudo systemctl restart nix-daemon
 
+    source /etc/profile.d/nix.sh
     sudo nix-channel --add https://mirrors.tuna.tsinghua.edu.cn/nix-channels/nixpkgs-unstable nixpkgs
     sudo nix-channel --update
 
-    sudo systemctl enable --now nix-daemon
-
-    source /etc/profile.d/nix.sh
-
+    sudo systemctl enable nix-daemon.service
 }
 
 function uninstall_nix() {
