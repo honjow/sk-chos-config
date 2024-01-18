@@ -1,0 +1,10 @@
+[Unit]
+Description=Mount Overlay File System for Nix
+After=systemd-remount-fs.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/overlay-nix mount
+
+[Install]
+WantedBy=multi-user.target

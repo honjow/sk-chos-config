@@ -1,0 +1,47 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root or with sudo."
+    exit 1
+fi
+
+# action is mount or umount
+ACTION=$1
+
+frzr-unlock
+
+low_nix_dir=/nix
+up_nix_dir=/home/.nix
+work_nix_dir=/home/.nix-work
+
+function mount_overlay() {
+    mkdir -p $low_nix_dir
+    mkdir -p $up_nix_dir
+    mkdir -p $work_nix_dir
+
+    # mount the overlay
+    echo "Mounting the overlay..."
+    mount -t overlay overlay -o lowerdir=$low_nix_dir,upperdir=$up_nix_dir,workdir=$work_nix_dir,index=off $low_nix_dir
+    echo "Overlay mounted."
+}
+
+function umount_overlay() {
+    # unmount the overlay
+    echo "Unmounting the overlay..."
+    umount $low_nix_dir
+
+    echo "Overlay unmounted."
+}
+
+# case statement to determine action
+case "$ACTION" in
+    mount)
+        mount_overlay
+        ;;
+    umount)
+        umount_overlay
+        ;;
+    *)
+        echo "Usage: $0 {mount|umount}"
+        exit 1
+esac

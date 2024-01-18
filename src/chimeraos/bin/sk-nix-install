@@ -13,7 +13,8 @@ nix_profile=/etc/profile.d/nix.sh
 nix_profile_backup=/etc/profile.d/nix.sh.backup-before-nix
 
 function install_nix() {
-    sudo systemctl enable --now sk-bind-mount.service
+    sudo systemctl disable --now sk-bind-mount.service || true
+    sudo systemctl enable --now overlay-nix.service
 
     sudo systemctl stop nix-daemon.socket || true
     sudo systemctl stop nix-daemon.service || true
