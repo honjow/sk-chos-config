@@ -10,9 +10,9 @@ dst=/nix
 
 frzr-unlock
 
-mkdir -p $src
-mkdir -p $dst
+# mkdir -p $src
+# mkdir -p $dst
 
-# bind mount
-echo "Bind mounting $src to $dst..."
-mount --bind $src $dst
+# # bind mount
+# echo "Bind mounting $src to $dst..."
+# mount --bind $src $dst
