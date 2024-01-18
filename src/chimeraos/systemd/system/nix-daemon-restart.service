@@ -1,10 +1,11 @@
 [Unit]
 Description=Restart nix-daemon
-After=network.target
+After=local-fs.target
+RequiresMountsFor=/nix/store
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/systemctl restart nix-daemon
+ExecStart=/bin/sh -c "/usr/bin/systemctl daemon-reload && /usr/bin/systemctl restart nix-daemon"
 
 [Install]
 WantedBy=multi-user.target

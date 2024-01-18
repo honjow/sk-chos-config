@@ -90,11 +90,14 @@ function install_nix() {
     sudo nix-channel --update
 
     sudo systemctl enable nix-daemon.service
+    sudo systemctl enable nix-daemon-restart.service
+
 }
 
 function uninstall_nix() {
     sudo systemctl disable --now nix-daemon.socket || true
     sudo systemctl disable --now nix-daemon.service || true
+    sudo systemctl disable --now nix-daemon-restart.service || true
 
     sudo mv $nix_bash_backup /etc/bashrc || true
     sudo mv $nix_bash_backup2 /etc/bash.bashrc || true
@@ -104,7 +107,6 @@ function uninstall_nix() {
     sudo rm -f $nix_profile_backup || true
     sudo rm -f /etc/profile.d/nix.sh || true
     sudo rm -rf /nix/*
-
 }
 
 
