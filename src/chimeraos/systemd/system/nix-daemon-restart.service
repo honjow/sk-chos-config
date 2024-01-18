@@ -1,0 +1,10 @@
+[Unit]
+Description=Restart nix-daemon
+After=overlay-nix.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "systemctl restart nix-daemon"
+
+[Install]
+WantedBy=multi-user.target

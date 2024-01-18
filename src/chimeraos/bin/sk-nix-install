@@ -39,8 +39,7 @@ function install_nix() {
         sudo mv /etc/profile.d/nix.sh.backup-before-nix /etc/profile.d/nix.sh
     fi
 
-    curl -L https://mirrors.tuna.tsinghua.edu.cn/nix/latest/install | sudo sh -s -- --daemon --no-channel-add && \
-    source /etc/profile.d/nix.sh
+    curl -L https://mirrors.tuna.tsinghua.edu.cn/nix/latest/install | sudo sh -s -- --daemon --no-channel-add
 
     sudo mkdir -p /etc/nix
 
@@ -55,10 +54,13 @@ function install_nix() {
 
     sudo systemctl enable --now nix-daemon
 
+    source /etc/profile.d/nix.sh
+
 }
 
 function uninstall_nix() {
-    sudo systemctl disable --now nix-daemon || true
+    sudo systemctl disable --now nix-daemon.socket || true
+    sudo systemctl disable --now nix-daemon.service || true
 
     sudo mv $nix_bash_backup /etc/bashrc || true
     sudo mv $nix_bash_backup2 /etc/bash.bashrc || true
