@@ -66,8 +66,12 @@ def aya_lc_suspend_switch_callback(active):
         # 删除文件
         run_command('sudo rm {}'.format(toggle_flag_file))
 
-
 def handycon_install():
+    logging.info("执行 HandyGCCS 更新操作")
+    command = "curl -L https://gitee.com/honjow/sk-chos-scripts/raw/master/install/install-handygccs-git.sh | sh"
+    return run_command(command, "HandyGCCS")
+
+def handycon_install_old():
     logging.info("执行 HandyGCCS 更新操作")
     github_cdn_url = get_github_clone_cdn()
     git_url = "https://github.com/honjow/HandyGCCS.git"
@@ -103,7 +107,7 @@ def handycon_install():
 
     return run_command(command, "HandyGCCS")
 
-def handycon_uninstall():
+def handycon_uninstall_old():
     logging.info("执行 HandyGCCS 卸载操作")
     command = ("sudo systemctl stop handycon && sudo systemctl disable handycon;"
                 "sudo rm -rf /usr/lib/python3*/site-packages/handycon*;"
@@ -116,6 +120,11 @@ def handycon_uninstall():
                 "sudo systemd-hwdb update;"
                 "sudo udevadm control -R;"
                 )
+    return run_command(command, "HandyGCCS")
+
+def handycon_uninstall():
+    logging.info("执行 HandyGCCS 卸载操作")
+    command = "sudo pacman -R handygccs-git --noconfirm"
     return run_command(command, "HandyGCCS")
 
 
