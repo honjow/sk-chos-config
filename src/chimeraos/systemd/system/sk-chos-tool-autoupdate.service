@@ -1,0 +1,10 @@
+[Unit]
+Description=sk-chos-tool automatic updates
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=curl -L https://gitee.com/honjow/sk-chos-scripts/raw/master/install/install-sk-chos-tool.sh | sh
+RemainAfterExit=false
+StandardOutput=journal
