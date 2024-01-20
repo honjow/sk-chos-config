@@ -56,6 +56,7 @@ class ToolManagerPage(Gtk.Box):
         if self.product_name in (
             "83E1",
             "ROG Ally RC71L_RC71L",
+            "ROG Ally RC71L",
             "G1618-04",
             "G1617-01",
         ):
@@ -70,6 +71,7 @@ class ToolManagerPage(Gtk.Box):
         
         if self.product_name in (
             "ROG Ally RC71L_RC71L",
+            "ROG Ally RC71L",
         ):
             item_spb_ally = ManagerItem(
                 "SBP-ROG-Ally-Theme",
@@ -95,6 +97,7 @@ class ToolManagerPage(Gtk.Box):
         if self.product_name not in (
             "83E1",
             "ROG Ally RC71L_RC71L",
+            "ROG Ally RC71L",
         ):
             item_ps5_to_xbox = ManagerItem(
                 "PS5-to-Xbox-glyphs",

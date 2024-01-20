@@ -43,6 +43,7 @@ class SwitchPage(Gtk.Box):
         if self.product_name in (
             "83E1",
             "ROG Ally RC71L_RC71L",
+            "ROG Ally RC71L",
             "G1618-04",
             "G1617-01",
         ):
