@@ -183,6 +183,13 @@ def this_app_install():
         ret_msg = "更新完成, 请重新启动应用"
     return success, ret_msg
 
+def this_app_cn_install():
+    command = "curl -L https://gitee.com/honjow/sk-chos-scripts/raw/master/install/install-sk-chos-tool.sh | sh"
+    success, ret_msg = run_command(command, "Sk ChimeraOS Tool (CN)")
+    if success:
+        ret_msg = "更新完成, 请重新启动应用"
+    return success, ret_msg
+
 def decky_plugin_update(git_url, p_name=None):
     depends_command = "yay -Sy npm --noconfirm --needed && sudo npm i -g pnpm"
     success, ret_msg = run_command(depends_command, "npm pnpm")
