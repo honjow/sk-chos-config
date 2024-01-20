@@ -1,9 +1,9 @@
 [Unit]
 Description=resume after graphical
-After=graphical.target
+After=graphical-session.target
 
 [Service]
-ExecStartPre=/usr/bin/sleep 5
+ExecStartPre=/usr/bin/sleep 10
 ExecStart=/usr/bin/sk-resume
 Type=simple
 
