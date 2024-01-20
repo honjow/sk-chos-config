@@ -1,0 +1,10 @@
+[Unit]
+Description=HandyGCCS daemon
+Requires=handycon.service
+
+[Service]
+ExecStart=/usr/share/sk-chos-tool/handycon-daemon.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
