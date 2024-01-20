@@ -1,10 +1,17 @@
 #!/bin/bash
 
+sudo frzr-unlock
+
+sudo pacman -Sy
+
 echo "update sk-chos-tool"
 /usr/bin/__sk-chos-tool-update
 
 echo "update frzr-sk"
 /usr/bin/__frzr-sk-update
+
+echo "update device-quirks"
+/usr/bin/__device-quirks-update
 
 
 echo "All done!"
