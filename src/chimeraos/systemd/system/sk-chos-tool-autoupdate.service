@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/sk-chos-tool-update
+ExecStart=/usr/bin/sk-chos-tool-update & /usr/bin/sk-frzr-update
 User=gamer
 RemainAfterExit=false
 StandardOutput=journal
