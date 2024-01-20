@@ -13,3 +13,8 @@ if [[ "${DEVICENAME}" == "GEEK" || "${DEVICENAME}" == "GEEK 1S" ]];then
     modprobe -r goodix_ts
     modprobe goodix_ts
 fi
+
+handycon_status=$(systemctl is-enabled handycon.service 2>/dev/null)
+if [[ "$handycon_status" == "enabled" ]]; then
+    sudo systemctl restart handycon.service
+fi
