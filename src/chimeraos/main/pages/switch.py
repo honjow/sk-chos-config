@@ -87,6 +87,15 @@ class SwitchPage(Gtk.Box):
         )
         self.pack_start(switch_item_firmware_override, False, False, 0)
 
+        auto_update_enabled = check_service_autostart("sk-chos-tool-autoupdate.timer")
+        switch_item_auto_update = SwitchItem(
+            "自动更新本软件",
+            "开启后会自动检查更新，建议开启",
+            auto_update_enabled,
+            installs.auto_update_switch_callback,
+        )
+        self.pack_start(switch_item_auto_update, False, False, 0)
+
         # grub_quiet_boot_enabled = utils.chk_grub_quiet_boot()
         # switch_item_grub_quiet_boot = SwitchItem(
         #     "静默启动",

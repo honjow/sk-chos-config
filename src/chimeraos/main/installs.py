@@ -25,6 +25,9 @@ def oxp2_volume_button_fix_switch_callback(active):
 def sk_auto_keep_boot_entry_switch_callback(active):
     toggle_service("sk-auto-keep-boot-entry.service", active)
 
+def auto_update_switch_callback(active):
+    toggle_service("sk-chos-tool-autoupdate.timer", active)
+
 def hibernate_switch_callback(active):
     old_file = "/etc/systemd/sleep.conf.d/sleep.conf"
     # 判断文件是否存在
