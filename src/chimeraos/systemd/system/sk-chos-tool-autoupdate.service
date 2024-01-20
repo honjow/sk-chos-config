@@ -5,6 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=curl -L https://gitee.com/honjow/sk-chos-scripts/raw/master/install/install-sk-chos-tool.sh | sh
+ExecStart=/bin/sh -c "curl -L https://gitee.com/honjow/sk-chos-scripts/raw/master/install/install-sk-chos-tool.sh | sh"
+User=gamer
 RemainAfterExit=false
 StandardOutput=journal
