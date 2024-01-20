@@ -1,0 +1,11 @@
+[Unit]
+Description=resume after graphical
+After=graphical.target
+
+[Service]
+ExecStartPre=/usr/bin/sleep 5
+ExecStart=/usr/bin/sk-resume
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
