@@ -10,9 +10,13 @@ import gi
 from component import SwitchItem
 import installs
 import utils
+from utils import check_service_autostart
 
-from utils import (
-    check_service_autostart,
+from config import (
+    PANED_RIGHT_MARGIN_START,
+    PANED_RIGHT_MARGIN_END,
+    PANED_RIGHT_MARGIN_TOP,
+    PANED_RIGHT_MARGIN_BOTTOM,
 )
 
 from config import PRODUCT_NAME, logging
@@ -20,10 +24,10 @@ from config import PRODUCT_NAME, logging
 class SwitchPage(Gtk.Box):
     def __init__(self):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=10)
-        self.set_margin_start(20)
-        self.set_margin_end(20)
-        self.set_margin_top(20)
-        self.set_margin_bottom(20)
+        self.set_margin_start(PANED_RIGHT_MARGIN_START)
+        self.set_margin_end(PANED_RIGHT_MARGIN_END)
+        self.set_margin_top(PANED_RIGHT_MARGIN_TOP)
+        self.set_margin_bottom(PANED_RIGHT_MARGIN_BOTTOM)
         self.product_name = PRODUCT_NAME
         self.create_page()
 

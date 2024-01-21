@@ -2,6 +2,11 @@ import logging
 
 SK_TOOL_PATH = "/usr/share/sk-chos-tool"
 
+PANED_RIGHT_MARGIN_START = 20
+PANED_RIGHT_MARGIN_END = 20
+PANED_RIGHT_MARGIN_TOP = 8
+PANED_RIGHT_MARGIN_BOTTOM = 20
+
 LOG_LOCATION = "/tmp/sk-chos-tool.log"
 logging.basicConfig(
     level = logging.INFO,

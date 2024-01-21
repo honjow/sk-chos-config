@@ -7,15 +7,19 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 from component import AsyncActionFullButton
 import utils
-
-
+from config import (
+    PANED_RIGHT_MARGIN_START,
+    PANED_RIGHT_MARGIN_END,
+    PANED_RIGHT_MARGIN_TOP,
+    PANED_RIGHT_MARGIN_BOTTOM,
+)
 class AdvancePage(Gtk.Box):
     def __init__(self):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=10)
-        self.set_margin_start(20)
-        self.set_margin_end(20)
-        self.set_margin_top(20)
-        self.set_margin_bottom(20)
+        self.set_margin_start(PANED_RIGHT_MARGIN_START)
+        self.set_margin_end(PANED_RIGHT_MARGIN_END)
+        self.set_margin_top(PANED_RIGHT_MARGIN_TOP)
+        self.set_margin_bottom(PANED_RIGHT_MARGIN_BOTTOM)
         self.create_page()
 
     def create_page(self):
