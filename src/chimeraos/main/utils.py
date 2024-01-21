@@ -144,6 +144,11 @@ def etc_repair_full():
         ret_msg = "重置完成, 重启生效"
     return success, ret_msg
 
+def reset_gnome():
+    command = "sudo dconf update && dconf reset -f /"
+    success, ret_msg = run_command(command, "重置 GNOME 桌面")
+    return success, ret_msg
+
 def is_sk_holo2():
     file_path = "/etc/sk-holo/version"
     if not os.path.isfile(file_path):

@@ -27,5 +27,8 @@ class AdvancePage(Gtk.Box):
         etc_repair_full_button = AsyncActionFullButton(title="修复 /etc (完全)", callback=utils.etc_repair_full)
         self.pack_start(etc_repair_full_button, False, False, 0)
 
-        make_swapfile = AsyncActionFullButton(title="重新创建 swapfile", callback=utils.make_swapfile)
-        self.pack_start(make_swapfile, False, False, 0)
+        make_swapfile_button = AsyncActionFullButton(title="重新创建 swapfile", callback=utils.make_swapfile)
+        self.pack_start(make_swapfile_button, False, False, 0)
+
+        reset_gnome_button = AsyncActionFullButton(title="重置 Gnome 桌面", callback=utils.reset_gnome)
+        self.pack_start(reset_gnome_button, False, False, 0)
