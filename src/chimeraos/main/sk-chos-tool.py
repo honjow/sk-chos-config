@@ -10,9 +10,94 @@ from pages.about import AboutPage
 import utils
 from config import logging
 
-
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gio
+
+class ContentView(Gtk.Box):
+    def __init__(self, category):
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=6)
+
+        # 在这里添加每个选项的具体布局
+        label = Gtk.Label(label=f"内容布局 {category}")
+        self.pack_start(label, True, True, 0)
+
+class CategoryRow(Gtk.ListBoxRow):
+    def __init__(self, category, activate_callback):
+        Gtk.ListBoxRow.__init__(self)
+        self.activate_callback = activate_callback
+        self.category = category
+
+        event_box = Gtk.EventBox()
+        event_box.connect("button-press-event", self.on_button_press)
+
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        box.set_margin_top(5)
+        box.set_margin_bottom(5)
+        label = Gtk.Label(label=category)
+        box.add(label)
+        event_box.add(box)
+        self.add(event_box)
+
+    def on_button_press(self, widget, event):
+        # 调用外部传递的回调函数
+        if self.activate_callback:
+            self.activate_callback(widget, self.category)
+
+class ColumnedWindow(Gtk.ApplicationWindow):
+    def __init__(self, app):
+        Gtk.Window.__init__(self, application=app, title="Sk ChimeraOS 配置")
+        self.set_default_size(700, 500)
+
+        self.box_mapping = {
+            "功能开关": SwitchPage,
+            "工具": ToolManagerPage,
+            "软件&游戏": SoftManagerPage,
+            "高级": AdvancePage,
+            "关于": AboutPage,
+        }
+
+        # 创建一个垂直布局
+        main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        self.add(main_box)
+
+        # 创建一个水平布局用于左右分栏
+        paned = Gtk.Paned()
+        main_box.pack_start(paned, True, True, 0)
+
+        # 左边栏
+        left_panel = Gtk.ListBox()
+        left_panel.set_size_request(180, -1)  # 设置左边栏的宽度
+        paned.pack1(left_panel, False, False)
+
+        # 添加左边栏中的分类项
+        categories = ["A", "B", "C", "D"]
+        for category in categories:
+            row = CategoryRow(category, self.on_category_clicked)
+            left_panel.add(row)
+
+        # 右边栏
+        self.right_panel = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        paned.pack2(self.right_panel, True, True)
+
+        # 默认显示第一项的内容
+        self.current_content = None
+        self.on_category_clicked(None, categories[0])
+
+    def on_category_clicked(self, widget, category):
+        # 移除之前显示的内容
+        if self.current_content:
+            self.right_panel.remove(self.current_content)
+        
+        # 使用字典中的对应关系获取对应的 Box 类
+        content_view = self.box_mapping.get(category)
+
+        # 如果存在则添加到右栏中
+        if content_view:
+            self.right_panel.pack_start(content_view, True, True, 0)
+            self.current_content = content_view
+
+            # 确保所有子组件都被显示
+            self.right_panel.show_all()
 
 
 class SkHoloisoConfigApp(Gtk.Application):
@@ -25,75 +110,12 @@ class SkHoloisoConfigApp(Gtk.Application):
         self.connect("activate", self.on_activate)
 
     def on_activate(self, app):
-        logging.info("启动Sk chirmeaos Tool")
+        logging.info("启动Sk chirmeaos Tool New")
 
         utils.run_command("sudo frzr-unlock")
 
-        # 创建主窗口
-        window = Gtk.ApplicationWindow(application=app)
-        window.set_default_size(700, 500)
-        window.set_title("Sk ChimeraOS 配置")
-
-        # window.set_icon_name("logisim")
-        window.set_icon_name("sk-chos-tool")
-
-        scrolled_window = Gtk.ScrolledWindow()
-        scrolled_window.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        window.add(scrolled_window)
-
-        header_bar = Gtk.HeaderBar()
-        header_bar.set_show_close_button(True)
-        window.set_titlebar(header_bar)
-
-        # 创建垂直布局容器
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        vbox.set_margin_start(20)
-        vbox.set_margin_end(20)
-        vbox.set_margin_top(10)
-        vbox.set_margin_bottom(20)
-        scrolled_window.add(vbox)
-
-        # 创建堆栈容器
-        stack = Gtk.Stack()
-        stack.set_transition_type(Gtk.StackTransitionType.SLIDE_LEFT_RIGHT)
-        stack.set_transition_duration(300)
-
-        # 创建堆栈切换器
-        stack_switcher = Gtk.StackSwitcher()
-        stack_switcher.set_stack(stack)
-        stack_switcher.set_halign(Gtk.Align.CENTER)
-        stack_switcher.set_valign(Gtk.Align.CENTER)
-
-        # 堆栈切换器和堆栈容器添加
-        # header_bar.pack_start(stack_switcher)
-        # label = Gtk.Label()
-        header_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        header_box.pack_start(stack_switcher, False, False, 0)
-        # header_box.pack_start(label, True, True, 0)
-
-        header_bar.set_custom_title(header_box)
-
-        # vbox.pack_start(stack_switcher, False, False, 0)
-        vbox.pack_start(stack, True, True, 0)
-
-        # 开关
-        stack.add_titled(SwitchPage(), "switch", "功能开关")
-
-        # 工具管理
-        stack.add_titled(ToolManagerPage(), "tool", "工具")
-
-        # 软件和游戏
-        stack.add_titled(SoftManagerPage(), "soft", "软件&游戏")
-
-        # 高级
-        stack.add_titled(AdvancePage(), "advance", "高级")
-
-        # 关于
-        stack.add_titled(AboutPage(), "about", "关于")
-
-        self.loading_spinner = Gtk.Spinner()
-
-        window.show_all()
+        win = ColumnedWindow(self)
+        win.show_all()
 
 
 def main():
