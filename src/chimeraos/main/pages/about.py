@@ -5,6 +5,7 @@ import gi
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk
+import utils
 
 class AboutPage(Gtk.Box):
     def __init__(self):
@@ -43,9 +44,12 @@ class AboutPage(Gtk.Box):
         name_label.set_markup("<span font_weight='bold' font_size='large'>{}</span>".format(name_label.get_text()))
         self.pack_start(name_label, False, False, 0)
 
+
+        version = utils.get_package_version("sk-chos-tool")
+
         # 版本号
         version_label = Gtk.Label()
-        version_label.set_text("版本 1.5")
+        version_label.set_text(f"版本 {version}")
         version_label.set_halign(Gtk.Align.CENTER)
         version_label.set_valign(Gtk.Align.CENTER)
         self.pack_start(version_label, False, False, 0)

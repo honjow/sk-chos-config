@@ -32,6 +32,18 @@ def run_command(command, name=""):
     
     return success, ret_msg
 
+def get_package_version(package_name):
+    try:
+        # 运行pacman命令并捕获输出
+        result = subprocess.run(['pacman', '-Q', package_name], capture_output=True, text=True, check=True)
+
+        # 获取输出中的版本号部分
+        version = result.stdout.strip().split(' ')[1]
+
+        return version
+    except subprocess.CalledProcessError:
+        return f"Error: Package '{package_name}' not found"
+
 # 检查服务是否已启用
 def check_service_autostart(service_name):
     try:
