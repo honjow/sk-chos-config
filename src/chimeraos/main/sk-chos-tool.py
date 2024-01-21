@@ -31,8 +31,8 @@ class CategoryRow(Gtk.ListBoxRow):
         event_box.connect("button-press-event", self.on_button_press)
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        box.set_margin_top(5)
-        box.set_margin_bottom(5)
+        box.set_margin_top(10)
+        box.set_margin_bottom(10)
         label = Gtk.Label(label=category)
         box.add(label)
         event_box.add(box)
