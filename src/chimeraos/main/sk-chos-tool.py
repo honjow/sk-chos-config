@@ -43,18 +43,27 @@ class CategoryRow(Gtk.ListBoxRow):
         if self.activate_callback:
             self.activate_callback(widget, self.category)
 
+class PanedScrolledWindow(Gtk.ScrolledWindow):
+    def __init__(self, box: Gtk.Box):
+        Gtk.ScrolledWindow.__init__(self)
+        self.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self.add(box)
+
 class ColumnedWindow(Gtk.ApplicationWindow):
     def __init__(self, app):
         Gtk.Window.__init__(self, application=app, title="Sk ChimeraOS 配置")
         self.set_default_size(700, 500)
 
         self.box_mapping = {
-            "功能开关": SwitchPage,
-            "工具": ToolManagerPage,
-            "软件&游戏": SoftManagerPage,
-            "高级": AdvancePage,
-            "关于": AboutPage,
+            "功能开关": SwitchPage(),
+            "工具": ToolManagerPage(),
+            "软件&游戏": SoftManagerPage(),
+            "高级": AdvancePage(),
+            "关于": AboutPage(),
         }
+        self.scrolled_window_mapping = {}
+        for category, box in self.box_mapping.items():
+            self.scrolled_window_mapping[category] = PanedScrolledWindow(box)
 
         # 创建一个垂直布局
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
@@ -70,13 +79,14 @@ class ColumnedWindow(Gtk.ApplicationWindow):
         paned.pack1(left_panel, False, False)
 
         # 添加左边栏中的分类项
-        categories = ["A", "B", "C", "D"]
+        categories = list(self.scrolled_window_mapping.keys())
         for category in categories:
             row = CategoryRow(category, self.on_category_clicked)
             left_panel.add(row)
 
         # 右边栏
         self.right_panel = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        
         paned.pack2(self.right_panel, True, True)
 
         # 默认显示第一项的内容
@@ -89,7 +99,7 @@ class ColumnedWindow(Gtk.ApplicationWindow):
             self.right_panel.remove(self.current_content)
         
         # 使用字典中的对应关系获取对应的 Box 类
-        content_view = self.box_mapping.get(category)
+        content_view = self.scrolled_window_mapping[category]
 
         # 如果存在则添加到右栏中
         if content_view:

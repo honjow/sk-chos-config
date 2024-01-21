@@ -20,10 +20,10 @@ from config import PRODUCT_NAME, logging
 class ToolManagerPage(Gtk.Box):
     def __init__(self):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=10)
-        # self.set_margin_start(20)
-        # self.set_margin_end(20)
-        # self.set_margin_top(20)
-        # self.set_margin_bottom(20)
+        self.set_margin_start(20)
+        self.set_margin_end(20)
+        self.set_margin_top(20)
+        self.set_margin_bottom(20)
         self.product_name = PRODUCT_NAME
         self.create_page()
 
