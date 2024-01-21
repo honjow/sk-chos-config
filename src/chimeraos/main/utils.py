@@ -60,7 +60,7 @@ def check_service_exists(service_name):
         subprocess.run(['sudo', 'systemctl', 'is-active', service_name], check=True, capture_output=True)
         return True
     except subprocess.CalledProcessError:
-        logging.info(f"服务 {service_name} 不存在或未运行")
+        logging.info(f"服务 {service_name} 未运行")
         return False
 
 def toggle_service(service_name, enable):

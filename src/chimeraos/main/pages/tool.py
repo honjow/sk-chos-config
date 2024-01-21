@@ -174,14 +174,14 @@ class ToolManagerPage(Gtk.Box):
         )
         self.pack_start(item_power_control, False, False, 0)
 
-        item_mango_peel = ManagerItem(
-            "MangoPeel",
-            "性能监测自定义Decky插件",
-            lambda: check_decky_plugin_exists("MangoPeel"),
-            installs.mango_peel_install,
-            lambda: installs.remove_decky_plugin("MangoPeel"),
-        )
-        self.pack_start(item_mango_peel, False, False, 0)
+        # item_mango_peel = ManagerItem(
+        #     "MangoPeel",
+        #     "性能监测自定义Decky插件",
+        #     lambda: check_decky_plugin_exists("MangoPeel"),
+        #     installs.mango_peel_install,
+        #     lambda: installs.remove_decky_plugin("MangoPeel"),
+        # )
+        # self.pack_start(item_mango_peel, False, False, 0)
 
         item_tomoon = ManagerItem(
             "ToMoon",
@@ -192,11 +192,11 @@ class ToolManagerPage(Gtk.Box):
         )
         self.pack_start(item_tomoon, False, False, 0)
 
-        item_emudeck_decky_controls = ManagerItem(
-            "emudeck-decky-controls",
-            "Decky Plugin to show Hotkeys in game",
-            lambda: check_decky_plugin_exists("emudeck-decky-controls"),
-            installs.emudeck_decky_controls_install,
-            lambda: installs.remove_decky_plugin("emudeck-decky-controls"),
-        )
-        self.pack_start(item_emudeck_decky_controls, False, False, 0)
+        # item_emudeck_decky_controls = ManagerItem(
+        #     "emudeck-decky-controls",
+        #     "Decky Plugin to show Hotkeys in game",
+        #     lambda: check_decky_plugin_exists("emudeck-decky-controls"),
+        #     installs.emudeck_decky_controls_install,
+        #     lambda: installs.remove_decky_plugin("emudeck-decky-controls"),
+        # )
+        # self.pack_start(item_emudeck_decky_controls, False, False, 0)
