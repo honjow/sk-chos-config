@@ -7,6 +7,12 @@ sudo pacman -Sy
 echo "update sk-chos-tool"
 /usr/bin/__sk-chos-tool-update
 
+handycon_status=$(systemctl is-enabled handycon.service 2>/dev/null)
+if [[ "$handycon_status" == "enabled" ]]; then
+    echo "update handycon"
+    curl -L https://gitee.com/honjow/sk-chos-scripts/raw/master/install/install-handygccs-git.sh | sh
+fi
+
 echo "update frzr-sk"
 /usr/bin/__frzr-sk-update
 

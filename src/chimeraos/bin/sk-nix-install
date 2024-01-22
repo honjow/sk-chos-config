@@ -17,6 +17,8 @@ mount_path=/frzr_root
 nix_frzr_path=$mount_path/nix
 
 function check_mount() {
+    sudo mkdir -p $nix_path
+
     # check nix subvolume
     if [ ! -d "$nix_frzr_path" ]; then
         echo "nix subvolume not found, creating..."
