@@ -19,4 +19,4 @@ curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/aur-pkgs/${pkgname}
 
 makepkg -fCcs
 
-sudo pacman -U --noconfirm *.pkg.tar.zst --overwrite "*"
+sudo pacman -U --noconfirm *.pkg.tar.zst --overwrite "*" --needed
