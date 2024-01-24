@@ -46,13 +46,14 @@ fi
 
 ICON_URL="https://github.com/dragoonDorise/EmuDeck/blob/main/icons/EmuDeck.png?raw=true"
 
+mkdir -p ~/Applications
+
 echo "Downloading icon"
 curl -L "${github_prefix}${ICON_URL}" -o ${tmp_dir}/EmuDeck.png
 cp ${tmp_dir}/EmuDeck.png ~/Applications/EmuDeck.png
 
 echo "Installing EmuDeck $RELEASE_VERSION"
 
-mkdir -p ~/Applications
 curl -L "${github_prefix}${RELEASE_URL}" -o ${tmp_dir}/EmuDeck.AppImage
 mv ${tmp_dir}/EmuDeck.AppImage ~/Applications/EmuDeck.AppImage
 chmod +x ~/Applications/EmuDeck.AppImage
