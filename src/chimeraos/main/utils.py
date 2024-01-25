@@ -75,7 +75,9 @@ def toggle_service(service_name, enable):
         logging.error(f"服务 {service_name} {action}失败: {e}")
 
 def check_decky_plugin_exists(plugin_name):
-    return os.path.isfile(os.path.expanduser("~/homebrew/plugins/{}/plugin.json".format(plugin_name)))
+    exists = os.path.isfile(os.path.expanduser(f"~/homebrew/plugins/{plugin_name}/plugin.json"))
+    logging.info(f"检查插件 {plugin_name} 是否存在: {exists}")
+    return exists
 
 
 def chk_hibernate():
