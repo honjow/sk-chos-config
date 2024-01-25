@@ -63,10 +63,14 @@ def check_service_active(service_name):
     
 def check_service_exists(service_name):
     try:
-        # 使用subprocess运行sudo systemctl status命令
-        subprocess.run(['sudo', 'systemctl', 'status', service_name], check=True)
-        return f"The service '{service_name}' exists."
-    except Exception as e:
+        output = subprocess.run(['sudo', 'systemctl', 'status', service_name], capture_output=True, text=True, check=False)
+        stderr = output.stderr.strip()
+        stdout = output.stdout.strip()
+
+        logging.info(f"check {service_name}\nstderr = {stderr}\nstdout = {stdout}")
+
+        return not "Could not find unit" in stderr or not "Loaded: not-found" in stdout
+    except subprocess.CalledProcessError as e:
         logging.info(f"服务 {service_name} 不存在或无法访问: {e}")
         return False
 

@@ -73,7 +73,7 @@ def handycon_install():
     logging.info("执行 HandyGCCS 更新操作")
     command = ("curl -L https://gitee.com/honjow/sk-chos-scripts/raw/master/install/install-handygccs-git.sh | sh "
               "&& sudo systemctl restart handycon.service")
-    return run_command(command, "HandyGCCS")
+    return run_command(command, "HandyGCCS 更新")
 
 def handycon_install_old():
     logging.info("执行 HandyGCCS 更新操作")
@@ -109,7 +109,7 @@ def handycon_install_old():
                    " && sudo systemctl restart handycon.service"
                    ).format(git_url, git_directory)
 
-    return run_command(command, "HandyGCCS")
+    return run_command(command, "HandyGCCS 更新")
 
 def handycon_uninstall_old():
     logging.info("执行 HandyGCCS 卸载操作")
@@ -129,7 +129,7 @@ def handycon_uninstall_old():
 def handycon_uninstall():
     logging.info("执行 HandyGCCS 卸载操作")
     command = ("sudo systemctl stop handycon && sudo systemctl disable handycon && sudo pacman -R handygccs-git --noconfirm")
-    return run_command(command, "HandyGCCS")
+    return run_command(command, "HandyGCCS 卸载")
 
 
 def decky_update_callback():
