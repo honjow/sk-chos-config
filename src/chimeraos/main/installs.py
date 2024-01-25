@@ -234,6 +234,10 @@ def decky_plugin_update(git_url, p_name=None):
     plugin_name = p_name if p_name else plugin_json["name"]
     plugin_parent_directory = os.path.expanduser("~/homebrew/plugins")
     plugin_directory = os.path.expanduser("{}/{}/".format(plugin_parent_directory, plugin_name))
+    
+    # if plugin_directory contains space
+    if " " in plugin_directory:
+        plugin_directory = plugin_directory.replace(" ", "-")
 
     deploy_command = (f"chmod -v 755 {plugin_parent_directory} "
                         f" && mkdir -p {plugin_directory} "
@@ -298,7 +302,7 @@ def hhd_decky_install():
     github_cdn_url = get_github_clone_cdn()
     if github_cdn_url:
         git_url = git_url.replace("https://github.com", github_cdn_url)
-    return decky_plugin_update(git_url)
+    return decky_plugin_update(git_url, p_name="hhd-decky")
 
 def emudeck_decky_controls_install():
     git_url = "https://github.com/EmuDeck/emudeck-decky-controls.git"
