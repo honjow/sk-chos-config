@@ -87,6 +87,10 @@ class ManagerItem(Gtk.Box):
         self.uninstall_callback = uninstall_callback
         self.install_button = None
         self.uninstall_button = None
+
+        # 创建按钮时不显示
+        self.uninstall_button_visible = False
+        self.install_button_visible = True
         
         self.installed_cb = installed_cb
 
@@ -131,7 +135,6 @@ class ManagerItem(Gtk.Box):
             self.uninstall_button.connect("clicked", self.on_uninstall_clicked)
             self.pack_start(self.uninstall_button, False, False, 0)
             if not self.current_installed:
-                # self.uninstall_button.hide()
                 GLib.idle_add(self.uninstall_button.hide)
 
         if self.install_callback is not None:
@@ -140,6 +143,25 @@ class ManagerItem(Gtk.Box):
             self.install_button.set_valign(Gtk.Align.CENTER)
             self.install_button.connect("clicked", self.on_install_clicked)
             self.pack_start(self.install_button, False, False, 0)
+
+        GLib.idle_add(self.check_and_update_visibility)
+
+        # 定期检查条件并更新按钮的可见性
+        # GLib.timeout_add(1000, self.check_and_update_visibility)
+
+    def check_and_update_visibility(self):
+        # 根据条件设置按钮的可见性
+        if self.current_installed:
+            self.uninstall_button_visible = True
+        else:
+            self.uninstall_button_visible = False
+
+        self.update_install_button()
+        # 更新按钮的可见性
+        self.update_buttons_visibility()
+
+        # 返回 True 继续定期检查，返回 False 停止检查
+        return True
 
     def disable_buttons(self):
         if self.install_button is not None:
@@ -162,15 +184,28 @@ class ManagerItem(Gtk.Box):
             self.current_installed = self.installed_cb
     
         if self.current_installed:
-            if self.install_button is not None:
-                self.install_button.set_label("更新")
-            if self.uninstall_button is not None:
-                self.uninstall_button.show()
+            self.uninstall_button_visible = True
         else:
-            if self.install_button is not None:
+            self.uninstall_button_visible = False
+        
+        # 更新按钮的可见性
+        GLib.idle_add(self.update_install_button)
+        GLib.idle_add(self.update_buttons_visibility)
+
+    def update_buttons_visibility(self):
+        # 根据条件设置按钮的可见性
+        if self.install_button is not None:
+            self.install_button.set_visible(self.install_button_visible)
+        if self.uninstall_button is not None:
+            self.uninstall_button.set_visible(self.uninstall_button_visible)
+    
+    def update_install_button(self):
+        if self.install_button is not None:
+            if self.current_installed:
+                self.install_button.set_label("更新")
+            else:
                 self.install_button.set_label("安装")
-            if self.uninstall_button is not None:
-                self.uninstall_button.hide()
+
 
     def completed(self, success, install=True, msg=None):
         self.reload_installed()
@@ -193,6 +228,10 @@ class ManagerItem(Gtk.Box):
                 buttons=Gtk.ButtonsType.OK,
                 text=msg,
             )
+        
+        # 更新按钮的可见性
+        GLib.idle_add(self.update_buttons_visibility)
+        self.check_and_update_visibility()
 
         dialog.run()
         dialog.destroy()

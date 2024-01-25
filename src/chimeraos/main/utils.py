@@ -52,15 +52,22 @@ def check_service_autostart(service_name):
     except subprocess.CalledProcessError:
         # 如果命令执行出错，则服务可能不存在或无法访问
         return False
-
-# 检查服务
+    
+def check_service_active(service_name):
+    try:
+        output = subprocess.check_output(['sudo', 'systemctl', 'is-active', service_name]).decode().strip()
+        return output == 'active'
+    except Exception as e:
+        logging.info(f"服务 {service_name} 不存在或无法访问: {e}")
+        return False
+    
 def check_service_exists(service_name):
     try:
-        # 使用`systemctl is-active`命令检查服务状态
-        subprocess.run(['sudo', 'systemctl', 'is-active', service_name], check=True, capture_output=True)
-        return True
-    except subprocess.CalledProcessError:
-        logging.info(f"服务 {service_name} 未运行")
+        # 使用subprocess运行sudo systemctl status命令
+        subprocess.run(['sudo', 'systemctl', 'status', service_name], check=True)
+        return f"The service '{service_name}' exists."
+    except Exception as e:
+        logging.info(f"服务 {service_name} 不存在或无法访问: {e}")
         return False
 
 def toggle_service(service_name, enable):
@@ -76,7 +83,7 @@ def toggle_service(service_name, enable):
 
 def check_decky_plugin_exists(plugin_name):
     exists = os.path.isfile(os.path.expanduser(f"~/homebrew/plugins/{plugin_name}/plugin.json"))
-    logging.info(f"检查插件 {plugin_name} 是否存在: {exists}")
+    logging.debug(f"检查插件 {plugin_name} 是否存在: {exists}")
     return exists
 
 
