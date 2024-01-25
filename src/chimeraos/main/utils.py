@@ -4,6 +4,7 @@
 import configparser
 import os
 import subprocess
+import glob
 
 from config import logging, SK_TOOL_PATH
 
@@ -214,10 +215,6 @@ def user_noto_fonts_cjk_exists():
     return os.path.isdir(os.path.expanduser("~/.fonts/noto-cjk"))
 
 def check_nix_exists():
-    # 检查是否存在 nix 命令, which nix
-    try:
-        subprocess.run(['which', 'nix'], check=True, capture_output=True)
-        return True
-    except Exception as e:
-        logging.debug("nix 未安装")
-        return False
+    nix_file = "/nix/store/*-nix-*/bin/nix"
+    matching_files = glob.glob(nix_file)
+    return len(matching_files) > 0
