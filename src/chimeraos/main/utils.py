@@ -69,7 +69,7 @@ def check_service_exists(service_name):
 
         logging.info(f"check {service_name}\nstderr = {stderr}\nstdout = {stdout}")
 
-        return not "Could not find unit" in stderr or not "Loaded: not-found" in stdout
+        return not "Could not find unit" in stderr and not "Loaded: not-found" in stdout
     except subprocess.CalledProcessError as e:
         logging.info(f"服务 {service_name} 不存在或无法访问: {e}")
         return False
