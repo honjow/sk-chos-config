@@ -10,7 +10,7 @@ import gi
 from component import SwitchItem
 import installs
 import utils
-from utils import check_service_autostart
+from utils import check_service_autostart,get_autoupdate,set_autoupdate
 
 from config import (
     PANED_RIGHT_MARGIN_START,
@@ -18,6 +18,7 @@ from config import (
     PANED_RIGHT_MARGIN_TOP,
     PANED_RIGHT_MARGIN_BOTTOM,
     USER,
+    HHD_SUPPORT_PRODUCT_NAME,
 )
 
 from config import PRODUCT_NAME, logging
@@ -36,10 +37,44 @@ class AutoUpdateSwitchPage(Gtk.Box):
 
         auto_update_enabled = check_service_autostart("sk-chos-tool-autoupdate.timer")
         switch_item_auto_update = SwitchItem(
-            "自动更新本软件",
-            "开启后会自动检查更新，建议开启",
+            "自动更新总开关",
+            "只有在开启后，下面的开关才会生效",
             auto_update_enabled,
             installs.auto_update_switch_callback,
         )
         self.pack_start(switch_item_auto_update, False, False, 0)
+
+        # sk-chos-tool 本身的自动更新开关
+        skt_key = "sk_chos_tool"
+        skt_update_enabled = get_autoupdate(skt_key)
+        switch_item_skt_update = SwitchItem(
+            "自动更新本软件",
+            "",
+            skt_update_enabled,
+            lambda enabled: set_autoupdate(skt_key, enabled),
+        )
+        self.pack_start(switch_item_skt_update, False, False, 0)
+
+        # HandyGCCS 的自动更新开关
+        handy_key = "handygccs"
+        handy_update_enabled = get_autoupdate(handy_key)
+        switch_item_handy_update = SwitchItem(
+            "自动更新 HandyGCCS",
+            "",
+            handy_update_enabled,
+            lambda enabled: set_autoupdate(handy_key, enabled),
+        )
+        self.pack_start(switch_item_handy_update, False, False, 0)
+
+        # hhd 的自动更新开关
+        if self.product_name in HHD_SUPPORT_PRODUCT_NAME:
+            hhd_key = "hhd"
+            hhd_update_enabled = get_autoupdate(hhd_key)
+            switch_item_hhd_update = SwitchItem(
+                "自动更新 HHD",
+                "",
+                hhd_update_enabled,
+                lambda enabled: set_autoupdate(hhd_key, enabled),
+            )
+            self.pack_start(switch_item_hhd_update, False, False, 0)
         

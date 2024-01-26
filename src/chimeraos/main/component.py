@@ -12,7 +12,7 @@ from config import logging
 
 
 class SwitchItem(Gtk.Box):
-    def __init__(self, title, description, initial_value=False, callback=None, turnOnCallback=None, turnOffCallback=None):
+    def __init__(self, title, description="", initial_value=False, callback=None, turnOnCallback=None, turnOffCallback=None):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
         self.set_margin_start(2)
         self.set_margin_end(2)

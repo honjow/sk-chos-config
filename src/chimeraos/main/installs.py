@@ -139,7 +139,7 @@ def hhd_install():
 
 def hhd_uninstall():
     logging.info("执行 HHD 卸载操作")
-    command = (f"sudo systemctl stop hhd@{USER} && sudo systemctl disable hhd@{USER} && sudo pacman -R hhd-git --noconfirm"))
+    command = (f"sudo systemctl stop hhd@{USER} && sudo systemctl disable hhd@{USER} && sudo pacman -R hhd-git --noconfirm")
     return run_command(command, "HHD 卸载")
 
 def decky_update_callback():

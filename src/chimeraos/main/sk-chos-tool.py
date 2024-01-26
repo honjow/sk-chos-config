@@ -7,6 +7,7 @@ from pages.switch import SwitchPage
 from pages.tool import ToolManagerPage
 from pages.soft import SoftManagerPage
 from pages.about import AboutPage
+from pages.autoupt_switch import AutoUpdateSwitchPage
 import utils
 from config import logging
 
@@ -59,6 +60,7 @@ class ColumnedWindow(Gtk.ApplicationWindow):
             "工具": ToolManagerPage(),
             "软件&游戏": SoftManagerPage(),
             "高级": AdvancePage(),
+            "自动更新": AutoUpdateSwitchPage(),
             "关于": AboutPage(),
         }
         self.scrolled_window_mapping = {}

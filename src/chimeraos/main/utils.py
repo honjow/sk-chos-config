@@ -6,7 +6,7 @@ import os
 import subprocess
 import glob
 
-from config import logging, SK_TOOL_PATH
+from config import logging, SK_TOOL_PATH, USER
 
 # 执行命令
 def run_command(command, name=""):
@@ -218,3 +218,58 @@ def check_nix_exists():
     nix_file = "/nix/store/*-nix-*/bin/nix"
     matching_files = glob.glob(nix_file)
     return len(matching_files) > 0
+
+def update_ini_file(file_path, section, key, new_value):
+    config = configparser.ConfigParser()
+
+    # 读取配置文件，如果文件不存在，会创建一个新的空文件
+    config.read(file_path)
+
+    # 检查类别是否存在，如果不存在则创建
+    if not config.has_section(section):
+        config.add_section(section)
+
+    # 添加或更新键值对
+    config.set(section, key, new_value)
+
+    # 保存配置文件
+    with open(file_path, 'w') as configfile:
+        config.write(configfile)
+
+def get_config_value(file_path, section, key):
+    config = configparser.ConfigParser()
+    config.read(file_path)
+
+    if config.has_section(section) and config.has_option(section, key):
+        value = config.get(section, key)
+        return value
+    else:
+        return None
+
+def get_autoupdate_config(key):
+    conf_dir = f"/home/{USER}/.config/sk-chos-tool"
+    os.makedirs(conf_dir, exist_ok=True)
+    config_file = f"{conf_dir}/autoupdate.conf"
+    section = "autoupdate"
+    value = get_config_value(config_file, section, key)
+    if value is None:
+        value = "true"
+        set_autoupdate_config(key, value)
+    return value
+
+def set_autoupdate_config(key, value):
+    conf_dir = f"/home/{USER}/.config/sk-chos-tool"
+    os.makedirs(conf_dir, exist_ok=True)
+    config_file = f"{conf_dir}/autoupdate.conf"
+    section = "autoupdate"
+    update_ini_file(config_file, section, key, value)
+
+
+def set_autoupdate(pkg_name, enable):
+    key = f"autoupdate.{pkg_name}"
+    set_autoupdate_config(key, str(enable).lower())
+
+def get_autoupdate(pkg_name):
+    key = f"autoupdate.{pkg_name}"
+    value = get_autoupdate_config(key)
+    return value == "true"
