@@ -44,7 +44,8 @@ class SwitchItem(Gtk.Box):
         self.desc_label.set_line_wrap_mode(Pango.WrapMode.WORD)
         self.desc_label.set_ellipsize(Pango.EllipsizeMode.NONE)
         self.desc_label.set_markup("<small>" + self.desc_label.get_text() + "</small>")
-        left_box.pack_start(self.desc_label, False, False, 0)
+        if description:
+            left_box.pack_start(self.desc_label, False, False, 0)
 
         # 右边开关部分
         self.switch = Gtk.Switch()
