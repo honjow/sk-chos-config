@@ -222,6 +222,9 @@ def check_nix_exists():
 def update_ini_file(file_path, section, key, new_value):
     config = configparser.ConfigParser()
 
+    # 不保留section前缀
+    config.optionxform = lambda option: option.split('.')[-1]
+
     # 读取配置文件，如果文件不存在，会创建一个新的空文件
     config.read(file_path)
 
