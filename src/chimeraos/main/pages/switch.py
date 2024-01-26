@@ -17,6 +17,8 @@ from config import (
     PANED_RIGHT_MARGIN_END,
     PANED_RIGHT_MARGIN_TOP,
     PANED_RIGHT_MARGIN_BOTTOM,
+    USER,
+    HHD_SUPPORT_PRODUCT_NAME,
 )
 
 from config import PRODUCT_NAME, logging
@@ -44,15 +46,8 @@ class SwitchPage(Gtk.Box):
         )
         self.pack_start(switch_item_handycon, False, False, 0)
 
-        if self.product_name in (
-            "83E1",
-            "ROG Ally RC71L_RC71L",
-            "ROG Ally RC71L",
-            "G1618-04",
-            "G1617-01",
-        ):
-            user = os.getenv("USER")
-            hhd_enabled = check_service_autostart(f"hhd@{user}.service")
+        if self.product_name in HHD_SUPPORT_PRODUCT_NAME:
+            hhd_enabled = check_service_autostart(f"hhd@{USER}.service")
             switch_item_hhd = SwitchItem(
                 "HHD",
                 "Handheld Daemon, 另一个手柄驱动程序, 通过模拟 PS5 手柄支持陀螺仪和背键能等功能. 不能和 HandyGCCS 同时使用. 请配合HHD Decky插件使用.",
@@ -91,54 +86,6 @@ class SwitchPage(Gtk.Box):
         )
         self.pack_start(switch_item_firmware_override, False, False, 0)
 
-        auto_update_enabled = check_service_autostart("sk-chos-tool-autoupdate.timer")
-        switch_item_auto_update = SwitchItem(
-            "自动更新本软件",
-            "开启后会自动检查更新，建议开启",
-            auto_update_enabled,
-            installs.auto_update_switch_callback,
-        )
-        self.pack_start(switch_item_auto_update, False, False, 0)
-
-        # grub_quiet_boot_enabled = utils.chk_grub_quiet_boot()
-        # switch_item_grub_quiet_boot = SwitchItem(
-        #     "静默启动",
-        #     "开启后启动时不显示GRUB命令行输出",
-        #     grub_quiet_boot_enabled,
-        #     installs.grub_quiet_boot_switch_callback,
-        # )
-        # self.pack_start(switch_item_grub_quiet_boot, False, False, 0)
-
-        # override_bitrate_enabled = utils.chk_override_bitrate()
-        # switch_item_override_bitrate = SwitchItem(
-        #     "破音修复",
-        #     "强制16bit音频输出",
-        #     override_bitrate_enabled,
-        #     installs.override_bitrate_switch_callback,
-        # )
-        # self.pack_start(switch_item_override_bitrate, False, False, 0)
-
-        # if self.product_name == "ONEXPLAYER 2 ARP23":
-        #     oxp2lsusb_enabled = check_service_autostart("oxp2-lsusb.service")
-        #     switch_item_oxp2lsusb = SwitchItem(
-        #         "OXP2手柄热插拔检测修复",
-        #         "修复OXP2手柄热插拔后不识别的问题",
-        #         oxp2lsusb_enabled,
-        #         installs.oxp2lsusb_switch_callback,
-        #     )
-        #     self.pack_start(switch_item_oxp2lsusb, False, False, 0)
-
-        #     oxp2_volume_button_fix_enabled = check_service_autostart(
-        #         "oxp2-volume-button-fix.service"
-        #     )
-        #     switch_item_oxp2_volume_button_fix = SwitchItem(
-        #         "OXP2音量键修复",
-        #         "修复OXP2音量键问题",
-        #         oxp2_volume_button_fix_enabled,
-        #         installs.oxp2_volume_button_fix_switch_callback,
-        #     )
-        #     self.pack_start(switch_item_oxp2_volume_button_fix, False, False, 0)
-
         if self.product_name in (
             "AIR",
             "AIR 1S",
@@ -158,3 +105,12 @@ class SwitchPage(Gtk.Box):
                 installs.aya_lc_suspend_switch_callback,
             )
             self.pack_start(switch_item_aya_lc_suspend, False, False, 0)
+        
+        auto_update_enabled = check_service_autostart("sk-chos-tool-autoupdate.timer")
+        switch_item_auto_update = SwitchItem(
+            "自动更新本软件",
+            "开启后会自动检查更新，建议开启",
+            auto_update_enabled,
+            installs.auto_update_switch_callback,
+        )
+        self.pack_start(switch_item_auto_update, False, False, 0)

@@ -1,4 +1,5 @@
 import logging
+import os
 
 SK_TOOL_PATH = "/usr/share/sk-chos-tool"
 
@@ -28,3 +29,13 @@ def get_product_name():
     return product_name
 
 PRODUCT_NAME = get_product_name()
+
+USER = os.getenv("USER")
+
+HHD_SUPPORT_PRODUCT_NAME = [
+    "83E1",
+    "ROG Ally RC71L_RC71L",
+    "ROG Ally RC71L",
+    "G1618-04",
+    "G1617-01",
+]

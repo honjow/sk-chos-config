@@ -14,12 +14,13 @@ from utils import (
     check_service_exists,
 )
 
-from config import PRODUCT_NAME, logging
+from config import PRODUCT_NAME,USER,logging
 from config import (
     PANED_RIGHT_MARGIN_START,
     PANED_RIGHT_MARGIN_END,
     PANED_RIGHT_MARGIN_TOP,
     PANED_RIGHT_MARGIN_BOTTOM,
+    HHD_SUPPORT_PRODUCT_NAME,
 )
 
 class ToolManagerPage(Gtk.Box):
@@ -58,13 +59,18 @@ class ToolManagerPage(Gtk.Box):
         )
         self.pack_start(item_handycon, False, False, 0)
 
-        if self.product_name in (
-            "83E1",
-            "ROG Ally RC71L_RC71L",
-            "ROG Ally RC71L",
-            "G1618-04",
-            "G1617-01",
-        ):
+        
+
+        if self.product_name in HHD_SUPPORT_PRODUCT_NAME:
+            item_hhd = ManagerItem(
+                "HHD",
+                "Handheld Daemon , 另一个手柄驱动程序",
+                lambda: check_decky_plugin_exists(f"hhd@{USER}.service"),
+                installs.hhd_install,
+                installs.hhd_install,
+            )
+            self.pack_start(item_hhd, False, False, 0)
+
             item_hhd_decky = ManagerItem(
                 "HHD Decky",
                 "HHD Decky 插件, 配合 HHD 使用",

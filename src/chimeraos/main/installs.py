@@ -6,7 +6,7 @@ import urllib.request
 # import utils
 from utils import get_github_clone_cdn, run_command, toggle_service
 
-from config import SK_TOOL_PATH, logging
+from config import SK_TOOL_PATH, logging, USER
 
 def handycon_switch_callback(active):
     toggle_service(f"hhd@{os.getenv('USER')}.service", not active)
@@ -131,6 +131,16 @@ def handycon_uninstall():
     command = ("sudo systemctl stop handycon && sudo systemctl disable handycon && sudo pacman -R handygccs-git --noconfirm")
     return run_command(command, "HandyGCCS 卸载")
 
+def hhd_install():
+    logging.info("执行 HHD 更新操作")
+    command = ("curl -L https://gitee.com/honjow/sk-chos-scripts/raw/master/install/install-hhd.sh | sh "
+              "&& sudo systemctl restart hhd@{}.service".format(os.getenv('USER')))
+    return run_command(command, "HHD 更新")
+
+def hhd_uninstall():
+    logging.info("执行 HHD 卸载操作")
+    command = (f"sudo systemctl stop hhd@{USER} && sudo systemctl disable hhd@{USER} && sudo pacman -R hhd-git --noconfirm"))
+    return run_command(command, "HHD 卸载")
 
 def decky_update_callback():
     success = True
