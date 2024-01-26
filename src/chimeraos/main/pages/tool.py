@@ -65,7 +65,7 @@ class ToolManagerPage(Gtk.Box):
             item_hhd = ManagerItem(
                 "HHD",
                 "Handheld Daemon , 另一个手柄驱动程序",
-                lambda: check_decky_plugin_exists(f"hhd@{USER}.service"),
+                lambda: check_service_exists(f"hhd@{USER}.service"),
                 installs.hhd_install,
                 installs.hhd_install,
             )
