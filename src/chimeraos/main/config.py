@@ -38,4 +38,5 @@ HHD_SUPPORT_PRODUCT_NAME = [
     "ROG Ally RC71L",
     "G1618-04",
     "G1617-01",
+    "AIR Plus",
 ]
