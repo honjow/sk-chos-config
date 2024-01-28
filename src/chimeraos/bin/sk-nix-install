@@ -65,17 +65,7 @@ function restore_btrfs_subvol() {
         fi
     fi
 
-    fstab_path=/etc/fstab
-    if [ ! -f "$fstab_path" ]; then
-        echo "fstab not found, skip..."
-    else
-        if grep -q $nix_path $fstab_path; then
-            echo "fstab entry found, removing..."
-            sudo sed -i "/$nix_path/d" $fstab_path
-        else
-            echo "fstab entry not found, skip..."
-        fi
-    fi
+    sudo sed -i "/LABEL=frzr_root \/nix/d" /etc/fstab
 
     # check mount
     if mount | grep -q $nix_path; then
