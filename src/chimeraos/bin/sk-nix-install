@@ -17,7 +17,6 @@ mount_path=/frzr_root
 nix_frzr_path=$mount_path/nix
 
 function check_mount() {
-    sudo mkdir -p $nix_path
 
     # check nix subvolume
     if [ ! -d "$nix_frzr_path" ]; then
@@ -51,11 +50,66 @@ function check_mount() {
     fi
 }
 
+function restore_btrfs_subvol() {
+    # check nix subvolume
+    if [ ! -d "$nix_frzr_path" ]; then
+        echo "nix path not found, skip..."
+    else
+        # check if subvolume exists
+        if sudo btrfs subvolume show $nix_frzr_path; then
+            echo "nix subvolume found"
+            sudo btrfs subvolume delete $nix_frzr_path
+        else
+            echo "$nix_frzr_path exists but is not a Btrfs subvolume."
+            sudo rm -rf $nix_frzr_path
+        fi
+    fi
+
+    if [ ! -f "$fstab_path" ]; then
+        echo "fstab not found, skip..."
+    else
+        if grep -q $nix_path /etc/fstab; then
+            echo "fstab entry found, removing..."
+            sudo sed -i "/$nix_path/d" $fstab_path
+        else
+            echo "fstab entry not found, skip..."
+        fi
+    fi
+
+    # check mount
+    if mount | grep -q $nix_path; then
+        echo "nix mounted, unmounting..."
+        sudo umount $nix_path
+    else
+        echo "nix not mounted, skip..."
+    fi
+}
+
+function bind_mount() {
+    sudo systemctl enable sk-bind-mount.service
+
+    # check bind mount status
+    if mount | grep -q $nix_path; then
+        echo "nix already mounted"
+    else
+        echo "nix not mounted, mounting..."
+        sudo systemctl start sk-bind-mount.service
+    fi
+}
+
 function install_nix() {
     sudo systemctl stop nix-daemon.socket || true
     sudo systemctl stop nix-daemon.service || true
 
-    check_mount
+    sudo systemctl start sk-bind-mount.service || true
+    sudo systemctl enable sk-bind-mount.service
+
+    sudo mkdir -p $nix_path
+
+    # check_mount
+    restore_btrfs_subvol
+
+    bind_mount
 
     if [ -f "$nix_bash_backup" ]; then
         sudo mv $nix_bash_backup /etc/bashrc
@@ -78,7 +132,10 @@ function install_nix() {
     fi
 
     curl -L https://mirrors.tuna.tsinghua.edu.cn/nix/latest/install | sudo sh -s -- --daemon --no-channel-add
-    source /etc/profile.d/nix.sh
+
+    if [ -f "$nix_profile" ]; then
+        source $nix_profile
+    fi
 
     sudo mkdir -p /etc/nix
 
@@ -87,7 +144,7 @@ function install_nix() {
     echo 'substituters = https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store https://cache.nixos.org/' | sudo tee -a /etc/nix/nix.conf
     sudo systemctl restart nix-daemon
 
-    source /etc/profile.d/nix.sh
+    
     sudo nix-channel --add https://mirrors.tuna.tsinghua.edu.cn/nix-channels/nixpkgs-unstable nixpkgs
     sudo nix-channel --update
 

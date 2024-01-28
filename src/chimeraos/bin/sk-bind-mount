@@ -5,14 +5,14 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-src=/home/.nix
-dst=/nix
+nix_src=/home/.nix
+nix_dst=/nix
 
 frzr-unlock
 
-# mkdir -p $src
-# mkdir -p $dst
+mkdir -p $nix_src
+mkdir -p $nix_dst
 
 # # bind mount
-# echo "Bind mounting $src to $dst..."
-# mount --bind $src $dst
+echo "Bind mounting $nix_src to $nix_dst..."
+mount --bind $nix_src $nix_dst
