@@ -59,6 +59,7 @@ update_handygccs=$(get_conf_value "$conf_path" "$section" "handygccs")
 update_hhd=$(get_conf_value "$conf_path" "$section" "hhd")
 update_frzr_sk=$(get_conf_value "$conf_path" "$section" "frzr_sk")
 update_device_quirks=$(get_conf_value "$conf_path" "$section" "device_quirks")
+update_gamescope_session=$(get_conf_value "$conf_path" "$section" "gamescope_session")
 
 # echo all values
 echo "update_sk_chos_tool: $update_sk_chos_tool"
@@ -66,6 +67,7 @@ echo "update_handygccs: $update_handygccs"
 echo "update_hhd: $update_hhd"
 echo "update_frzr_sk: $update_frzr_sk"
 echo "update_device_quirks: $update_device_quirks"
+echo "update_gamescope_session: $update_gamescope_session"
 
 
 sudo frzr-unlock
@@ -93,6 +95,9 @@ echo "update frzr-sk"
 
 echo "update device-quirks"
 /usr/bin/__device-quirks-update
+
+echo "update gamescope-session"
+/usr/bin/__gamescope-session-update
 
 
 echo "All done!"
