@@ -6,6 +6,8 @@ RequiresMountsFor=/nix/store
 [Service]
 Type=simple
 ExecStart=/bin/sh -c "/usr/bin/systemctl daemon-reload && /usr/bin/systemctl restart nix-daemon"
+Restart=on-failure
+RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target

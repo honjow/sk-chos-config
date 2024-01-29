@@ -95,6 +95,8 @@ function install_nix() {
     sudo systemctl start sk-bind-mount.service || true
     sudo systemctl enable sk-bind-mount.service
 
+    sudo systemctl enable nix-daemon-restart.service
+
     sudo mkdir -p $nix_path
 
     # check_mount
@@ -140,8 +142,6 @@ function install_nix() {
     sudo nix-channel --update
 
     sudo systemctl enable nix-daemon.service
-    sudo systemctl enable nix-daemon-restart.service
-
 }
 
 function uninstall_nix() {
