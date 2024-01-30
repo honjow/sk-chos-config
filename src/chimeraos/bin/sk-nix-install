@@ -124,9 +124,16 @@ function install_nix() {
         sudo mv /etc/profile.d/nix.sh.backup-before-nix /etc/profile.d/nix.sh
     fi
 
-    # if nixbld group exists
+    # delete nixbld user, nixbld1-nixbld31
+    for i in {1..31}; do
+        if id -u nixbld$i >/dev/null 2>&1; then
+            sudo userdel nixbld$i
+        fi
+    done
+
+    # if nixbld group exists, delete it
     if grep -q nixbld /etc/group; then
-        sudo usermod -aG nixbld $(whoami)
+        sudo groupdel nixbld
     fi
 
     curl -L https://mirrors.tuna.tsinghua.edu.cn/nix/latest/install | sudo sh -s -- --daemon --no-channel-add
@@ -138,15 +145,16 @@ function install_nix() {
     sudo mkdir -p /etc/nix
 
     # add trusted user
+    echo "add trusted user...."
     sudo echo "trusted-users = root $USER" | sudo tee /etc/nix/nix.conf && \
     echo 'substituters = https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store https://cache.nixos.org/' | sudo tee -a /etc/nix/nix.conf
-    sudo systemctl restart nix-daemon
-
     
+    echo "add nixpkgs-unstable channel...."
     sudo nix-channel --add https://mirrors.tuna.tsinghua.edu.cn/nix-channels/nixpkgs-unstable nixpkgs
     sudo nix-channel --update
 
-    sudo systemctl enable nix-daemon.service
+    echo "enable nix service...."
+    sudo systemctl enable --now nix-daemon.service
 }
 
 function uninstall_nix() {
@@ -162,6 +170,17 @@ function uninstall_nix() {
     sudo rm -f $nix_profile_backup || true
     sudo rm -f /etc/profile.d/nix.sh || true
     sudo rm -rf /nix/*
+
+    for i in {1..32}; do
+        if id -u nixbld$i >/dev/null 2>&1; then
+            sudo userdel nixbld$i
+        fi
+    done
+
+    # if nixbld group exists, delete it
+    if grep -q nixbld /etc/group; then
+        sudo groupdel nixbld
+    fi
 }
 
 
