@@ -124,6 +124,11 @@ function install_nix() {
         sudo mv /etc/profile.d/nix.sh.backup-before-nix /etc/profile.d/nix.sh
     fi
 
+    # if nixbld group exists
+    if grep -q nixbld /etc/group; then
+        sudo usermod -aG nixbld $(whoami)
+    fi
+
     curl -L https://mirrors.tuna.tsinghua.edu.cn/nix/latest/install | sudo sh -s -- --daemon --no-channel-add
 
     if [ -f "$nix_profile" ]; then
