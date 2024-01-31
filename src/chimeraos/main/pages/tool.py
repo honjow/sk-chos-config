@@ -59,8 +59,6 @@ class ToolManagerPage(Gtk.Box):
         )
         self.pack_start(item_handycon, False, False, 0)
 
-        
-
         if self.product_name in HHD_SUPPORT_PRODUCT_NAME:
             item_hhd = ManagerItem(
                 "HHD",
@@ -105,11 +103,7 @@ class ToolManagerPage(Gtk.Box):
             )
             self.pack_start(item_spb_lego, False, False, 0)
 
-        if self.product_name not in (
-            "83E1",
-            "ROG Ally RC71L_RC71L",
-            "ROG Ally RC71L",
-        ):
+        if self.product_name in HHD_SUPPORT_PRODUCT_NAME:
             item_ps5_to_xbox = ManagerItem(
                 "PS5-to-Xbox-glyphs",
                 "配合 HHD 使用的 CSS Loader 皮肤, 把模拟的 PS5 手柄按钮显示为 Xbox 的样式",
@@ -127,15 +121,6 @@ class ToolManagerPage(Gtk.Box):
             lambda: installs.remove_decky_plugin("SimpleDeckyTDP"),
         )
         self.pack_start(item_simple_decky_TDP, False, False, 0)
-
-        # item_steam_patch = ManagerItem(
-        #     "Steam-Patch",
-        #     "通过自带TDP控制条来调节功耗",
-        #     lambda: check_service_exists("steam-patch.service"),
-        #     installs.steam_patch_install,
-        #     installs.steam_patch_uninstall,
-        # )
-        # self.pack_start(item_steam_patch, False, False, 0)
 
         if self.product_name in (
             "AIR",
@@ -202,12 +187,3 @@ class ToolManagerPage(Gtk.Box):
             lambda: installs.remove_decky_plugin("tomoon"),
         )
         self.pack_start(item_tomoon, False, False, 0)
-
-        # item_emudeck_decky_controls = ManagerItem(
-        #     "emudeck-decky-controls",
-        #     "Decky Plugin to show Hotkeys in game",
-        #     lambda: check_decky_plugin_exists("emudeck-decky-controls"),
-        #     installs.emudeck_decky_controls_install,
-        #     lambda: installs.remove_decky_plugin("emudeck-decky-controls"),
-        # )
-        # self.pack_start(item_emudeck_decky_controls, False, False, 0)
