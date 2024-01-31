@@ -188,6 +188,20 @@ def chk_firmware_override():
     except FileNotFoundError:
         return False
     
+def chk_usb_wakeup():
+    file_path = "/etc/device-quirks/device-quirks.conf"
+    if not os.path.isfile(file_path):
+        return False
+    try:
+        with open(file_path, "r") as file:
+            content = file.readlines()
+            for line in content:
+                if "USB_WAKE_ENABLED=1" in line:
+                    return True
+    except FileNotFoundError:
+        return False
+
+    
 def get_config_value(filename, section, key):
     config = configparser.ConfigParser()
     config.read(filename)

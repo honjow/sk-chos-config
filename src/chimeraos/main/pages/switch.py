@@ -80,11 +80,20 @@ class SwitchPage(Gtk.Box):
         firmware_override_enabled = utils.chk_firmware_override()
         switch_item_firmware_override = SwitchItem(
             "firmware固件覆盖",
-            "启用DSDT覆盖等, 用于修复部分掌机的问题，切换后需要重启",
+            "启用DSDT覆盖等, 用于修复部分掌机的问题，切换后需要重启。建议开启",
             firmware_override_enabled,
             installs.firmware_override_switch_callback,
         )
         self.pack_start(switch_item_firmware_override, False, False, 0)
+
+        usb_wakeup_enabled = utils.chk_usb_wakeup()
+        switch_item_usb_wakeup = SwitchItem(
+            "USB唤醒",
+            "默认启用, 如果睡眠后马上唤醒, 可以尝试禁用",
+            usb_wakeup_enabled,
+            installs.usb_wakeup_switch_callback,
+        )
+        self.pack_start(switch_item_usb_wakeup, False, False, 0)
 
         if self.product_name in (
             "AIR",

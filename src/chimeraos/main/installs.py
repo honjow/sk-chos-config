@@ -345,6 +345,19 @@ def firmware_override_switch_callback(enable):
     else:
         run_command("sudo sk-firmware-override disable")
 
+def usb_wakeup_switch_callback(enable):
+    conf_path = "/etc/device-quirks/device-quirks.conf"
+    enable_str = "USB_WAKE_ENABLED=1"
+    disable_str = "USB_WAKE_ENABLED=0"
+    if enable:
+        logging.info("开启USB唤醒")
+        run_command(f"sudo sed -i 's/{disable_str}/{enable_str}/g' {conf_path}")
+    else:
+        logging.info("关闭USB唤醒")
+        run_command(f"sudo sed -i 's/{enable_str}/{disable_str}/g' {conf_path}")
+    run_command("sudo frzr-tweaks")
+    logging.info("USB唤醒设置完成")
+
 def emudeck_install():
     github_cdn_url = get_github_clone_cdn()
     github_prefix = github_cdn_url.replace("https://github.com", "")
