@@ -39,4 +39,8 @@ HHD_SUPPORT_PRODUCT_NAME = [
     "G1618-04",
     "G1617-01",
     "AIR Plus",
+    "AYANEO 2",
+    "AYANEO 2S",
+    "GEEK",
+    "GEEK 1S",
 ]
