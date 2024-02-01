@@ -26,13 +26,15 @@ class AdvancePage(Gtk.Box):
         clear_cache_button = AsyncActionFullButton(title="清除缓存", callback=utils.clear_cache)
         self.pack_start(clear_cache_button, False, False, 0)
 
-        boot_repair_button = AsyncActionFullButton(title="修复项启动", callback=utils.boot_repair)
+        boot_repair_button = AsyncActionFullButton(title="修复启动项", callback=utils.boot_repair)
         self.pack_start(boot_repair_button, False, False, 0)
 
         etc_repair_button = AsyncActionFullButton(title="修复 /etc", callback=utils.etc_repair)
         self.pack_start(etc_repair_button, False, False, 0)
 
-        etc_repair_full_button = AsyncActionFullButton(title="修复 /etc (完全)", callback=utils.etc_repair_full)
+        etc_repair_full_button = AsyncActionFullButton(title="修复 /etc (完全)",
+                                                       description="重启后需要重新配置网络连接, 重新安装启用Decky、手柄映射等",
+                                                       callback=utils.etc_repair_full)
         self.pack_start(etc_repair_full_button, False, False, 0)
 
         make_swapfile_button = AsyncActionFullButton(title="重新创建 swapfile", callback=utils.make_swapfile)

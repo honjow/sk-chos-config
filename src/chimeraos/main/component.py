@@ -250,25 +250,46 @@ class ManagerItem(Gtk.Box):
         self.disable_buttons()
         threading.Thread(target=self.execute_callback, args=(self.uninstall_callback, False)).start()
 
-class AsyncActionFullButton(Gtk.Button):
-    def __init__(self, title, callback=None):
-        Gtk.Button.__init__(self, label=title)
-
-        self.set_margin_start(5)
-        self.set_margin_end(5)
+class AsyncActionFullButton(Gtk.Box):
+    def __init__(self, title, description=None, callback=None):
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        self.set_margin_start(2)
+        self.set_margin_end(2)
         self.set_margin_top(5)
         self.set_margin_bottom(5)
-
-        self.set_sensitive(True)
 
         self.function_name = title
         self.callback = callback
 
-        self.connect("clicked", self.on_clicked)
+        self.button = Gtk.Button()
+        self.button.set_label(title)
+        self.button.set_margin_start(5)
+        self.button.set_margin_end(5)
+        self.button.set_margin_top(5)
+        self.button.set_margin_bottom(5)
+        self.button.set_sensitive(True)
+        self.button.connect("clicked", self.on_clicked)
+
+        self.pack_start(self.button, True, True, 0)
+
+        if description:
+            desc_label = Gtk.Label()
+            desc_label.set_text(description)
+            desc_label.set_halign(Gtk.Align.CENTER)
+            desc_label.set_valign(Gtk.Align.START)
+            desc_label.set_xalign(0)
+            desc_label.set_yalign(0)
+            desc_label.set_line_wrap(True)
+            desc_label.set_line_wrap_mode(Pango.WrapMode.WORD)
+            desc_label.set_ellipsize(Pango.EllipsizeMode.NONE)
+            desc_label.set_markup("<small>" + desc_label.get_text() + "</small>")
+            self.pack_start(desc_label, False, False, 0)
+        
+
 
     def on_clicked(self, button):
-        self.set_sensitive(False)
-        self.set_label("处理中...")
+        self.button.set_sensitive(False)
+        self.button.set_label("处理中...")
 
         # 在一个新线程中执行回调函数
         threading.Thread(target=self.execute_callback).start()
