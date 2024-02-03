@@ -43,4 +43,6 @@ HHD_SUPPORT_PRODUCT_NAME = [
     "AYANEO 2S",
     "GEEK",
     "GEEK 1S",
+    "AOKZOE A1 AR07",
+    "AOKZOE A1 Pro",
 ]
