@@ -13,12 +13,12 @@ import utils
 from utils import check_service_autostart
 
 from config import (
+    IS_HHD_SUPPORT,
     PANED_RIGHT_MARGIN_START,
     PANED_RIGHT_MARGIN_END,
     PANED_RIGHT_MARGIN_TOP,
     PANED_RIGHT_MARGIN_BOTTOM,
     USER,
-    HHD_SUPPORT_PRODUCT_NAME,
 )
 
 from config import PRODUCT_NAME, logging
@@ -46,7 +46,7 @@ class SwitchPage(Gtk.Box):
         )
         self.pack_start(switch_item_handycon, False, False, 0)
 
-        if self.product_name in HHD_SUPPORT_PRODUCT_NAME:
+        if IS_HHD_SUPPORT:
             hhd_enabled = check_service_autostart(f"hhd@{USER}.service")
             switch_item_hhd = SwitchItem(
                 "HHD",

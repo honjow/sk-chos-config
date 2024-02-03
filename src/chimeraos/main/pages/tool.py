@@ -14,13 +14,12 @@ from utils import (
     check_service_exists,
 )
 
-from config import PRODUCT_NAME,USER,logging
+from config import IS_HHD_SUPPORT, PRODUCT_NAME,USER,logging
 from config import (
     PANED_RIGHT_MARGIN_START,
     PANED_RIGHT_MARGIN_END,
     PANED_RIGHT_MARGIN_TOP,
     PANED_RIGHT_MARGIN_BOTTOM,
-    HHD_SUPPORT_PRODUCT_NAME,
 )
 
 class ToolManagerPage(Gtk.Box):
@@ -59,7 +58,7 @@ class ToolManagerPage(Gtk.Box):
         )
         self.pack_start(item_handycon, False, False, 0)
 
-        if self.product_name in HHD_SUPPORT_PRODUCT_NAME:
+        if IS_HHD_SUPPORT:
             item_hhd = ManagerItem(
                 "HHD",
                 "Handheld Daemon , 另一个手柄驱动程序",
@@ -103,7 +102,7 @@ class ToolManagerPage(Gtk.Box):
             )
             self.pack_start(item_spb_lego, False, False, 0)
 
-        if self.product_name in HHD_SUPPORT_PRODUCT_NAME:
+        if IS_HHD_SUPPORT:
             item_ps5_to_xbox = ManagerItem(
                 "PS5-to-Xbox-glyphs",
                 "配合 HHD 使用的 CSS Loader 皮肤, 把模拟的 PS5 手柄按钮显示为 Xbox 的样式",

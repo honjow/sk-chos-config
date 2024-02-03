@@ -13,12 +13,12 @@ import utils
 from utils import check_service_autostart,get_autoupdate,set_autoupdate
 
 from config import (
+    IS_HHD_SUPPORT,
     PANED_RIGHT_MARGIN_START,
     PANED_RIGHT_MARGIN_END,
     PANED_RIGHT_MARGIN_TOP,
     PANED_RIGHT_MARGIN_BOTTOM,
     USER,
-    HHD_SUPPORT_PRODUCT_NAME,
 )
 
 from config import PRODUCT_NAME, logging
@@ -67,7 +67,7 @@ class AutoUpdateSwitchPage(Gtk.Box):
         self.pack_start(switch_item_handy_update, False, False, 0)
 
         # hhd 的自动更新开关
-        if self.product_name in HHD_SUPPORT_PRODUCT_NAME:
+        if IS_HHD_SUPPORT:
             hhd_key = "hhd"
             hhd_update_enabled = get_autoupdate(hhd_key)
             switch_item_hhd_update = SwitchItem(

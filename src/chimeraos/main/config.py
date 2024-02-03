@@ -28,11 +28,23 @@ def get_product_name():
     logging.info(f"设备名称: {product_name}")
     return product_name
 
+def get_vendor_name():
+    vendor_name = ""
+    try:
+        with open("/sys/devices/virtual/dmi/id/board_vendor", "r") as f:
+            vendor_name = f.readline().strip()
+    except Exception as e:
+        logging.error(f"读取设备厂商名称失败: {e}")
+    logging.info(f"设备厂商名称: {vendor_name}")
+    return vendor_name
+
 PRODUCT_NAME = get_product_name()
+
+VENDOR_NAME = get_vendor_name()
 
 USER = os.getenv("USER")
 
-HHD_SUPPORT_PRODUCT_NAME = [
+hhd_support_product = [
     "83E1",
     "ROG Ally RC71L_RC71L",
     "ROG Ally RC71L",
@@ -46,3 +58,13 @@ HHD_SUPPORT_PRODUCT_NAME = [
     "AOKZOE A1 AR07",
     "AOKZOE A1 Pro",
 ]
+
+hhd_support_vendor = [
+    "AYANEO",
+    "GPD",
+]
+
+def is_hhd_support():
+    return PRODUCT_NAME in hhd_support_product or VENDOR_NAME in hhd_support_vendor
+
+IS_HHD_SUPPORT = is_hhd_support()
