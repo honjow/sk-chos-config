@@ -16,7 +16,7 @@ mkdir -p $temp_dir/$pkgname
 cd $temp_dir/$pkgname
 
 curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/aur-pkgs/${pkgname}/PKGBUILD" -o PKGBUILD
-curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/aur-pkgs/${pkgname}/000-rog-ally.patch" -o 000-rog-ally.patch
+# curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/aur-pkgs/${pkgname}/000-rog-ally.patch" -o 000-rog-ally.patch
 
 makepkg -fCcs --noconfirm
 
