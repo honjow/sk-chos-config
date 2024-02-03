@@ -84,7 +84,7 @@ if [[ "$handycon_status" == "enabled" && "$update_handygccs" != "false" ]]; then
     /usr/bin/__handygccs-update
 fi
 
-hhd_status=$(systemctl is-enabled "hhd@{$USER}.service" 2>/dev/null)
+hhd_status=$(systemctl is-enabled "hhd@${USER}.service" 2>/dev/null)
 if [[ "$hhd_status" == "enabled" && "$update_hhd" != "false" ]]; then
     echo "update hhd"
     /usr/bin/__hhd-update
