@@ -57,6 +57,8 @@ hhd_support_product = [
     "GEEK 1S",
     "AOKZOE A1 AR07",
     "AOKZOE A1 Pro",
+    "ONEXPLAYER Mini Pro",
+    "Loki Max",
 ]
 
 hhd_support_vendor = [
