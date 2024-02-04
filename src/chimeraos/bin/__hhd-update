@@ -8,7 +8,11 @@ if [ "$EUID" -eq 0 ]; then
     exit 1
 fi
 
-pkgname=hhd-git
+hhd_path="/usr/bin/hhd"
+# LANG=en_US pacman -Qo $hhd_path
+hhd_owner_package=$(LANG=en_US pacman -Qo $hhd_path | awk '{print $5}')
+
+pkgname=$hhd_owner_package
 
 temp_dir=$(mktemp -d)
 
@@ -16,7 +20,6 @@ mkdir -p $temp_dir/$pkgname
 cd $temp_dir/$pkgname
 
 curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/aur-pkgs/${pkgname}/PKGBUILD" -o PKGBUILD
-# curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/aur-pkgs/${pkgname}/000-rog-ally.patch" -o 000-rog-ally.patch
 
 makepkg -fCcs --noconfirm
 
