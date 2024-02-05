@@ -2,10 +2,12 @@
 
 DESKTOP_DIR=$HOME/Desktop
 
+sudo chmod +x "$DESKTOP_DIR"/*.desktop
+
 # Function to add execute permissions to desktop files
 add_execute_permission() {
     file=$1
-    chmod +x "$file"
+    sudo chmod +x "$file"
     echo "Added execute permission to $file"
 }
 
