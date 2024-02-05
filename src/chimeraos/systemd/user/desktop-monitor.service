@@ -1,0 +1,9 @@
+[Unit]
+Description=Desktop Permissions Monitor
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/sk-desktop-monitor
+
+[Install]
+WantedBy=default.target

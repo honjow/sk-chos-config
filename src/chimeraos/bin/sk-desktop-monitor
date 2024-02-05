@@ -1,0 +1,18 @@
+#!/bin/bash
+
+DESKTOP_DIR=$HOME/Desktop
+
+# Function to add execute permissions to desktop files
+add_execute_permission() {
+    file=$1
+    chmod +x "$file"
+    echo "Added execute permission to $file"
+}
+
+# Monitor the Desktop directory for changes
+inotifywait -m -r -e create --format '%w%f' "$DESKTOP_DIR" | while read file
+do
+    if [[ $file == *.desktop ]]; then
+        add_execute_permission "$file"
+    fi
+done
