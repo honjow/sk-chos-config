@@ -10,9 +10,9 @@ fi
 
 hhd_path="/usr/bin/hhd"
 # LANG=en_US pacman -Qo $hhd_path
-hhd_owner_package=$(LANG=en_US pacman -Qo $hhd_path | awk '{print $5}')
+hhd_owner_package=$(LANG=en_US pacman -Qo $hhd_path 2>/dev/null | awk '{print $5}')
 
-pkgname=$hhd_owner_package
+pkgname=${hhd_owner_package:-"hhd"}
 
 temp_dir=$(mktemp -d)
 
