@@ -1,0 +1,99 @@
+#!/bin/bash
+
+set -e
+
+# cant run this script as root
+if [ "$EUID" -eq 0 ]; then
+    echo "Please run this script as a normal user, not root."
+    exit 1
+fi
+
+pre_path=/usr/local/share/sk-pre
+
+decky_path=$pre_path/decky
+decky_file=$decky_path/PluginLoader
+decky_version_file=$decky_path/.loader.version
+decky_plugin_path=$pre_path/decky-plugins
+decky_plugin_hhd_path=$pre_path/decky-plugin-hhd
+css_path=$pre_path/css
+css_hhd_path=$pre_path/css-hhd
+
+USER_DIR=$HOME
+HOMEBREW_FOLDER="${USER_DIR}/homebrew"
+
+# install decky from local
+if [[ -f $decky_file ]]; then
+    echo "Installing decky..."
+    
+    sudo rm -rf "${HOMEBREW_FOLDER}/services"
+    mkdir -p "${HOMEBREW_FOLDER}/services"
+    mkdir -p "${HOMEBREW_FOLDER}/plugins"
+    touch "${USER_DIR}/.steam/steam/.cef-enable-remote-debugging"
+    [ -d "${USER_DIR}/.var/app/com.valvesoftware.Steam/data/Steam/" ] && touch "${USER_DIR}/.var/app/com.valvesoftware.Steam/data/Steam/.cef-enable-remote-debugging"
+    
+    sudo cp $decky_file "${HOMEBREW_FOLDER}/services/PluginLoader"
+    sudo cp $decky_version_file "${HOMEBREW_FOLDER}/services/.loader.version"
+
+    sudo chmod +x "${HOMEBREW_FOLDER}/services/PluginLoader"
+
+    mkdir -p "${HOMEBREW_FOLDER}/services/.systemd"
+    cat > "${HOMEBREW_FOLDER}/services/.systemd/plugin_loader.service" <<- EOM
+[Unit]
+Description=SteamDeck Plugin Loader
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=simple
+User=root
+Restart=always
+ExecStart=${HOMEBREW_FOLDER}/services/PluginLoader
+WorkingDirectory=${HOMEBREW_FOLDER}/services
+KillSignal=SIGKILL
+Environment=PLUGIN_PATH=${HOMEBREW_FOLDER}/plugins
+Environment=UNPRIVILEGED_PATH=${HOMEBREW_FOLDER}
+Environment=PRIVILEGED_PATH=${HOMEBREW_FOLDER}
+Environment=LOG_LEVEL=INFO
+[Install]
+WantedBy=multi-user.target
+EOM
+    sudo cp "${HOMEBREW_FOLDER}/services/.systemd/plugin_loader.service" "/etc/systemd/system/plugin_loader.service"
+
+    sudo systemctl daemon-reload
+    sudo systemctl enable plugin_loader
+    sudo systemctl start plugin_loader
+fi
+
+if [[ -d $decky_plugin_path ]]; then
+    echo "Installing decky plugins..."
+    cp -r $decky_plugin_path/* "${HOMEBREW_FOLDER}/plugins"
+    sudo systemctl restart plugin_loader
+fi
+
+DEVICENAME=$(cat /sys/devices/virtual/dmi/id/product_name)
+
+HHD_SUPPORT_LIST="83E1:ROG Ally RC71L_RC71L:ROG Ally RC71L"
+
+GPD_LIST="G1618-04:G1617-01:G1619-04:G1619-05"
+AYA_LIST="AIR Plus:AYANEO 2:AYANEO 2S:GEEK:GEEK 1S:AIR:AIR Pro"
+AOKZOE_LIST="AOKZOE A1 AR07:AOKZOE A1 Pro"
+ONEXPLAYER_LIST="ONEXPLAYER Mini Pro"
+LOKI_LIST="Loki Max"
+
+HHD_SUPPORT_LIST="${HHD_SUPPORT_LIST}:${GPD_LIST}:${AYA_LIST}:${AOKZOE_LIST}:${ONEXPLAYER_LIST}:${LOKI_LIST}"
+
+if [[ -d $decky_plugin_hhd_path && ":${HHD_SUPPORT_LIST}:" =~ ":${DEVICENAME}:" ]]; then
+    echo "Installing decky HHD plugins..."
+    cp -r $decky_plugin_hhd_path/* "${HOMEBREW_FOLDER}/plugins"
+
+    if [[ -d $css_hhd_path ]]; then
+        echo "Installing hhd themes..."
+        cp -r $css_hhd_path/* "${HOMEBREW_FOLDER}/themes"
+    fi
+
+    echo "disabling handycon and enabling hhd@{USER}..."
+    sudo systemctl disable --now handycon
+    sudo systemctl enable --now hhd@{USER}
+
+    echo "restarting plugin_loader..."
+    sudo systemctl restart plugin_loader
+fi
