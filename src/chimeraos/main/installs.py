@@ -280,6 +280,12 @@ def power_control_bin_install():
     command = f"{SK_TOOL_PATH}/power_control_install.sh {github_prefix}"
     return run_command(command, "PowerControl bin")
 
+def hhd_decky_bin_install():
+    github_cdn_url = get_github_clone_cdn()
+    github_prefix = github_cdn_url.replace("https://github.com", "")
+    command = f"{SK_TOOL_PATH}/hhd_decky_install.sh {github_prefix}"
+    return run_command(command, "HHD-Decky bin")
+
 def ayaled_install():
     git_url = "https://github.com/honjow/ayaled.git"
     github_cdn_url = get_github_clone_cdn()

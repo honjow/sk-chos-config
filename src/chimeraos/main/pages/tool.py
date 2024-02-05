@@ -68,9 +68,18 @@ class ToolManagerPage(Gtk.Box):
             )
             self.pack_start(item_hhd, False, False, 0)
 
+            item_hhd_decky_bin = ManagerItem(
+                "HHD Decky (直装)",
+                "配合 HHD 使用, 直接安装版",
+                lambda: check_decky_plugin_exists("hhd-decky-bin"),
+                installs.power_control_bin_install,
+                lambda: installs.remove_decky_plugin("hhd-decky-bin"),
+            )
+            self.pack_start(item_hhd_decky_bin, False, False, 0)
+
             item_hhd_decky = ManagerItem(
-                "HHD Decky",
-                "HHD Decky 插件, 配合 HHD 使用",
+                "HHD Decky (编译版)",
+                "配合 HHD 使用",
                 lambda: check_decky_plugin_exists("hhd-decky"),
                 installs.hhd_decky_install,
                 lambda: installs.remove_decky_plugin("hhd-decky"),
