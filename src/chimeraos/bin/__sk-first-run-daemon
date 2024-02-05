@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+
+# cant run this script as root
+if [ "$EUID" -eq 0 ]; then
+    echo "Please run this script as a normal user, not root."
+    exit 1
+fi
+
+flag_file=/etc/sk-first-run-done
+
+if [ -f $flag_file ]; then
+    echo "First run already completed. Exiting."
+    exit 0
+fi
+
+echo "Running first run setup..."
+/usr/bin/sk-first-run
+
+# mark first run as complete
+echo "First run setup complete. Marking as complete."
+sudo touch $flag_file

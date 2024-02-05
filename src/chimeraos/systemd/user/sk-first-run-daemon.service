@@ -1,0 +1,10 @@
+[Unit]
+Description=Sk ChimersOS first run daemon
+ConditionPathExists=!/etc/sk-first-run-done
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/__sk-first-run-daemon
+
+[Install]
+WantedBy=default.target
