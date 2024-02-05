@@ -71,8 +71,7 @@ def aya_lc_suspend_switch_callback(active):
 
 def handycon_install():
     logging.info("执行 HandyGCCS 更新操作")
-    command = ("curl -L https://gitee.com/honjow/sk-chos-scripts/raw/master/install/install-handygccs-git.sh | sh "
-              "&& sudo systemctl restart handycon.service")
+    command = ("__handygccs-update && sudo systemctl restart handycon.service")
     return run_command(command, "HandyGCCS 更新")
 
 def handycon_install_old():
@@ -133,13 +132,15 @@ def handycon_uninstall():
 
 def hhd_install():
     logging.info("执行 HHD 更新操作")
-    command = ("curl -L https://gitee.com/honjow/sk-chos-scripts/raw/master/install/install-hhd.sh | sh "
-              "&& sudo systemctl restart hhd@{}.service".format(os.getenv('USER')))
+    command = (f"__hhd-update && sudo systemctl restart hhd@{USER}.service")
     return run_command(command, "HHD 更新")
 
 def hhd_uninstall():
     logging.info("执行 HHD 卸载操作")
-    command = (f"sudo systemctl stop hhd@{USER} && sudo systemctl disable hhd@{USER} && sudo pacman -R hhd-git --noconfirm")
+    hhd_path="/usr/bin/hhd"
+    hhd_owner_comand = "LANG=en_US pacman -Qo {} 2>/dev/null | awk '{print $5}'".format(hhd_path)
+    hhd_owner = os.popen(hhd_owner_comand).read().strip()
+    command = (f"sudo systemctl stop hhd@{USER} && sudo systemctl disable hhd@{USER} && sudo pacman -R {hhd_owner} --noconfirm")
     return run_command(command, "HHD 卸载")
 
 def decky_update_callback():
