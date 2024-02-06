@@ -1,6 +1,7 @@
 [Unit]
 Description=Sk ChimersOS first run daemon
-ConditionPathExists=!/etc/sk-first-run-done
+ConditionPathExists=|!/etc/sk-first-run-done
+ConditionPathExists=|/etc/sk-first-run-force
 
 [Service]
 Type=simple

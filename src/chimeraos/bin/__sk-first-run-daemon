@@ -10,14 +10,14 @@ fi
 
 flag_file=/etc/sk-first-run-done
 
-if [ -f $flag_file ]; then
-    echo "First run already completed. Exiting."
-    exit 0
+force_file=/etc/sk-first-run-force
+
+if [[ -f $force_file || ! -f $flag_file ]]; then
+    echo "Running first run setup..."
+    /usr/bin/sk-first-run
+
+    # mark first run as complete
+    echo "First run setup complete. Marking as complete."
+    sudo touch $flag_file
+    sudo rm -f $force_file
 fi
-
-echo "Running first run setup..."
-/usr/bin/sk-first-run
-
-# mark first run as complete
-echo "First run setup complete. Marking as complete."
-sudo touch $flag_file
