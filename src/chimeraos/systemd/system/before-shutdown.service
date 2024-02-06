@@ -1,0 +1,13 @@
+[Unit]
+Description=Shutdown service
+DefaultDependencies=no
+Before=shutdown.target reboot.target halt.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/bin/true
+ExecStop=/bin/systemctl stop hhd@gamer
+
+[Install]
+WantedBy=halt.target reboot.target shutdown.target
