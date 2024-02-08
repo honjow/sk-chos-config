@@ -19,9 +19,9 @@ from config import (
     PANED_RIGHT_MARGIN_TOP,
     PANED_RIGHT_MARGIN_BOTTOM,
     USER,
+    VENDOR_NAME,
+    PRODUCT_NAME,
 )
-
-from config import PRODUCT_NAME, logging
 
 class SwitchPage(Gtk.Box):
     def __init__(self):
@@ -30,11 +30,16 @@ class SwitchPage(Gtk.Box):
         self.set_margin_end(PANED_RIGHT_MARGIN_END)
         self.set_margin_top(PANED_RIGHT_MARGIN_TOP)
         self.set_margin_bottom(PANED_RIGHT_MARGIN_BOTTOM)
-        self.product_name = PRODUCT_NAME
         self.create_page()
 
     def create_page(self):
-        # is_sk_holo2 = utils.is_sk_holo2()
+        usb_wakeup_enabled = utils.chk_usb_wakeup()
+        switch_item_usb_wakeup = SwitchItem(
+            "USB唤醒",
+            "默认启用, 如果睡眠后马上唤醒, 可以尝试禁用",
+            usb_wakeup_enabled,
+            installs.usb_wakeup_switch_callback,
+        )
 
         handycon_enabled = check_service_autostart("handycon.service")
         switch_item_handycon = SwitchItem(
@@ -44,18 +49,19 @@ class SwitchPage(Gtk.Box):
             installs.handycon_switch_callback,
             turnOnCallback = lambda: switch_item_hhd.switch.set_active(False),
         )
-        self.pack_start(switch_item_handycon, False, False, 0)
 
-        if IS_HHD_SUPPORT:
-            hhd_enabled = check_service_autostart(f"hhd@{USER}.service")
-            switch_item_hhd = SwitchItem(
-                "HHD",
-                "Handheld Daemon, 另一个手柄驱动程序, 通过模拟 PS5 手柄支持陀螺仪和背键能等功能. 不能和 HandyGCCS 同时使用. 请配合HHD Decky插件使用.",
-                hhd_enabled,
-                installs.hhd_switch_callback,
-                turnOnCallback = lambda: switch_item_handycon.switch.set_active(False),
-            )
-            self.pack_start(switch_item_hhd, False, False, 0)
+        hhd_enabled = check_service_autostart(f"hhd@{USER}.service")
+        def hhd_turn_on_callback():
+            switch_item_handycon.switch.set_active(False)
+            if VENDOR_NAME == "AYANEO":
+                switch_item_usb_wakeup.switch.set_active(False)
+        switch_item_hhd = SwitchItem(
+            "HHD",
+            "Handheld Daemon, 另一个手柄驱动程序, 通过模拟 PS5 手柄支持陀螺仪和背键能等功能. 不能和 HandyGCCS 同时使用. 请配合HHD Decky插件使用.",
+            hhd_enabled,
+            installs.hhd_switch_callback,
+            turnOnCallback = hhd_turn_on_callback,
+        )
 
         sk_auto_keep_boot_entry_switch_enabled = check_service_autostart(
             "sk-auto-keep-boot-entry.service"
@@ -66,7 +72,6 @@ class SwitchPage(Gtk.Box):
             sk_auto_keep_boot_entry_switch_enabled,
             installs.sk_auto_keep_boot_entry_switch_callback,
         )
-        self.pack_start(switch_item_sk_auto_keep_boot_entry_switch, False, False, 0)
 
         hibernate_enabled = utils.chk_hibernate()
         switch_item_hibernate = SwitchItem(
@@ -75,7 +80,6 @@ class SwitchPage(Gtk.Box):
             hibernate_enabled,
             installs.hibernate_switch_callback,
         )
-        self.pack_start(switch_item_hibernate, False, False, 0)
 
         firmware_override_enabled = utils.chk_firmware_override()
         switch_item_firmware_override = SwitchItem(
@@ -84,18 +88,26 @@ class SwitchPage(Gtk.Box):
             firmware_override_enabled,
             installs.firmware_override_switch_callback,
         )
-        self.pack_start(switch_item_firmware_override, False, False, 0)
 
-        usb_wakeup_enabled = utils.chk_usb_wakeup()
-        switch_item_usb_wakeup = SwitchItem(
-            "USB唤醒",
-            "默认启用, 如果睡眠后马上唤醒, 可以尝试禁用",
-            usb_wakeup_enabled,
-            installs.usb_wakeup_switch_callback,
+        aya_lc_suspend_file = "/etc/handygccs/special_suspend"
+        aya_lc_suspend_enabled = os.path.isfile(aya_lc_suspend_file)
+        switch_item_aya_lc_suspend = SwitchItem(
+            "AYANEO LC键睡眠",
+            "默认为截图, 开启后LC键作为睡眠键(需要开启HandyGCCS)",
+            aya_lc_suspend_enabled,
+            installs.aya_lc_suspend_switch_callback,
         )
-        self.pack_start(switch_item_usb_wakeup, False, False, 0)
+        
 
-        if self.product_name in (
+        # layout
+        self.pack_start(switch_item_handycon, False, False, 0)
+        if IS_HHD_SUPPORT:
+            self.pack_start(switch_item_hhd, False, False, 0)
+        self.pack_start(switch_item_sk_auto_keep_boot_entry_switch, False, False, 0)
+        self.pack_start(switch_item_hibernate, False, False, 0)
+        self.pack_start(switch_item_firmware_override, False, False, 0)
+        self.pack_start(switch_item_usb_wakeup, False, False, 0)
+        if PRODUCT_NAME in (
             "AIR",
             "AIR 1S",
             "AIR Pro",
@@ -105,21 +117,4 @@ class SwitchPage(Gtk.Box):
             "GEEK 1S",
             "AYANEO 2S",
         ):
-            aya_lc_suspend_file = "/etc/handygccs/special_suspend"
-            aya_lc_suspend_enabled = os.path.isfile(aya_lc_suspend_file)
-            switch_item_aya_lc_suspend = SwitchItem(
-                "AYANEO LC键睡眠",
-                "默认为截图, 开启后LC键作为睡眠键(需要开启HandyGCCS)",
-                aya_lc_suspend_enabled,
-                installs.aya_lc_suspend_switch_callback,
-            )
             self.pack_start(switch_item_aya_lc_suspend, False, False, 0)
-        
-        # auto_update_enabled = check_service_autostart("sk-chos-tool-autoupdate.timer")
-        # switch_item_auto_update = SwitchItem(
-        #     "自动更新本软件",
-        #     "开启后会自动检查更新，建议开启",
-        #     auto_update_enabled,
-        #     installs.auto_update_switch_callback,
-        # )
-        # self.pack_start(switch_item_auto_update, False, False, 0)

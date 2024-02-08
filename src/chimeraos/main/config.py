@@ -2,6 +2,7 @@ import logging
 import os
 
 SK_TOOL_PATH = "/usr/share/sk-chos-tool"
+SK_TOOL_SCRIPTS_PATH = f"{SK_TOOL_PATH}/scripts"
 
 PANED_RIGHT_MARGIN_START = 20
 PANED_RIGHT_MARGIN_END = 20
@@ -52,13 +53,15 @@ hhd_support_product = [
     "G1617-01",
     "G1619-04",
     "G1619-05",
-    "AIR Plus",
     "AYANEO 2",
     "AYANEO 2S",
     "GEEK",
     "GEEK 1S",
     "AIR",
     "AIR Pro",
+    "AIR Plus",
+    "AIR 1S",
+    "AIR 1S Limited",
     "AOKZOE A1 AR07",
     "AOKZOE A1 Pro",
     "ONEXPLAYER Mini Pro",

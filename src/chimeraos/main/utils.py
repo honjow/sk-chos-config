@@ -6,7 +6,7 @@ import os
 import subprocess
 import glob
 
-from config import logging, SK_TOOL_PATH, USER
+from config import logging, SK_TOOL_SCRIPTS_PATH, USER
 
 # 执行命令
 def run_command(command, name=""):
@@ -138,21 +138,21 @@ def boot_repair():
     return run_command(command, "修复启动项")
 
 def etc_repair():
-    command = f"sudo {SK_TOOL_PATH}/etc_repair.sh"
+    command = f"sudo {SK_TOOL_SCRIPTS_PATH}/etc_repair.sh"
     success, ret_msg = run_command(command, "修复 /etc")
     if success:
         ret_msg = "重置完成, 重启生效"
     return success, ret_msg
 
 def make_swapfile():
-    command = f"sudo {SK_TOOL_PATH}/make_swapfile.sh"
+    command = f"sudo {SK_TOOL_SCRIPTS_PATH}/make_swapfile.sh"
     success, ret_msg = run_command(command, "重新创建swapfile")
     if success:
         ret_msg = "重新创建swapfile完成, 重启生效"
     return success, ret_msg
 
 def etc_repair_full():
-    command = f"sudo {SK_TOOL_PATH}/etc_repair.sh full"
+    command = f"sudo {SK_TOOL_SCRIPTS_PATH}/etc_repair.sh full"
     success, ret_msg = run_command(command, "修复 /etc (完全)")
     if success:
         ret_msg = "重置完成, 重启生效"
