@@ -53,7 +53,7 @@ class PanedScrolledWindow(Gtk.ScrolledWindow):
 class ColumnedWindow(Gtk.ApplicationWindow):
     def __init__(self, app):
         Gtk.Window.__init__(self, application=app, title="Sk ChimeraOS 配置")
-        self.set_default_size(700, 500)
+        self.set_default_size(800, 500)
 
         self.box_mapping = {
             "功能开关": SwitchPage(),
