@@ -152,8 +152,8 @@ sudo systemctl restart plugin_loader
 if [[ "$VENDOR" == "AYANEO" ]]; then
     echo "Disabling USB wakeup..."
     config_path="/etc/device-quirks/device-quirks.conf"
-    enable_str = "USB_WAKE_ENABLED=1"
-    disable_str = "USB_WAKE_ENABLED=0"
+    enable_str="USB_WAKE_ENABLED=1"
+    disable_str="USB_WAKE_ENABLED=0"
     if [[ -f $config_path ]]; then
         sudo sed -i "s/$enable_str/$disable_str/g" $config_path
         sudo frzr-tweaks
