@@ -48,8 +48,10 @@ HOMEBREW_FOLDER="${USER_DIR}/homebrew"
 # install decky from local
 if [[ -f $decky_file ]]; then
     echo "Installing decky..."
-    
-    sudo rm -rf "${HOMEBREW_FOLDER}/services"
+    if [[ -d "${HOMEBREW_FOLDER}/services" ]]; then
+        sudo rm -rf "${HOMEBREW_FOLDER}/services"
+    fi
+
     mkdir -p "${HOMEBREW_FOLDER}/services"
     mkdir -p "${HOMEBREW_FOLDER}/plugins"
     touch "${USER_DIR}/.steam/steam/.cef-enable-remote-debugging"

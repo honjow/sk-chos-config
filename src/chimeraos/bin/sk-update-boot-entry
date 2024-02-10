@@ -10,7 +10,7 @@ get_fbcon() {
     # AOKZOE
     AOK_LIST="AOKZOE A1 AR07:AOKZOE A1 Pro"
     # AYANEO AIR
-    AIR_LIST="AIR:AIR Pro:AIR 1S:AIR Plus:SLIDE"
+    AIR_LIST="AIR:AIR Pro:AIR 1S:AIR 1S Limited:AIR Plus:SLIDE"
     AYN_LIST="Loki Max:Loki Zero:Loki MiniPro"
     # Lenovo
     LENOVO_LIST="83E1"
