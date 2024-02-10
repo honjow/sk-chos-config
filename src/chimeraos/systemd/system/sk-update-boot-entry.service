@@ -1,7 +1,6 @@
 [Unit]
 Description=Auto update boot entry
 After=local-fs.target
-Before=update_boot_config.service
 
 [Service]
 Type=oneshot

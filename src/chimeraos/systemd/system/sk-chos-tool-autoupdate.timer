@@ -2,7 +2,7 @@
 Description=Trigger sk-chos-tool updates daily and at boot
 
 [Timer]
-OnBootSec=2min
+OnBootSec=1min
 OnCalendar=daily
 
 [Install]

@@ -1,6 +1,7 @@
 [Unit]
 Description=Set hostname to alphanumeric characters
 After=network.target
+After=sk-update-boot-entry.service
 
 [Service]
 Type=oneshot

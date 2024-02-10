@@ -2,6 +2,11 @@
 
 DEFAULT_HOSTNAME="SkChimeraOS"
 
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root or with sudo."
+    exit 1
+fi
+
 # 获取当前主机名
 current_hostname=$(hostnamectl --static)
 
@@ -20,9 +25,8 @@ hostnamectl set-hostname "$new_hostname"
 
 echo "New hostname: $new_hostname"
 
-if [[ "$current_hostname" != "$new_hostname" ]];then
-    sk-set-next-boot-entry && reboot
+if [[ "$current_hostname" != "$new_hostname" ]]; then
+    # 通知系统更新主机名
+    systemctl restart systemd-hostnamed
+    systemctl restart lightdm
 fi
-
-# 通知系统更新主机名
-systemctl restart systemd-hostnamed
