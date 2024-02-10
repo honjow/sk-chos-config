@@ -53,7 +53,7 @@ if [[ -f $decky_file ]]; then
 
     mkdir -p "${HOMEBREW_FOLDER}/services"
     mkdir -p "${HOMEBREW_FOLDER}/plugins"
-    mkidr -p "${HOMEBREW_FOLDER}/themes"
+    mkdir -p "${HOMEBREW_FOLDER}/themes"
     touch "${USER_DIR}/.steam/steam/.cef-enable-remote-debugging"
     [ -d "${USER_DIR}/.var/app/com.valvesoftware.Steam/data/Steam/" ] && touch "${USER_DIR}/.var/app/com.valvesoftware.Steam/data/Steam/.cef-enable-remote-debugging"
 
