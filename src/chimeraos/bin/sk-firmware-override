@@ -9,12 +9,14 @@ fi
 ACTION=$1
 
 function clear_boot_entries() {
-    # clear the boot entries
-    line=$(sed -n "3p" /boot/loader/entries/frzr.conf)
-    # if ends with "_override" then remove line
-    if [[ $line == *"_override" ]]; then
-        sed -i "3d" /boot/loader/entries/frzr.conf
-    fi
+    for conf in /boot/loader/entries/frzr*.conf; do
+        # clear the boot entries
+        line=$(sed -n "3p" "$conf")
+        # if ends with "_override" then remove line
+        if [[ $line == *"_override" ]]; then
+            sed -i "3d" "$conf"
+        fi
+    done
 }
 
 function enable_override() {

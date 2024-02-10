@@ -2,35 +2,34 @@
 
 get_fbcon() {
 
-	# Device specific configs
-	DEVICENAME=$(cat /sys/devices/virtual/dmi/id/product_name)
+    # Device specific configs
+    DEVICENAME=$(cat /sys/devices/virtual/dmi/id/product_name)
 
-	# OXP
-	OXP_LIST="ONE XPLAYER:ONEXPLAYER 1 T08:ONEXPLAYER 1S A08:ONEXPLAYER 1S T08:ONEXPLAYER mini A07:ONEXPLAYER mini GA72:ONEXPLAYER mini GT72:ONEXPLAYER Mini Pro:ONEXPLAYER GUNDAM GA72:ONEXPLAYER 2 ARP23:ONEXPLAYER 2 PRO ARP23P:ONEXPLAYER 2 PRO ARP23P EVA-01:ONEXPLAYER F1:ONEXPLAYER F1 EVA-01"
-	# AOKZOE
-	AOK_LIST="AOKZOE A1 AR07:AOKZOE A1 Pro"
-	# AYANEO AIR
-	AIR_LIST="AIR:AIR Pro:AIR 1S:AIR Plus:SLIDE"
-	AYN_LIST="Loki Max:Loki Zero:Loki MiniPro"
-	# Lenovo
-	LENOVO_LIST="83E1"
+    # OXP
+    OXP_LIST="ONE XPLAYER:ONEXPLAYER 1 T08:ONEXPLAYER 1S A08:ONEXPLAYER 1S T08:ONEXPLAYER mini A07:ONEXPLAYER mini GA72:ONEXPLAYER mini GT72:ONEXPLAYER Mini Pro:ONEXPLAYER GUNDAM GA72:ONEXPLAYER 2 ARP23:ONEXPLAYER 2 PRO ARP23P:ONEXPLAYER 2 PRO ARP23P EVA-01:ONEXPLAYER F1:ONEXPLAYER F1 EVA-01"
+    # AOKZOE
+    AOK_LIST="AOKZOE A1 AR07:AOKZOE A1 Pro"
+    # AYANEO AIR
+    AIR_LIST="AIR:AIR Pro:AIR 1S:AIR Plus:SLIDE"
+    AYN_LIST="Loki Max:Loki Zero:Loki MiniPro"
+    # Lenovo
+    LENOVO_LIST="83E1"
 
-	# AYANEO AYA
-	AYA_LIST="NEXT:NEXT Pro:NEXT Advance:NEXT Lite:AYANEO NEXT:AYANEO NEXT Pro:AYANEO NEXT Advance:AYA NEO Fouder:AYA NEO 2021:AYANEO 2021:AYANEO 2021 Pro:AYANEO 2021 Pro:AYANEO 2021 Pro Retro Power:AYANEO 2:GEEK:AYANEO 2S:GEEK 1S"
-	# GPD
-	GPD_LIST="G1619-01:G1621-02:MicroPC:G1617-01"
+    # AYANEO AYA
+    AYA_LIST="NEXT:NEXT Pro:NEXT Advance:NEXT Lite:AYANEO NEXT:AYANEO NEXT Pro:AYANEO NEXT Advance:AYA NEO Fouder:AYA NEO 2021:AYANEO 2021:AYANEO 2021 Pro:AYANEO 2021 Pro:AYANEO 2021 Pro Retro Power:AYANEO 2:GEEK:AYANEO 2S:GEEK 1S"
+    # GPD
+    GPD_LIST="G1619-01:G1621-02:MicroPC:G1617-01"
 
+    LEFT_LIST="${OXP_LIST}:${AIR_LIST}:${AOK_LIST}:${AYN_LIST}:${LENOVO_LIST}"
+    RIGHT_LIST="${AYA_LIST}:${GPD_LIST}"
 
-	LEFT_LIST="${OXP_LIST}:${AIR_LIST}:${AOK_LIST}:${AYN_LIST}:${LENOVO_LIST}"
-	RIGHT_LIST="${AYA_LIST}:${GPD_LIST}"
-
-	if [[  ":${LEFT_LIST}:" =~ ":${DEVICENAME}:" ]]; then
-		echo "fbcon=rotate:3"
-	elif [[ ":${RIGHT_LIST}:" =~ ":${DEVICENAME}:" ]]; then
-		echo "fbcon=rotate:1"
-	else
-		echo ""
-	fi
+    if [[ ":${LEFT_LIST}:" =~ ":${DEVICENAME}:" ]]; then
+        echo "fbcon=rotate:3"
+    elif [[ ":${RIGHT_LIST}:" =~ ":${DEVICENAME}:" ]]; then
+        echo "fbcon=rotate:1"
+    else
+        echo ""
+    fi
 
 }
 
@@ -44,7 +43,6 @@ NEED_REBOOT=${1:-"0"}
 
 echo "start frzr-unlock"
 frzr-unlock
-
 
 if efibootmgr | grep -q "Linux Boot Manager.*systemd-bootx64.efi"; then
     # Linux Boot Manager 已存在，不需要再次添加
@@ -64,22 +62,21 @@ fi
 # swap uuid
 swap_dev=$(awk '$2 == "partition" && $1 ~ "^/dev/[^z]" {print $1}' /proc/swaps)
 if [[ -n "$swap_dev" ]]; then
-  SWAP_PARTUUID=$(lsblk -no PARTUUID -f "$swap_dev")
+    SWAP_PARTUUID=$(lsblk -no PARTUUID -f "$swap_dev")
 fi
 echo "SWAP_PARTUUID=$SWAP_PARTUUID"
 
-# swap file
+# swap conf
 root_partuuid=$(lsblk -no PARTUUID $(mount | grep ' / ' | cut -d' ' -f1))
 
 if [ -f "/frzr_root/swap/swapfile" ]; then
     RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /frzr_root/swap/swapfile)
 fi
 
-
 if [ -d /tmp/frzr_root ]; then
-  source ${MOUNT_PATH}/etc/sk-chos/sk-chos.conf
+    source ${MOUNT_PATH}/etc/sk-chos/sk-chos.conf
 else
-  source /etc/sk-chos/sk-chos.conf
+    source /etc/sk-chos/sk-chos.conf
 fi
 
 RESUME_CMD=""
@@ -108,7 +105,7 @@ elif [[ -n "${RESUME_OFFSET}" ]]; then
     fi
 
     RESUME_CMD="resume=PARTUUID=${root_partuuid} resume_offset=${RESUME_OFFSET}"
-    
+
 elif [[ "${SWAP_FILE}" == "1" ]]; then
     echo "新创建 swapfile"
     /usr/bin/sk-mkswapfile
@@ -122,75 +119,69 @@ fi
 
 echo "RESUME_CMD=${RESUME_CMD}"
 
-
-# 
 FBCON=$(get_fbcon)
 
+# 遍历 /boot/loader/entries 路径下的所有 frzr*.conf 文件
+for conf in /boot/loader/entries/frzr*.conf; do
+    if [ -f "$conf" ]; then
+        conf_base_name=$(basename "$conf")
+        curr_sys=$(grep -o "title [^[:space:]]*" "$conf" | sed "s/title //")
 
-# 检查 /boot/loader/entries/frzr.conf 文件是否存在
-if [ -f "/boot/loader/entries/frzr.conf" ]; then
-    curr_sys=$(grep -o "title [^[:space:]]*" "/boot/loader/entries/frzr.conf"|sed "s/title //")
+        # 检查文件中是否已存在 resume=，如果不存在，则添加
+        if ! grep -q "resume=" "$conf"; then
 
-    # 检查文件中是否已存在 resume=，如果不存在，则添加
-    if ! grep -q "resume=" "/boot/loader/entries/frzr.conf" ; then
+            echo "Add RESUME_CMD to $conf_base_name"
+            sed -i "s/ splash / splash ${RESUME_CMD} /" "$conf"
 
-        echo "Add RESUME_CMD to frzr.conf"
-        sed -i "s/ splash / splash ${RESUME_CMD} /" "/boot/loader/entries/frzr.conf"
-
-    else
-        # 获取已存在的 resume= 行的内容
-        existing_resume=$(grep -o "resume=[^[:space:]]*\(\s*resume_offset=[^[:space:]]*\)\?" "/boot/loader/entries/frzr.conf")
-        echo "已存在的 resume: ${existing_resume}"
-        
-        # 如果现有的 resume= 行与 RESUME_CMD 不匹配，则进行替换
-        if [ "${existing_resume}" != "${RESUME_CMD}" ]; then
-        
-            # 检查文件中是否已存在 resume_offset=，如果存在，则删除
-            # existing_resume_offset=$(grep -o "resume_offset=[^[:space:]]*" "/boot/loader/entries/frzr.conf")
-            # sed -i "s/${existing_resume_offset} //" "/boot/loader/entries/frzr.conf"
-
-            echo "替换 frzr.conf 中原有的 RESUME_CMD"
-            sed -i "s/${existing_resume}/${RESUME_CMD}/" "/boot/loader/entries/frzr.conf"   
-            
         else
-            NEED_REBOOT=0
-            echo "RESUME_CMD已存在并在frzr.conf中, 并且匹配. 无需更新"
+            # 获取已存在的 resume= 行的内容
+            existing_resume=$(grep -o "resume=[^[:space:]]*\(\s*resume_offset=[^[:space:]]*\)\?" "$conf")
+            echo "已存在的 resume: ${existing_resume}"
+
+            # 如果现有的 resume= 行与 RESUME_CMD 不匹配，则进行替换
+            if [ "${existing_resume}" != "${RESUME_CMD}" ]; then
+
+                echo "替换 $conf_base_name 中原有的 RESUME_CMD"
+                sed -i "s/${existing_resume}/${RESUME_CMD}/" "$conf"
+
+                NEED_REBOOT=$((NEED_REBOOT + 1))
+            else
+                echo "RESUME_CMD已存在并在$file中, 并且匹配. 无需更新"
+            fi
         fi
-    fi
 
-    # 检查文件中是否已存在 fbcon=，如果不存在，则添加
-    if ! grep -q "fbcon=" "/boot/loader/entries/frzr.conf" ; then
+        # 检查文件中是否已存在 fbcon=，如果不存在，则添加
+        if ! grep -q "fbcon=" "$conf"; then
 
-        if [[ -n "${FBCON}" ]]; then
-            echo "Add FBCON to frzr.conf"
-            sed -i "s/ splash / splash ${FBCON} /" "/boot/loader/entries/frzr.conf"
-        fi
+            if [[ -n "${FBCON}" ]]; then
+                echo "Add FBCON to $conf_base_name"
+                sed -i "s/ splash / splash ${FBCON} /" "$conf"
+            fi
 
-    else
-        # 获取已存在的 fbcon= 行的内容
-        existing_fbcon=$(grep -o "fbcon=[^[:space:]]*" "/boot/loader/entries/frzr.conf")
-        echo "已存在的 fbcon: ${existing_fbcon}"
-        
-        # 如果现有的 fbcon= 行与 FBCON 不匹配，则进行替换
-        if [ "${existing_fbcon}" != "${FBCON}" ]; then
-
-            sed -i "s/video=efifb //" "/boot/loader/entries/frzr.conf"
-        
-            echo "替换 frzr.conf 中原有的 FBCON"
-            sed -i "s/${existing_fbcon}/video=efifb ${FBCON}/" "/boot/loader/entries/frzr.conf"   
-            
         else
-            NEED_REBOOT=0
-            echo "FBCON已存在并在frzr.conf中, 并且匹配. 无需更新"
+            # 获取已存在的 fbcon= 行的内容
+            existing_fbcon=$(grep -o "fbcon=[^[:space:]]*" "$conf")
+            echo "已存在的 fbcon: ${existing_fbcon}"
+
+            # 如果现有的 fbcon= 行与 FBCON 不匹配，则进行替换
+            if [ "${existing_fbcon}" != "${FBCON}" ]; then
+
+                sed -i "s/video=efifb //" "$conf"
+
+                echo "替换 $conf_base_name 中原有的 FBCON"
+                sed -i "s/${existing_fbcon}/video=efifb ${FBCON}/" "$conf"
+
+                NEED_REBOOT=$((NEED_REBOOT + 1))
+
+            else
+                echo "FBCON已存在并在 $conf_base_name 中, 并且匹配. 无需更新"
+            fi
         fi
     fi
+done
 
-
-    if [[ "x${NEED_REBOOT}" == "x1" ]]; then
-        echo "reboot"
-        sk-set-next-boot-entry && reboot
-    fi
-
-else
-    echo "frzr.conf not found"
+# if NEED_REBOOT > 0, then reboot
+if [ "$NEED_REBOOT" -gt 0 ]; then
+    echo "Rebooting..."
+    sk-set-next-boot-entry && reboot
 fi
