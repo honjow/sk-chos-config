@@ -4,7 +4,7 @@ After=local-fs.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/sk-update-boot-entry 1
+ExecStart=/usr/bin/sk-update-boot-entry --reboot
 
 [Install]
 WantedBy=multi-user.target

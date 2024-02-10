@@ -1,5 +1,23 @@
 #!/bin/bash
 
+# Check if the script is running with root or sudo privileges
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root or with sudo."
+    exit 1
+fi
+
+NEED_REBOOT=${1:-"0"}
+if [[ "$1" == "--reboot" ]]; then
+    NEED_REBOOT=1
+fi
+
+if [[ "$1" == "--force" ]]; then
+    NEED_REBOOT=2
+fi
+
+echo "start frzr-unlock"
+frzr-unlock
+
 get_fbcon() {
 
     # Device specific configs
@@ -32,17 +50,6 @@ get_fbcon() {
     fi
 
 }
-
-# Check if the script is running with root or sudo privileges
-if [ "$EUID" -ne 0 ]; then
-    echo "This script must be run as root or with sudo."
-    exit 1
-fi
-
-NEED_REBOOT=${1:-"0"}
-
-echo "start frzr-unlock"
-frzr-unlock
 
 if efibootmgr | grep -q "Linux Boot Manager.*systemd-bootx64.efi"; then
     # Linux Boot Manager 已存在，不需要再次添加
@@ -180,8 +187,8 @@ for conf in /boot/loader/entries/frzr*.conf; do
     fi
 done
 
-# if NEED_REBOOT > 0, then reboot
-if [ "$NEED_REBOOT" -gt 0 ]; then
+# if NEED_REBOOT > 1, then reboot
+if [ "$NEED_REBOOT" -gt 1 ]; then
     echo "Rebooting..."
     sk-set-next-boot-entry && reboot
 fi
