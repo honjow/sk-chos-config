@@ -1,39 +1,38 @@
 name: Public AUR sk ChimeraOS Tool Git
 
 on:
-    push:
-        # branches:
-        #     - master
-        paths:
-            - 'pkgbuild_chimeraos_git/PKGBUILD'
-            - 'pkgbuild_chimeraos_git/*.install'
-    workflow_dispatch:
-    
+  push:
+    # branches:
+    #     - master
+    paths:
+      - "pkgbuild_chimeraos_git/PKGBUILD"
+      - "pkgbuild_chimeraos_git/*.install"
+  workflow_dispatch:
 
 jobs:
-    public_aur:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v2
+  public_aur:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-        - name: Update PKGBUILD
-          id: update
-          run: |
-            cd pkgbuild_chimeraos_git
-            git fetch --unshallow
-            pkgver=$(printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)")
-            echo "Updating PKGBUILD to version $pkgver"
-            sed -i "s/^pkgver=.*/pkgver=$pkgver/" PKGBUILD
+      - name: Update PKGBUILD
+        id: update
+        run: |
+          cd pkgbuild_chimeraos_git
+          git fetch --unshallow
+          pkgver=$(printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)")
+          echo "Updating PKGBUILD to version $pkgver"
+          sed -i "s/^pkgver=.*/pkgver=$pkgver/" PKGBUILD
 
-        - name: Publish AUR package
-          uses: KSXGitHub/github-actions-deploy-aur@v2.7.0
-          with:
-                pkgname: sk-chos-tool-git
-                pkgbuild: pkgbuild_chimeraos_git/PKGBUILD
-                assets: pkgbuild_chimeraos_git/*.install
-                commit_username: ${{ secrets.AUR_USERNAME }}
-                commit_email: ${{ secrets.AUR_EMAIL }}
-                ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
-                commit_message: Update AUR package
-                ssh_keyscan_types: rsa,dsa,ecdsa,ed25519
+      - name: Publish AUR package
+        uses: KSXGitHub/github-actions-deploy-aur@v2.7.0
+        with:
+          pkgname: sk-chos-tool-git
+          pkgbuild: pkgbuild_chimeraos_git/PKGBUILD
+          assets: pkgbuild_chimeraos_git/*.install
+          commit_username: ${{ secrets.AUR_USERNAME }}
+          commit_email: ${{ secrets.AUR_EMAIL }}
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          commit_message: Update AUR package
+          ssh_keyscan_types: rsa,dsa,ecdsa,ed25519
