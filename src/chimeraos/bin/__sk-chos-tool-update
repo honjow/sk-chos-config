@@ -8,7 +8,10 @@ if [ "$EUID" -eq 0 ]; then
     exit 1
 fi
 
-pkgname=sk-chos-tool
+main_path="/usr/bin/sk-chos-tool"
+owner_package=$(LANG=en_US pacman -Qo $main_path 2>/dev/null | awk '{print $5}')
+
+pkgname=${owner_package:-"sk-chos-tool"}
 
 temp_dir=$(mktemp -d)
 
