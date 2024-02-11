@@ -21,7 +21,7 @@ jobs:
         run: |
           cd pkgbuild_chimeraos
           git fetch --unshallow
-          pkgver=$(git describe --tags --abbrev=0 | sed 's/^v//)
+          pkgver=$(git describe --tags --abbrev=0 | sed 's/^v//')
           echo "Updating PKGBUILD to version $pkgver"
           sed -i "s/^pkgver=.*/pkgver=$pkgver/" PKGBUILD
           cat PKGBUILD
