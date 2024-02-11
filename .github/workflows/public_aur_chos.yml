@@ -24,9 +24,7 @@ jobs:
           pkgver=$(git describe --tags --abbrev=0 | sed 's/^v//)
           echo "Updating PKGBUILD to version $pkgver"
           sed -i "s/^pkgver=.*/pkgver=$pkgver/" PKGBUILD
-          git add PKGBUILD
-          git commit -m "Update PKGBUILD to version $pkgver"
-          git push
+          cat PKGBUILD
 
       - name: Publish AUR package
         uses: KSXGitHub/github-actions-deploy-aur@v2.7.0

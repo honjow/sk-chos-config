@@ -2,8 +2,6 @@ name: Public AUR sk ChimeraOS Tool Git
 
 on:
   push:
-    # branches:
-    #     - master
     paths:
       - "pkgbuild_chimeraos_git/PKGBUILD"
       - "pkgbuild_chimeraos_git/*.install"
