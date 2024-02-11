@@ -5,6 +5,8 @@ on:
     paths:
       - "pkgbuild_holoiso/PKGBUILD"
       - "pkgbuild_holoiso/*.install"
+    tags-ignore:
+        - '**'
   workflow_dispatch:
 
 jobs:

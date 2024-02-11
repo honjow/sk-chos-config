@@ -5,6 +5,8 @@ on:
     paths:
       - "pkgbuild_chimeraos_git/PKGBUILD"
       - "pkgbuild_chimeraos_git/*.install"
+    tags-ignore:
+        - '**'
   workflow_dispatch:
 
 jobs:
