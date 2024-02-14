@@ -138,10 +138,15 @@ def boot_repair():
     return run_command(command, "修复启动项")
 
 def etc_repair():
-    command = f"sudo {SK_TOOL_SCRIPTS_PATH}/etc_repair.sh"
+    command = f"sudo {SK_TOOL_SCRIPTS_PATH}/etc_repair.sh && sk-first-run"
     success, ret_msg = run_command(command, "修复 /etc")
     if success:
         ret_msg = "重置完成, 重启生效"
+    return success, ret_msg
+
+def re_first_run():
+    command = "sk-first-run"
+    success, ret_msg = run_command(command, "重新运行首次配置脚本")
     return success, ret_msg
 
 def make_swapfile():
@@ -152,7 +157,7 @@ def make_swapfile():
     return success, ret_msg
 
 def etc_repair_full():
-    command = f"sudo {SK_TOOL_SCRIPTS_PATH}/etc_repair.sh full"
+    command = f"sudo {SK_TOOL_SCRIPTS_PATH}/etc_repair.sh full && sk-first-run"
     success, ret_msg = run_command(command, "修复 /etc (完全)")
     if success:
         ret_msg = "重置完成, 重启生效"

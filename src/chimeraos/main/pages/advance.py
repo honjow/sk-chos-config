@@ -29,11 +29,16 @@ class AdvancePage(Gtk.Box):
         boot_repair_button = AsyncActionFullButton(title="修复启动项", callback=utils.boot_repair)
         self.pack_start(boot_repair_button, False, False, 0)
 
+        re_first_run_button = AsyncActionFullButton(title="重新运行首次自动配置脚本",
+                                                    description="从预下载路径中安装Decky、Decky插件、手柄映射等。初始化Sk-ChimeraOS的一些用户配置",
+                                                    callback=utils.re_first_run)
+        self.pack_start(re_first_run_button, False, False, 0)
+
         etc_repair_button = AsyncActionFullButton(title="修复 /etc", callback=utils.etc_repair)
         self.pack_start(etc_repair_button, False, False, 0)
 
         etc_repair_full_button = AsyncActionFullButton(title="修复 /etc (完全)",
-                                                       description="重启后需要重新配置网络连接, 重新安装启用Decky、手柄映射等",
+                                                       description="重启后需要重新配置网络连接等配置",
                                                        callback=utils.etc_repair_full)
         self.pack_start(etc_repair_full_button, False, False, 0)
 
