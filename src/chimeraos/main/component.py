@@ -305,7 +305,7 @@ class AsyncActionFullButton(Gtk.Box):
     def update_complete(self, result, ret_msg=None):
         # 更新完成后恢复按钮状态和文本
         self.set_sensitive(True)
-        self.set_label(self.function_name)
+        self.button.set_label(self.function_name)
 
         # 根据回调函数的运行结果显示对话框内容
         if result:

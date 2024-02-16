@@ -60,12 +60,6 @@ else
     /usr/bin/sk-chos-boot-fix 2>/dev/null
 fi
 
-service_status=$(systemctl is-enabled update_boot_config.service 2>/dev/null)
-if [[ "$service_status" == "enabled" ]]; then
-    echo "update_boot_config.service is enabled, disabling"
-    sudo systemctl disable --now update_boot_config.service
-fi
-
 # swap uuid
 swap_dev=$(awk '$2 == "partition" && $1 ~ "^/dev/[^z]" {print $1}' /proc/swaps)
 if [[ -n "$swap_dev" ]]; then
