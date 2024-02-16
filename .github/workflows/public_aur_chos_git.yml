@@ -3,8 +3,8 @@ name: Public AUR sk ChimeraOS Tool Git
 on:
   push:
     paths:
-      - "pkgbuild_chimeraos_git/PKGBUILD"
-      - "pkgbuild_chimeraos_git/*.install"
+      - "pkgbuild/sk-chos-tool-git/PKGBUILD"
+      - "pkgbuild/sk-chos-tool-git/*.install"
     tags-ignore:
         - '**'
   workflow_dispatch:
@@ -19,7 +19,7 @@ jobs:
       - name: Update PKGBUILD
         id: update
         run: |
-          cd pkgbuild_chimeraos_git
+          cd pkgbuild/sk-chos-tool-git
           git fetch --unshallow
           pkgver=$(printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)")
           echo "Updating PKGBUILD to version $pkgver"
@@ -29,8 +29,8 @@ jobs:
         uses: KSXGitHub/github-actions-deploy-aur@v2.7.0
         with:
           pkgname: sk-chos-tool-git
-          pkgbuild: pkgbuild_chimeraos_git/PKGBUILD
-          assets: pkgbuild_chimeraos_git/*.install
+          pkgbuild: pkgbuild/sk-chos-tool-git/PKGBUILD
+          assets: pkgbuild/sk-chos-tool-git/*.install
           commit_username: ${{ secrets.AUR_USERNAME }}
           commit_email: ${{ secrets.AUR_EMAIL }}
           ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}

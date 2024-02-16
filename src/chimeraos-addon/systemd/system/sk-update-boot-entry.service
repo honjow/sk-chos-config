@@ -1,6 +1,7 @@
 [Unit]
 Description=Auto update boot entry
 After=local-fs.target
+After=frzr_root-swap-swapfile.swap
 
 [Service]
 Type=oneshot

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root or with sudo."
+    exit 1
+fi
+
+
+mv /boot/vmlinuz-linux-chimeraos /boot/vmlinuz-linux
+mv /boot/initramfs-linux-chimeraos.img /boot/initramfs-linux.img
+cp /boot/vmlinuz-linux /boot/initramfs-linux.img /boot/chimeraos-*_*/
+rm -f /boot/initramfs-linux-chimeraos-fallback.img
+
+rm /etc/mkinitcpio.d/linux-chimeraos.preset
