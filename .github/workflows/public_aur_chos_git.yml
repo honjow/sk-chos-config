@@ -6,7 +6,7 @@ on:
       - "pkgbuild/sk-chos-tool-git/PKGBUILD"
       - "pkgbuild/sk-chos-tool-git/*.install"
     tags-ignore:
-        - '**'
+        - 'v*'
   workflow_dispatch:
 
 jobs:

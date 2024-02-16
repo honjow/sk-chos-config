@@ -5,7 +5,7 @@ on:
     paths:
       - "pkgbuild/sk-chos-addon-git/PKGBUILD"
     tags-ignore:
-        - '**'
+        - 'v*'
   workflow_dispatch:
 
 jobs:
