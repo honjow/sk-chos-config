@@ -20,6 +20,6 @@ cd $temp_dir/$pkgname
 
 curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/aur-pkgs/${pkgname}/PKGBUILD" -o PKGBUILD
 
-makepkg -fCcs
+PKGDEST=$(pwd) pikaur --noconfirm --rebuild -P PKGBUILD
 
 sudo pacman -U --noconfirm *.pkg.tar.zst --overwrite "*" --needed
