@@ -75,6 +75,7 @@ sudo pacman -Sy
 
 if [[ "$update_sk_chos_tool" != "false" ]]; then
     echo "update sk-chos-tool"
+    /usr/bin/__sk-chos-addon-update
     /usr/bin/__sk-chos-tool-update
 fi
 

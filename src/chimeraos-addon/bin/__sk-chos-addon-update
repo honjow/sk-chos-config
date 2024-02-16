@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -e
+
+# cant run this script as root
+if [ "$EUID" -eq 0 ]; then
+    echo "Please run this script as a normal user, not root."
+    exit 1
+fi
+
+main_path="/usr/bin/__sk-chos-addon-update"
+owner_package=$(LANG=en_US pacman -Qo $main_path 2>/dev/null | awk '{print $5}')
+
+pkgname=${owner_package:-"sk-chos-addon"}
+
+temp_dir=$(mktemp -d)
+
+mkdir -p $temp_dir/$pkgname
+cd $temp_dir/$pkgname
+
+curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/aur-pkgs/${pkgname}/PKGBUILD" -o PKGBUILD
+
+makepkg -fCcs
+
+sudo pacman -U --noconfirm *.pkg.tar.zst --overwrite "*" --needed
