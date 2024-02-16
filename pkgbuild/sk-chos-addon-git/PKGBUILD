@@ -9,14 +9,13 @@ arch=('any')
 url="https://github.com/honjow/sk-holoiso-config.git"
 license=('MIT')
 makedepends=('git')
-depends=('python-gobject' 'gtk3' 'openssl' 'expect' 'efibootmgr')
+depends=('expect' 'efibootmgr')
 provides=(sk-chos-addon)
 conflicts=(sk-chos-addon)
 replaces=(sk-chos-addon)
 source=("git+$url")
 sha256sums=('SKIP')
 options=(!strip)
-install=sk-chos-tool.install
 
 pkgver() {
     cd "$srcdir/sk-holoiso-config"
