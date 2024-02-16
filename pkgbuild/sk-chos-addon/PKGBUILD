@@ -1,5 +1,6 @@
 # Maintainer: honjow
 pkgname=sk-chos-addon
+_basename=sk-chos-tool
 _reponame=sk-holoiso-config
 pkgver=1.0.3
 pkgrel=1
@@ -27,7 +28,7 @@ package() {
 
     # conf
     install -dm755 "${pkgdir}/etc/${pkgname}"
-    install -m644 -t "${pkgdir}/etc/${pkgname}" "${source_dir}/etc/${pkgname}"/*.conf
+    install -m644 -t "${pkgdir}/etc/${pkgname}" "${source_dir}/etc/${_basename}"/*.conf
 
     # service
     install -dm755 "${pkgdir}/usr/lib/systemd/system"

@@ -1,7 +1,8 @@
 # Maintainer: honjow
 pkgname=sk-chos-addon-git
+_basename=sk-chos-tool
 _pkgname=sk-chos-addon
-pkgver=r312.1ac44fd
+pkgver=r321.c5842f1
 pkgrel=1
 pkgdesc="Addon for sk-chimeros"
 arch=('any')
@@ -32,7 +33,7 @@ package() {
 
     # conf
     install -dm755 "${pkgdir}/etc/${_pkgname}"
-    install -m644 -t "${pkgdir}/etc/${_pkgname}" "${source_dir}/etc/${_pkgname}"/*.conf
+    install -m644 -t "${pkgdir}/etc/${_pkgname}" "${source_dir}/etc/${_basename}"/*.conf
 
     # service
     install -dm755 "${pkgdir}/usr/lib/systemd/system"
