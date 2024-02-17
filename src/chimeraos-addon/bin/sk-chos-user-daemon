@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "Auto set shell"
+/usr/bin/sk-auto-set-shell

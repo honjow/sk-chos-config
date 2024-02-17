@@ -1,0 +1,10 @@
+[Unit]
+Description=Sk-Chimeraos user daemon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/sk-chos-user-daemon
+
+[Install]
+WantedBy=default.target

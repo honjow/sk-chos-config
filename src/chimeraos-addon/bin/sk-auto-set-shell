@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Check if zsh is installed
+if [ -x "$(command -v zsh)" ]; then
+    echo "zsh is installed."
+    sudo usermod -s /bin/zsh "$USER"
+    echo "Changed $USER's shell to zsh."
+else
+    echo "zsh is not installed."
+    sudo usermod -s /bin/bash "$USER"
+    echo "Changed $USER's shell to bash."
+fi
