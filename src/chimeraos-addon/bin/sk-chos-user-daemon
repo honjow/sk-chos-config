@@ -2,3 +2,6 @@
 
 echo "Auto set shell"
 /usr/bin/sk-auto-set-shell
+
+echo "reset Internal screen"
+sed -i '/Internal screen/d' "${HOME}/.config/gamescope/modes.cfg"
