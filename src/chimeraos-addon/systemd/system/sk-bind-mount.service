@@ -7,4 +7,4 @@ Type=simple
 ExecStart=/usr/bin/sk-bind-mount
 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target
