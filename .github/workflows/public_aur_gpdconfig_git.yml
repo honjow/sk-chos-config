@@ -4,7 +4,6 @@ on:
   push:
     paths:
       - "pkgbuild/gpdconfig-git/PKGBUILD"
-      - "pkgbuild/gpdconfig-git/*.install"
     tags-ignore:
         - 'v*'
   workflow_dispatch:
@@ -30,7 +29,6 @@ jobs:
         with:
           pkgname: gpdconfig-git
           pkgbuild: pkgbuild/gpdconfig-git/PKGBUILD
-          assets: pkgbuild/gpdconfig-git/*.install
           commit_username: ${{ secrets.AUR_USERNAME }}
           commit_email: ${{ secrets.AUR_EMAIL }}
           ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
