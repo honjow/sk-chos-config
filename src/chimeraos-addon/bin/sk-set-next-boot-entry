@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # 使用efibootmgr获取当前的启动项编号
 boot_current=$(efibootmgr | grep "BootCurrent" | awk -F' ' '{print $2}')
 
