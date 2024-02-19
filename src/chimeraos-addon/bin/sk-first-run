@@ -90,7 +90,7 @@ EOM
 fi
 
 DEVICENAME=$(cat /sys/devices/virtual/dmi/id/product_name)
-VENDOR=$(cat /sys/devices/virtual/dmi/id/board_vendor)
+VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
 
 ROG_LIST="ROG Ally RC71L_RC71L:ROG Ally RC71L"
 LGO_LIST="83E1"

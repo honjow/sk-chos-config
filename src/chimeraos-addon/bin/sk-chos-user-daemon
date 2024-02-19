@@ -1,7 +1,14 @@
 #!/bin/bash
 
+VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
+
 echo "Auto set shell"
 /usr/bin/sk-auto-set-shell
 
 echo "reset Internal screen"
 sed -i '/Internal screen/d' "${HOME}/.config/gamescope/modes.cfg"
+
+# check gpdconfig is installed
+if [[ -f /usr/bin/gpdconfig && "$VENDOR" == "GPD" ]]; then
+    gpdconfig l41=SYSRQ r41=PAUSE
+fi
