@@ -29,7 +29,7 @@ elif [[ ":${RIGHT_LIST}:" =~ ":${DEVICENAME}:" ]]; then
     ROTATE_OFFSET="1"
 fi
 
-if [["$ROTATE_OFFSET" != "0" ]]; then
+if [[ "$ROTATE_OFFSET" != "0" ]]; then
     export FBCON_PARA="rotate:$ROTATE_OFFSET"
 fi
 
