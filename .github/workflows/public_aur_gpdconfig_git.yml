@@ -19,11 +19,12 @@ jobs:
         id: update
         run: |
           git clone https://github.com/pelrun/pyWinControls.git && cd pyWinControls
-          git fetch --unshallow
+          git fetch
           pkgver=$(printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)")
-          echo "Updating PKGBUILD to version $pkgver"
           cd ..
-          sed -i "s/^pkgver=.*/pkgver=$pkgver/" PKGBUILD
+          tree
+          echo "Updating PKGBUILD to version $pkgver"
+          sed -i "s/^pkgver=.*/pkgver=$pkgver/" pkgbuild/gpdconfig-git/PKGBUILD
 
       - name: Publish AUR package
         uses: KSXGitHub/github-actions-deploy-aur@v2.7.0
