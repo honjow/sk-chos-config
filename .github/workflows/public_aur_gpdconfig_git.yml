@@ -18,10 +18,11 @@ jobs:
       - name: Update PKGBUILD
         id: update
         run: |
-          cd pkgbuild/gpdconfig-git
+          git clone https://github.com/pelrun/pyWinControls.git && cd pyWinControls
           git fetch --unshallow
           pkgver=$(printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)")
           echo "Updating PKGBUILD to version $pkgver"
+          cd ..
           sed -i "s/^pkgver=.*/pkgver=$pkgver/" PKGBUILD
 
       - name: Publish AUR package
