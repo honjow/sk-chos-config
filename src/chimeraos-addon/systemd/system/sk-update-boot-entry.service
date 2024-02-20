@@ -5,7 +5,7 @@ After=frzr_root-swap-swapfile.swap
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/sk-update-boot-entry --reboot
+ExecStart=/usr/bin/sk-update-boot-entry
 
 [Install]
 WantedBy=multi-user.target

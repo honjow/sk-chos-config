@@ -6,24 +6,32 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-NEED_REBOOT=${1:-"0"}
+set -e
+
 if [[ "$1" == "--reboot" ]]; then
-    NEED_REBOOT=1
+    REBOOT=True
+fi
+
+flag_file="/etc/.first-reboot-required"
+if [[ -f "$flag_file" ]]; then
+    REBOOT=True
 fi
 
 if [[ "$1" == "--force" ]]; then
-    NEED_REBOOT=2
+    FORCE=True
 fi
 
-echo "start frzr-unlock"
-frzr-unlock
+NEED_REBOOT="0"
+
+# echo "start frzr-unlock"
+# frzr-unlock
 
 get_fbcon() {
     if [[ -f /etc/sk-chos/screen-rotate ]]; then
         source /etc/sk-chos/screen-rotate
     fi
 
-    echo "$FBCON_PARA"
+    echo "fbcon=$FBCON_PARA"
 }
 
 if efibootmgr | grep -q "Linux Boot Manager.*systemd-bootx64.efi"; then
@@ -96,6 +104,7 @@ fi
 echo "RESUME_CMD=${RESUME_CMD}"
 
 FBCON=$(get_fbcon)
+echo "FBCON: ${FBCON}"
 
 # 遍历 /boot/loader/entries 路径下的所有 frzr*.conf 文件
 for conf in /boot/loader/entries/frzr*.conf; do
@@ -130,7 +139,7 @@ for conf in /boot/loader/entries/frzr*.conf; do
         if ! grep -q "fbcon=" "$conf"; then
 
             if [[ -n "${FBCON}" ]]; then
-                echo "Add FBCON to $conf_base_name"
+                echo "Add $FBCON to $conf_base_name"
                 sed -i "s/ splash / splash ${FBCON} /" "$conf"
             fi
 
@@ -156,8 +165,11 @@ for conf in /boot/loader/entries/frzr*.conf; do
     fi
 done
 
-# if NEED_REBOOT > 1, then reboot
-if [ "$NEED_REBOOT" -gt 1 ]; then
-    echo "Rebooting..."
+# if (NEED_REBOOT > 1 and REBOOT) or FORCE:
+if [[ $NEED_REBOOT -gt 1 && -n $REBOOT ]] || [[ -n $FORCE ]]; then
+    echo "重启系统"
+    if [[ -f "$flag_file" ]]; then
+        rm -f "$flag_file"
+    fi
     sk-set-next-boot-entry && reboot
 fi
