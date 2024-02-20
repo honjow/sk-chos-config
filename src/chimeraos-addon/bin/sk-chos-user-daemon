@@ -12,3 +12,15 @@ sed -i '/Internal screen/d' "${HOME}/.config/gamescope/modes.cfg"
 if [[ -f /usr/bin/gpdconfig && "$VENDOR" == "GPD" ]]; then
     gpdconfig l41=SYSRQ r41=PAUSE
 fi
+
+# pacman -Q , check install gnome-shell-extension-screen-autorotate
+if [[ $(pacman -Q | grep gnome-shell-extension-screen-autorotate) ]]; then
+    echo "gnome-shell-extension-screen-autorotate is installed"
+    # check gsettings is installed
+    if [[ -f /usr/bin/gsettings ]]; then
+        if [[ -f /etc/sk-chos/screen-rotate ]]; then
+            source /etc/sk-chos/screen-rotate
+            gsettings set org.gnome.shell.extensions.screen-rotate orientation-offset "${ROTATE_OFFSET}"
+        fi
+    fi
+fi
