@@ -149,18 +149,18 @@ class ToolManagerPage(Gtk.Box):
             item_huesync_bin = ManagerItem(
                 "HueSync (原Ayaled)",
                 "掌机 LED 灯控制Decky插件, 直接安装版",
-                lambda: check_decky_plugin_exists("HeuSync"),
+                lambda: check_decky_plugin_exists("HueSync"),
                 installs.huesync_bin_install,
-                lambda: installs.remove_decky_plugin("HeuSync"),
+                lambda: installs.remove_decky_plugin("HueSync"),
             )
             self.pack_start(item_huesync_bin, False, False, 0)
 
             item_huesync = ManagerItem(
                 "HueSync (原Ayaled) (编译版)",
                 "掌机 LED 灯控制Decky插件, 源码编译安装",
-                lambda: check_decky_plugin_exists("HeuSync"),
+                lambda: check_decky_plugin_exists("HueSync"),
                 installs.huesync_install,
-                lambda: installs.remove_decky_plugin("HeuSync"),
+                lambda: installs.remove_decky_plugin("HueSync"),
             )
             self.pack_start(item_huesync, False, False, 0)
 
