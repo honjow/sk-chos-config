@@ -128,7 +128,7 @@ fi
 if [[ -d $decky_plugin_hhd_path ]]; then
     echo "Installing decky HHD plugins..."
     sudo chmod -R +w $HOMEBREW_FOLDER
-    cp -r $decky_plugin_hhd_path/* "${HOMEBREW_FOLDER}/plugins"
+    sudo cp -rf $decky_plugin_hhd_path/* "${HOMEBREW_FOLDER}/plugins"
 
     if [[ ":${HHD_SUPPORT_LIST}:" =~ ":${DEVICENAME}:" ]]; then
         echo "disabling handycon and enabling hhd@${USER}..."
