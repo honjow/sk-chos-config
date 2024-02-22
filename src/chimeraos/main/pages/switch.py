@@ -23,6 +23,7 @@ from config import (
     PRODUCT_NAME,
 )
 
+
 class SwitchPage(Gtk.Box):
     def __init__(self):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=10)
@@ -47,20 +48,22 @@ class SwitchPage(Gtk.Box):
             "用来驱动部分掌机的手柄按钮",
             handycon_enabled,
             installs.handycon_switch_callback,
-            turnOnCallback = lambda: switch_item_hhd.switch.set_active(False),
+            turnOnCallback=lambda: switch_item_hhd.switch.set_active(False),
         )
 
         hhd_enabled = check_service_autostart(f"hhd@{USER}.service")
+
         def hhd_turn_on_callback():
             switch_item_handycon.switch.set_active(False)
             if VENDOR_NAME == "AYANEO":
                 switch_item_usb_wakeup.switch.set_active(False)
+
         switch_item_hhd = SwitchItem(
             "HHD",
             "Handheld Daemon, 另一个手柄驱动程序, 通过模拟 PS5 手柄支持陀螺仪和背键能等功能. 不能和 HandyGCCS 同时使用. 请配合HHD Decky插件使用.",
             hhd_enabled,
             installs.hhd_switch_callback,
-            turnOnCallback = hhd_turn_on_callback,
+            turnOnCallback=hhd_turn_on_callback,
         )
 
         sk_auto_keep_boot_entry_switch_enabled = check_service_autostart(
@@ -97,7 +100,6 @@ class SwitchPage(Gtk.Box):
             aya_lc_suspend_enabled,
             installs.aya_lc_suspend_switch_callback,
         )
-        
 
         # layout
         self.pack_start(switch_item_handycon, False, False, 0)

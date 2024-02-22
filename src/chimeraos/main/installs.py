@@ -280,14 +280,20 @@ def power_control_bin_install():
     command = f"{SK_TOOL_SCRIPTS_PATH}/power_control_install.sh {github_prefix}"
     return run_command(command, "PowerControl bin")
 
+def huesync_bin_install():
+    github_cdn_url = get_github_clone_cdn()
+    github_prefix = github_cdn_url.replace("https://github.com", "")
+    command = f"{SK_TOOL_SCRIPTS_PATH}/huesync_install.sh {github_prefix}"
+    return run_command(command, "HueSync bin")
+
 def hhd_decky_bin_install():
     github_cdn_url = get_github_clone_cdn()
     github_prefix = github_cdn_url.replace("https://github.com", "")
     command = f"{SK_TOOL_SCRIPTS_PATH}/hhd_decky_install.sh {github_prefix}"
     return run_command(command, "HHD-Decky bin")
 
-def ayaled_install():
-    git_url = "https://github.com/honjow/ayaled.git"
+def huesync_install():
+    git_url = "https://github.com/honjow/huesync.git"
     github_cdn_url = get_github_clone_cdn()
     if github_cdn_url:
         git_url = git_url.replace("https://github.com", github_cdn_url)

@@ -4,6 +4,10 @@ import os
 SK_TOOL_PATH = "/usr/share/sk-chos-tool"
 SK_TOOL_SCRIPTS_PATH = f"{SK_TOOL_PATH}/scripts"
 
+LED_PATH = "/sys/class/leds/multicolor:chassis/"
+
+IS_LED_SUPPORTED = os.path.exists(LED_PATH)
+
 PANED_RIGHT_MARGIN_START = 20
 PANED_RIGHT_MARGIN_END = 20
 PANED_RIGHT_MARGIN_TOP = 8
@@ -77,3 +81,4 @@ def is_hhd_support():
     return PRODUCT_NAME in hhd_support_product or VENDOR_NAME in hhd_support_vendor
 
 IS_HHD_SUPPORT = is_hhd_support()
+

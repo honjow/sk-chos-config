@@ -12,6 +12,8 @@ from config import (
     PANED_RIGHT_MARGIN_TOP,
     PANED_RIGHT_MARGIN_BOTTOM,
 )
+
+
 class AboutPage(Gtk.Box):
     def __init__(self):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=10)
@@ -20,9 +22,9 @@ class AboutPage(Gtk.Box):
         self.set_margin_top(PANED_RIGHT_MARGIN_TOP)
         self.set_margin_bottom(PANED_RIGHT_MARGIN_BOTTOM)
         self.create_page()
-    
+
     def open_website(label, uri):
-        Gdk.spawn_command_line_async(f'xdg-open {uri}')
+        Gdk.spawn_command_line_async(f"xdg-open {uri}")
 
     def create_page(self):
 
@@ -46,9 +48,12 @@ class AboutPage(Gtk.Box):
         name_label.set_margin_top(10)
         name_label.set_margin_start(10)
         name_label.set_margin_end(10)
-        name_label.set_markup("<span font_weight='bold' font_size='large'>{}</span>".format(name_label.get_text()))
+        name_label.set_markup(
+            "<span font_weight='bold' font_size='large'>{}</span>".format(
+                name_label.get_text()
+            )
+        )
         self.pack_start(name_label, False, False, 0)
-
 
         version = utils.get_package_version("sk-chos-tool")
 

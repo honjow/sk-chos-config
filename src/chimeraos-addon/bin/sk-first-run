@@ -102,17 +102,19 @@ LOKI_LIST="Loki Max"
 
 HHD_SUPPORT_LIST="${LGO_LIST}:${ROG_LIST}:${GPD_LIST}:${AYA_LIST}:${AOKZOE_LIST}:${ONEXPLAYER_LIST}:${LOKI_LIST}"
 
-AYA_LED_LIST="AIR Plus:AYANEO 2:AYANEO 2S:GEEK:GEEK 1S:AIR:AIR Pro:AIR 1S:AIR 1S Limited:SLIDE"
+LED_LIST="AIR Plus:AYANEO 2:AYANEO 2S:GEEK:GEEK 1S:AIR:AIR Pro:AIR 1S:AIR 1S Limited:SLIDE:G1618-04"
+LED_PATH="/sys/class/leds/multicolor:chassis/"
 
 if [[ -d $decky_plugin_path ]]; then
     echo "Installing decky plugins..."
     sudo chmod -R +w $HOMEBREW_FOLDER
     cp -r $decky_plugin_path/* "${HOMEBREW_FOLDER}/plugins"
 
-    # if DEVICENAME not in AYA_LIST, delete ayaled
-    if [[ ! ":${AYA_LED_LIST}:" =~ ":${DEVICENAME}:" ]]; then
-        echo "Removing ayaled plugin..."
+    # if DEVICENAME not in LED_LIST and LED_PATH not exists, delete HueSync
+    if [[ ! ":${LED_LIST}:" =~ ":${DEVICENAME}:" &&  ! -d "${LED_PATH}" ]]; then
+        echo "Removing HueSync plugin..."
         rm -rf "${HOMEBREW_FOLDER}/plugins/ayaled" || true
+        rm -rf "${HOMEBREW_FOLDER}/plugins/HueSync" || true
     fi
 
     # if not cpu_match, delete PowerControl

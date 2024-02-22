@@ -5,12 +5,14 @@ import gi
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-import os
 import gi
 from component import SwitchItem
 import installs
-import utils
-from utils import check_service_autostart,get_autoupdate,set_autoupdate
+from utils import (
+    check_service_autostart,
+    get_autoupdate,
+    set_autoupdate,
+)
 
 from config import (
     IS_HHD_SUPPORT,
@@ -22,6 +24,7 @@ from config import (
 )
 
 from config import PRODUCT_NAME, logging
+
 
 class AutoUpdateSwitchPage(Gtk.Box):
     def __init__(self):
@@ -77,4 +80,3 @@ class AutoUpdateSwitchPage(Gtk.Box):
                 lambda enabled: set_autoupdate(hhd_key, enabled),
             )
             self.pack_start(switch_item_hhd_update, False, False, 0)
-        

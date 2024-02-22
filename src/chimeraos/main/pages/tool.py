@@ -14,13 +14,17 @@ from utils import (
     check_service_exists,
 )
 
-from config import IS_HHD_SUPPORT, PRODUCT_NAME,USER,logging
 from config import (
     PANED_RIGHT_MARGIN_START,
     PANED_RIGHT_MARGIN_END,
     PANED_RIGHT_MARGIN_TOP,
     PANED_RIGHT_MARGIN_BOTTOM,
+    IS_HHD_SUPPORT,
+    IS_LED_SUPPORTED,
+    PRODUCT_NAME,
+    USER,
 )
+
 
 class ToolManagerPage(Gtk.Box):
     def __init__(self):
@@ -85,7 +89,7 @@ class ToolManagerPage(Gtk.Box):
                 lambda: installs.remove_decky_plugin("hhd-decky"),
             )
             self.pack_start(item_hhd_decky, False, False, 0)
-        
+
         if self.product_name in (
             "ROG Ally RC71L_RC71L",
             "ROG Ally RC71L",
@@ -99,9 +103,7 @@ class ToolManagerPage(Gtk.Box):
             )
             self.pack_start(item_spb_ally, False, False, 0)
 
-        if self.product_name in (
-            "83E1",
-        ):
+        if self.product_name in ("83E1",):
             item_spb_lego = ManagerItem(
                 "SBP-Legion-Go-Theme",
                 "配合 HHD 使用的 CSS Loader 皮肤, 把模拟的 PS5 按钮显示为 Legion Go 的样式",
@@ -130,23 +132,37 @@ class ToolManagerPage(Gtk.Box):
         )
         self.pack_start(item_simple_decky_TDP, False, False, 0)
 
-        if self.product_name in (
-            "AIR",
-            "AIR 1S",
-            "AIR Pro",
-            "AYANEO 2",
-            "GEEK",
-            "AYANEO 2S",
-            "GEEK 1S",
-        ):
-            item_ayaled = ManagerItem(
-                "AYANEO LED",
-                "AYANEO掌机LED灯控制Decky插件",
-                lambda: check_decky_plugin_exists("ayaled"),
-                installs.ayaled_install,
-                lambda: installs.remove_decky_plugin("ayaled"),
+        if (
+            self.product_name
+            in (
+                "AIR",
+                "AIR 1S",
+                "AIR 1S Limited",
+                "AIR Pro",
+                "AYANEO 2",
+                "GEEK",
+                "AYANEO 2S",
+                "GEEK 1S",
             )
-            self.pack_start(item_ayaled, False, False, 0)
+            or IS_LED_SUPPORTED
+        ):
+            item_huesync_bin = ManagerItem(
+                "HueSync (原Ayaled)",
+                "掌机 LED 灯控制Decky插件, 直接安装版",
+                lambda: check_decky_plugin_exists("HeuSync"),
+                installs.huesync_bin_install,
+                lambda: installs.remove_decky_plugin("HeuSync"),
+            )
+            self.pack_start(item_huesync_bin, False, False, 0)
+
+            item_huesync = ManagerItem(
+                "HueSync (原Ayaled) (编译版)",
+                "掌机 LED 灯控制Decky插件, 源码编译安装",
+                lambda: check_decky_plugin_exists("HeuSync"),
+                installs.huesync_install,
+                lambda: installs.remove_decky_plugin("HeuSync"),
+            )
+            self.pack_start(item_huesync, False, False, 0)
 
         # Lenovo Legion Go
         if self.product_name == "83E1":
@@ -158,7 +174,6 @@ class ToolManagerPage(Gtk.Box):
                 lambda: installs.remove_decky_plugin("LegionGoRemapper"),
             )
             self.pack_start(item_LegionGoRemapper, False, False, 0)
-
 
         item_power_control_bin = ManagerItem(
             "PowerControl",

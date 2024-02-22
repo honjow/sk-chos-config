@@ -9,16 +9,16 @@ fi
 set -e
 
 if [[ "$1" == "--reboot" ]]; then
-    REBOOT=True
+    REBOOT=true
 fi
 
 flag_file="/etc/.first-reboot-required"
 if [[ -f "$flag_file" ]]; then
-    REBOOT=True
+    REBOOT=true
 fi
 
 if [[ "$1" == "--force" ]]; then
-    FORCE=True
+    FORCE=true
 fi
 
 NEED_REBOOT="0"
@@ -166,7 +166,7 @@ for conf in /boot/loader/entries/frzr*.conf; do
 done
 
 # if (NEED_REBOOT > 1 and REBOOT) or FORCE:
-if [[ $NEED_REBOOT -gt 1 && -n $REBOOT ]] || [[ -n $FORCE ]]; then
+if [[ $NEED_REBOOT -gt 1 && $REBOOT == true ]] || [[ $FORCE == true ]]; then
     echo "重启系统"
     if [[ -f "$flag_file" ]]; then
         rm -f "$flag_file"
