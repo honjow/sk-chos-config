@@ -111,7 +111,7 @@ if [[ -d $decky_plugin_path ]]; then
     cp -r $decky_plugin_path/* "${HOMEBREW_FOLDER}/plugins"
 
     # if DEVICENAME not in LED_LIST and LED_PATH not exists, delete HueSync
-    if [[ ! ":${LED_LIST}:" =~ ":${DEVICENAME}:" &&  ! -d "${LED_PATH}" ]]; then
+    if [[ ! ":${LED_LIST}:" =~ ":${DEVICENAME}:" && ! -d "${LED_PATH}" ]]; then
         echo "Removing HueSync plugin..."
         rm -rf "${HOMEBREW_FOLDER}/plugins/ayaled" || true
         rm -rf "${HOMEBREW_FOLDER}/plugins/HueSync" || true
@@ -128,7 +128,7 @@ fi
 if [[ -d $decky_plugin_hhd_path ]]; then
     echo "Installing decky HHD plugins..."
     sudo chmod -R +w $HOMEBREW_FOLDER
-    sudo cp -rf $decky_plugin_hhd_path/* "${HOMEBREW_FOLDER}/plugins"
+    sudo cp -rf $decky_plugin_hhd_path/* "${HOMEBREW_FOLDER}/plugins" || true
 
     if [[ ":${HHD_SUPPORT_LIST}:" =~ ":${DEVICENAME}:" ]]; then
         echo "disabling handycon and enabling hhd@${USER}..."
@@ -144,7 +144,16 @@ if [[ -d $css_hhd_path ]]; then
     elif [[ ":${LGO_LIST}:" =~ ":${DEVICENAME}:" ]]; then
         cp -r $css_hhd_path/*Legion-Go* "${HOMEBREW_FOLDER}/themes"
     else
-        cp -r $css_hhd_path/PS5-to-Xbox* "${HOMEBREW_FOLDER}/themes"
+        cp -r $css_hhd_path/*PS5-to* "${HOMEBREW_FOLDER}/themes"
+        if [[ -d "${HOMEBREW_FOLDER}/themes/SBP-PS5-to-Handheld" ]]; then
+            if [[ "$VENDOR" == "AYANEO" ]]; then
+                sed -i 's/Xbox/AYANEO/g' "${HOMEBREW_FOLDER}/themes/SBP-PS5-to-Handheld/config_USER.json"
+            elif [[ "$VENDOR" == "GPD" ]]; then
+                sed -i 's/Xbox/GPD/g' "${HOMEBREW_FOLDER}/themes/SBP-PS5-to-Handheld/config_USER.json"
+            elif [[ "$VENDOR" == "AOKZOE" || "$VENDOR" == "ONE-NETBOOK" ]]; then
+                sed -i 's#Xbox#Aokzoe/OneXPlayer#g' "${HOMEBREW_FOLDER}/themes/SBP-PS5-to-Handheld/config_USER.json"
+            fi
+        fi
     fi
 fi
 
