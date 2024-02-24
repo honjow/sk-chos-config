@@ -385,19 +385,19 @@ def noto_fonts_cjk_uninstall():
     command = f"{SK_TOOL_SCRIPTS_PATH}/noto_fonts_cjk_install.sh uninstall"
     return run_command(command, "Noto CJK Fonts")
 
-def spb_ally_exist():
-    path = "~/homebrew/themes/SBP-ROG-Ally"
-    path = os.path.expanduser(path)
-    return os.path.exists(path)
+# def spb_ally_exist():
+#     path = "~/homebrew/themes/SBP-ROG-Ally"
+#     path = os.path.expanduser(path)
+#     return os.path.exists(path)
 
-def spb_ally_install():
-    command = "curl -L https://raw.githubusercontent.com/honjow/sk-holoiso-config/master/scripts/install-SBP-ROG-Ally.sh | sh"
-    return run_command(command, "SBP-ROG-Ally")
+# def spb_ally_install():
+#     command = "curl -L https://raw.githubusercontent.com/honjow/sk-holoiso-config/master/scripts/install-SBP-ROG-Ally.sh | sh"
+#     return run_command(command, "SBP-ROG-Ally")
 
-def spb_ally_uninstall():
-    path = "~/homebrew/themes/SBP-ROG-Ally"
-    command = f"rm -rf {path}"
-    return run_command(command, "SBP-ROG-Ally")
+# def spb_ally_uninstall():
+#     path = "~/homebrew/themes/SBP-ROG-Ally"
+#     command = f"rm -rf {path}"
+#     return run_command(command, "SBP-ROG-Ally")
 
 def spb_lego_exist():
     path = "~/homebrew/themes/SBP-Legion-Go-Theme"
@@ -413,19 +413,33 @@ def spb_lego_uninstall():
     command = f"rm -rf {path}"
     return run_command(command, "SBP-Legion-Go-Theme")
 
-def ps5_to_xbox_exist():
-    path = "~/homebrew/themes/PS5-to-Xbox-glyphs"
+def ps5_to_h_exist():
+    path = "~/homebrew/themes/SBP-PS5-to-Handheld"
     path = os.path.expanduser(path)
     return os.path.exists(path)
 
-def ps5_to_xbox_install():
-    command = "curl -L https://raw.githubusercontent.com/honjow/sk-holoiso-config/master/scripts/install-PS5-to-Xbox-glyphs.sh | sh"
-    return run_command(command, "PS5-to-Xbox-glyphs")
+def ps5_to_h_install():
+    command = "curl -sL https://github.com/honjow/SBP-PS5-to-Handheld/raw/master/install.sh | sh"
+    return run_command(command, "SBP-PS5-to-Handheld")
 
-def ps5_to_xbox_uninstall():
-    path = "~/homebrew/themes/PS5-to-Xbox-glyphs"
+def ps5_to_h_uninstall():
+    path = "~/homebrew/themes/SBP-PS5-to-Handheld"
     command = f"rm -rf {path}"
-    return run_command(command, "PS5-to-Xbox-glyphs")
+    return run_command(command, "SBP-PS5-to-Handheld")
+
+# def ps5_to_xbox_exist():
+#     path = "~/homebrew/themes/PS5-to-Xbox-glyphs"
+#     path = os.path.expanduser(path)
+#     return os.path.exists(path)
+
+# def ps5_to_xbox_install():
+#     command = "curl -L https://raw.githubusercontent.com/honjow/sk-holoiso-config/master/scripts/install-PS5-to-Xbox-glyphs.sh | sh"
+#     return run_command(command, "PS5-to-Xbox-glyphs")
+
+# def ps5_to_xbox_uninstall():
+#     path = "~/homebrew/themes/PS5-to-Xbox-glyphs"
+#     command = f"rm -rf {path}"
+#     return run_command(command, "PS5-to-Xbox-glyphs")
 
 def nix_install():
     command = f"/usr/bin/sk-nix-install install"

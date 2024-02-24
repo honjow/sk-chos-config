@@ -90,18 +90,18 @@ class ToolManagerPage(Gtk.Box):
             )
             self.pack_start(item_hhd_decky, False, False, 0)
 
-        if self.product_name in (
-            "ROG Ally RC71L_RC71L",
-            "ROG Ally RC71L",
-        ):
-            item_spb_ally = ManagerItem(
-                "SBP-ROG-Ally-Theme",
-                "配合 HHD 使用的 CSS Loader 皮肤, 把模拟的 PS5 手柄按钮显示为 ROG Ally 的样式",
-                installs.spb_ally_exist,
-                installs.spb_ally_install,
-                installs.spb_ally_uninstall,
-            )
-            self.pack_start(item_spb_ally, False, False, 0)
+        # if self.product_name in (
+        #     "ROG Ally RC71L_RC71L",
+        #     "ROG Ally RC71L",
+        # ):
+        #     item_spb_ally = ManagerItem(
+        #         "SBP-ROG-Ally-Theme",
+        #         "配合 HHD 使用的 CSS Loader 皮肤, 把模拟的 PS5 手柄按钮显示为 ROG Ally 的样式",
+        #         installs.spb_ally_exist,
+        #         installs.spb_ally_install,
+        #         installs.spb_ally_uninstall,
+        #     )
+        #     self.pack_start(item_spb_ally, False, False, 0)
 
         if self.product_name in ("83E1",):
             item_spb_lego = ManagerItem(
@@ -114,14 +114,24 @@ class ToolManagerPage(Gtk.Box):
             self.pack_start(item_spb_lego, False, False, 0)
 
         if IS_HHD_SUPPORT:
-            item_ps5_to_xbox = ManagerItem(
-                "PS5-to-Xbox-glyphs",
-                "配合 HHD 使用的 CSS Loader 皮肤, 把模拟的 PS5 手柄按钮显示为 Xbox 的样式",
-                installs.ps5_to_xbox_exist,
-                installs.ps5_to_xbox_install,
-                installs.ps5_to_xbox_uninstall,
+            item_ps5_to_h = ManagerItem(
+                "SBP-PS5-to-Handheld",
+                "配合 HHD 使用的 CSS Loader 皮肤, 整合了 ROG Ally 和其它掌机以及 XBox 的样式",
+                installs.ps5_to_h_exist,
+                installs.ps5_to_h_install,
+                installs.ps5_to_h_uninstall,
             )
-            self.pack_start(item_ps5_to_xbox, False, False, 0)
+            self.pack_start(item_ps5_to_h, False, False, 0)
+
+        # if IS_HHD_SUPPORT:
+        #     item_ps5_to_xbox = ManagerItem(
+        #         "PS5-to-Xbox-glyphs",
+        #         "配合 HHD 使用的 CSS Loader 皮肤, 把模拟的 PS5 手柄按钮显示为 Xbox 的样式",
+        #         installs.ps5_to_xbox_exist,
+        #         installs.ps5_to_xbox_install,
+        #         installs.ps5_to_xbox_uninstall,
+        #     )
+        #     self.pack_start(item_ps5_to_xbox, False, False, 0)
 
         item_simple_decky_TDP = ManagerItem(
             "SimpleDeckyTDP",
