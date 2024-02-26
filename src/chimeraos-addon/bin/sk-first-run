@@ -48,7 +48,7 @@ USER_DIR=$HOME
 HOMEBREW_FOLDER="${USER_DIR}/homebrew"
 THEME_FOLDER="${HOMEBREW_FOLDER}/themes"
 
-DEVICENAME=$(cat /sys/devices/virtual/dmi/id/product_name)
+PRODUCT=$(cat /sys/devices/virtual/dmi/id/product_name)
 VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
 
 ROG_LIST="ROG Ally RC71L_RC71L:ROG Ally RC71L"
@@ -118,8 +118,8 @@ function install_decky_plugins() {
         sudo chmod -R +w $HOMEBREW_FOLDER
         cp -rf $decky_plugin_path/* "${HOMEBREW_FOLDER}/plugins"
 
-        # if DEVICENAME not in LED_LIST and LED_PATH not exists, delete HueSync
-        if [[ ! ":${LED_LIST}:" =~ ":${DEVICENAME}:" && ! -d "${LED_PATH}" ]]; then
+        # if PRODUCT not in LED_LIST and LED_PATH not exists, delete HueSync
+        if [[ ! ":${LED_LIST}:" =~ ":${PRODUCT}:" && ! -d "${LED_PATH}" ]]; then
             echo "Removing HueSync plugin..."
             rm -rf "${HOMEBREW_FOLDER}/plugins/ayaled" || true
             rm -rf "${HOMEBREW_FOLDER}/plugins/HueSync" || true
@@ -138,7 +138,7 @@ function install_decky_plugins() {
         sudo chmod -R +w $HOMEBREW_FOLDER
         cp -rf $decky_plugin_hhd_path/* "${HOMEBREW_FOLDER}/plugins" || true
 
-        if [[ ":${HHD_SUPPORT_LIST}:" =~ ":${DEVICENAME}:" ]]; then
+        if [[ ":${HHD_SUPPORT_LIST}:" =~ ":${PRODUCT}:" ]]; then
             echo "disabling handycon and enabling hhd@${USER}..."
             sudo systemctl disable --now handycon
             sudo systemctl enable --now hhd@${USER}
@@ -157,7 +157,7 @@ function set_ps5_theme_default() {
 function install_css_theme() {
     if [[ -d $css_hhd_path ]]; then
         echo "Installing hhd themes..."
-        if [[ ":${LGO_LIST}:" =~ ":${DEVICENAME}:" ]]; then
+        if [[ ":${LGO_LIST}:" =~ ":${PRODUCT}:" ]]; then
             cp -rf $css_hhd_path/*Legion-Go* "${THEME_FOLDER}"
         else
             cp -rf $css_hhd_path/*PS5-to* "${THEME_FOLDER}"
