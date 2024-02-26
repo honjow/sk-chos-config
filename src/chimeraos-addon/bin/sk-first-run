@@ -8,6 +8,8 @@ if [ "$EUID" -eq 0 ]; then
     exit 1
 fi
 
+ACTION=$1
+
 cpu_id=$(cat /proc/cpuinfo | grep "model name" | head -1 | awk -F ': ' '{print $2}' | xargs)
 cpu_keywords=(
     "3050e"
@@ -24,10 +26,10 @@ cpu_keywords=(
     "Z1"
     "8840"
 )
-cpu_match=false
+CPU_MATCH=false
 for keyword in "${cpu_keywords[@]}"; do
     if [[ $cpu_id == *"$keyword"* ]]; then
-        cpu_match=true
+        CPU_MATCH=true
         break
     fi
 done
@@ -44,29 +46,45 @@ css_hhd_path=$pre_path/css-hhd
 
 USER_DIR=$HOME
 HOMEBREW_FOLDER="${USER_DIR}/homebrew"
-
 THEME_FOLDER="${HOMEBREW_FOLDER}/themes"
 
-# install decky from local
-if [[ -f $decky_file ]]; then
-    echo "Installing decky..."
-    if [[ -d "${HOMEBREW_FOLDER}/services" ]]; then
-        sudo rm -rf "${HOMEBREW_FOLDER}/services"
-    fi
+DEVICENAME=$(cat /sys/devices/virtual/dmi/id/product_name)
+VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
 
-    mkdir -p "${HOMEBREW_FOLDER}/services"
-    mkdir -p "${HOMEBREW_FOLDER}/plugins"
-    mkdir -p "${HOMEBREW_FOLDER}/themes"
-    touch "${USER_DIR}/.steam/steam/.cef-enable-remote-debugging"
-    [ -d "${USER_DIR}/.var/app/com.valvesoftware.Steam/data/Steam/" ] && touch "${USER_DIR}/.var/app/com.valvesoftware.Steam/data/Steam/.cef-enable-remote-debugging"
+ROG_LIST="ROG Ally RC71L_RC71L:ROG Ally RC71L"
+LGO_LIST="83E1"
+GPD_LIST="G1618-04:G1617-01:G1619-04:G1619-05"
+AYA_LIST="AIR Plus:AYANEO 2:AYANEO 2S:GEEK:GEEK 1S:AIR:AIR Pro:AIR 1S:AIR 1S Limited:SLIDE"
+AOKZOE_LIST="AOKZOE A1 AR07:AOKZOE A1 Pro"
+ONEXPLAYER_LIST="ONEXPLAYER Mini Pro"
+LOKI_LIST="Loki Max"
 
-    sudo cp $decky_file "${HOMEBREW_FOLDER}/services/PluginLoader"
-    sudo cp $decky_version_file "${HOMEBREW_FOLDER}/services/.loader.version"
+HHD_SUPPORT_LIST="${LGO_LIST}:${ROG_LIST}:${GPD_LIST}:${AYA_LIST}:${AOKZOE_LIST}:${ONEXPLAYER_LIST}:${LOKI_LIST}"
 
-    sudo chmod +x "${HOMEBREW_FOLDER}/services/PluginLoader"
+LED_LIST="AIR Plus:AYANEO 2:AYANEO 2S:GEEK:GEEK 1S:AIR:AIR Pro:AIR 1S:AIR 1S Limited:SLIDE:G1618-04"
+LED_PATH="/sys/class/leds/multicolor:chassis/"
 
-    mkdir -p "${HOMEBREW_FOLDER}/services/.systemd"
-    cat >"${HOMEBREW_FOLDER}/services/.systemd/plugin_loader.service" <<-EOM
+function install_decky() {
+    # install decky from local
+    if [[ -f $decky_file ]]; then
+        echo "Installing decky..."
+        if [[ -d "${HOMEBREW_FOLDER}/services" ]]; then
+            sudo rm -rf "${HOMEBREW_FOLDER}/services"
+        fi
+
+        mkdir -p "${HOMEBREW_FOLDER}/services"
+        mkdir -p "${HOMEBREW_FOLDER}/plugins"
+        mkdir -p "${HOMEBREW_FOLDER}/themes"
+        touch "${USER_DIR}/.steam/steam/.cef-enable-remote-debugging"
+        [ -d "${USER_DIR}/.var/app/com.valvesoftware.Steam/data/Steam/" ] && touch "${USER_DIR}/.var/app/com.valvesoftware.Steam/data/Steam/.cef-enable-remote-debugging"
+
+        sudo cp $decky_file "${HOMEBREW_FOLDER}/services/PluginLoader"
+        sudo cp $decky_version_file "${HOMEBREW_FOLDER}/services/.loader.version"
+
+        sudo chmod +x "${HOMEBREW_FOLDER}/services/PluginLoader"
+
+        mkdir -p "${HOMEBREW_FOLDER}/services/.systemd"
+        cat >"${HOMEBREW_FOLDER}/services/.systemd/plugin_loader.service" <<-EOM
 [Unit]
 Description=SteamDeck Plugin Loader
 After=network-online.target
@@ -85,103 +103,114 @@ Environment=LOG_LEVEL=INFO
 [Install]
 WantedBy=multi-user.target
 EOM
-    sudo cp "${HOMEBREW_FOLDER}/services/.systemd/plugin_loader.service" "/etc/systemd/system/plugin_loader.service"
+        sudo cp "${HOMEBREW_FOLDER}/services/.systemd/plugin_loader.service" "/etc/systemd/system/plugin_loader.service"
 
-    sudo systemctl daemon-reload
-    sudo systemctl enable plugin_loader
-fi
+        sudo systemctl daemon-reload
+        sudo systemctl enable plugin_loader
+    fi
+}
 
-DEVICENAME=$(cat /sys/devices/virtual/dmi/id/product_name)
-VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
+function install_decky_plugins() {
+    local NEED_TDP_CONTORL=$1
 
-ROG_LIST="ROG Ally RC71L_RC71L:ROG Ally RC71L"
-LGO_LIST="83E1"
-GPD_LIST="G1618-04:G1617-01:G1619-04:G1619-05"
-AYA_LIST="AIR Plus:AYANEO 2:AYANEO 2S:GEEK:GEEK 1S:AIR:AIR Pro:AIR 1S:AIR 1S Limited:SLIDE"
-AOKZOE_LIST="AOKZOE A1 AR07:AOKZOE A1 Pro"
-ONEXPLAYER_LIST="ONEXPLAYER Mini Pro"
-LOKI_LIST="Loki Max"
+    if [[ -d $decky_plugin_path ]]; then
+        echo "Installing decky plugins..."
+        sudo chmod -R +w $HOMEBREW_FOLDER
+        cp -r $decky_plugin_path/* "${HOMEBREW_FOLDER}/plugins"
 
-HHD_SUPPORT_LIST="${LGO_LIST}:${ROG_LIST}:${GPD_LIST}:${AYA_LIST}:${AOKZOE_LIST}:${ONEXPLAYER_LIST}:${LOKI_LIST}"
+        # if DEVICENAME not in LED_LIST and LED_PATH not exists, delete HueSync
+        if [[ ! ":${LED_LIST}:" =~ ":${DEVICENAME}:" && ! -d "${LED_PATH}" ]]; then
+            echo "Removing HueSync plugin..."
+            rm -rf "${HOMEBREW_FOLDER}/plugins/ayaled" || true
+            rm -rf "${HOMEBREW_FOLDER}/plugins/HueSync" || true
+        fi
 
-LED_LIST="AIR Plus:AYANEO 2:AYANEO 2S:GEEK:GEEK 1S:AIR:AIR Pro:AIR 1S:AIR 1S Limited:SLIDE:G1618-04"
-LED_PATH="/sys/class/leds/multicolor:chassis/"
-
-if [[ -d $decky_plugin_path ]]; then
-    echo "Installing decky plugins..."
-    sudo chmod -R +w $HOMEBREW_FOLDER
-    cp -r $decky_plugin_path/* "${HOMEBREW_FOLDER}/plugins"
-
-    # if DEVICENAME not in LED_LIST and LED_PATH not exists, delete HueSync
-    if [[ ! ":${LED_LIST}:" =~ ":${DEVICENAME}:" && ! -d "${LED_PATH}" ]]; then
-        echo "Removing HueSync plugin..."
-        rm -rf "${HOMEBREW_FOLDER}/plugins/ayaled" || true
-        rm -rf "${HOMEBREW_FOLDER}/plugins/HueSync" || true
+        # if not NEED_TDP_CONTORL, delete PowerControl
+        if [[ $NEED_TDP_CONTORL == false ]]; then
+            echo "Removing PowerControl plugin..."
+            rm -rf "${HOMEBREW_FOLDER}/plugins/PowerControl" || true
+            rm -rf "${HOMEBREW_FOLDER}/plugins/SimpleDeckyTDP" || true
+        fi
     fi
 
-    # if not cpu_match, delete PowerControl
-    if [[ $cpu_match == false ]]; then
-        echo "Removing PowerControl plugin..."
-        rm -rf "${HOMEBREW_FOLDER}/plugins/PowerControl" || true
-        rm -rf "${HOMEBREW_FOLDER}/plugins/SimpleDeckyTDP" || true
+    if [[ -d $decky_plugin_hhd_path ]]; then
+        echo "Installing decky HHD plugins..."
+        sudo chmod -R +w $HOMEBREW_FOLDER
+        sudo cp -rf $decky_plugin_hhd_path/* "${HOMEBREW_FOLDER}/plugins" || true
+
+        if [[ ":${HHD_SUPPORT_LIST}:" =~ ":${DEVICENAME}:" ]]; then
+            echo "disabling handycon and enabling hhd@${USER}..."
+            sudo systemctl disable --now handycon
+            sudo systemctl enable --now hhd@${USER}
+        fi
     fi
-fi
+}
 
-if [[ -d $decky_plugin_hhd_path ]]; then
-    echo "Installing decky HHD plugins..."
-    sudo chmod -R +w $HOMEBREW_FOLDER
-    sudo cp -rf $decky_plugin_hhd_path/* "${HOMEBREW_FOLDER}/plugins" || true
-
-    if [[ ":${HHD_SUPPORT_LIST}:" =~ ":${DEVICENAME}:" ]]; then
-        echo "disabling handycon and enabling hhd@${USER}..."
-        sudo systemctl disable --now handycon
-        sudo systemctl enable --now hhd@${USER}
-    fi
-fi
-
-function set_default() {
-    PROFILE=$1
+function set_ps5_theme_default() {
+    local PROFILE=$1
     # replace `: "Xbox" to` `: "$1"
     if [[ -f "${THEME_FOLDER}/SBP-PS5-to-Handheld/config_USER.json" ]]; then
         sed -i "s#: \"Xbox\"#: \"$PROFILE\"#g" "${THEME_FOLDER}/SBP-PS5-to-Handheld/config_USER.json"
     fi
 }
 
-if [[ -d $css_hhd_path ]]; then
-    echo "Installing hhd themes..."
-    if [[ ":${LGO_LIST}:" =~ ":${DEVICENAME}:" ]]; then
-        cp -r $css_hhd_path/*Legion-Go* "${THEME_FOLDER}"
-    else
-        cp -r $css_hhd_path/*PS5-to* "${HOMEBREW_FOLDER}/themes"
-        if [[ "$PRODUCT" =~ "ROG Ally RC71L" ]]; then
-            set_default "ROG Ally"
-        elif [[ "$PRODUCT" == "G1617-01" ]]; then
-            # GPD Win Mini
-            set_default "GPD Win Mini"
-        elif [[ "$PRODUCT" == "G1618-04" ]]; then
-            # GPD Win4
-            set_default "GPD Win4"
-        elif [[ "$VENDOR" == "AYANEO" ]]; then
-            set_default "AYANEO"
-        elif [[ "$VENDOR" == "GPD" ]]; then
-            set_default "GPD"
-        elif [[ "$VENDOR" == "AOKZOE" || "$VENDOR" == "ONE-NETBOOK" ]]; then
-            set_default "Aokzoe/OneXPlayer"
+function install_css_theme() {
+    if [[ -d $css_hhd_path ]]; then
+        echo "Installing hhd themes..."
+        if [[ ":${LGO_LIST}:" =~ ":${DEVICENAME}:" ]]; then
+            cp -r $css_hhd_path/*Legion-Go* "${THEME_FOLDER}"
+        else
+            cp -r $css_hhd_path/*PS5-to* "${THEME_FOLDER}"
+            if [[ "$PRODUCT" =~ "ROG Ally RC71L" ]]; then
+                set_ps5_theme_default "ROG Ally"
+            elif [[ "$PRODUCT" == "G1617-01" ]]; then
+                # GPD Win Mini
+                set_ps5_theme_default "GPD Win Mini"
+            elif [[ "$PRODUCT" == "G1618-04" ]]; then
+                # GPD Win4
+                set_ps5_theme_default "GPD Win4"
+            elif [[ "$VENDOR" == "AYANEO" ]]; then
+                set_ps5_theme_default "AYANEO"
+            elif [[ "$VENDOR" == "GPD" ]]; then
+                set_ps5_theme_default "GPD"
+            elif [[ "$VENDOR" == "AOKZOE" || "$VENDOR" == "ONE-NETBOOK" ]]; then
+                set_ps5_theme_default "Aokzoe/OneXPlayer"
+            fi
         fi
     fi
-fi
+}
 
-echo "restarting plugin_loader..."
-sudo systemctl restart plugin_loader
-
-# turn off usb wakeup
-if [[ "$VENDOR" == "AYANEO" ]]; then
-    echo "Disabling USB wakeup..."
-    config_path="/etc/device-quirks/device-quirks.conf"
-    enable_str="USB_WAKE_ENABLED=1"
-    disable_str="USB_WAKE_ENABLED=0"
-    if [[ -f $config_path ]]; then
-        sudo sed -i "s/$enable_str/$disable_str/g" $config_path
-        sudo frzr-tweaks
+function device_quirks() {
+    # turn off usb wakeup
+    if [[ "$VENDOR" == "AYANEO" ]]; then
+        echo "Disabling USB wakeup..."
+        config_path="/etc/device-quirks/device-quirks.conf"
+        enable_str="USB_WAKE_ENABLED=1"
+        disable_str="USB_WAKE_ENABLED=0"
+        if [[ -f $config_path ]]; then
+            sudo sed -i "s/$enable_str/$disable_str/g" $config_path
+            sudo frzr-tweaks
+        fi
     fi
-fi
+}
+
+function restart_plugin_loader() {
+    echo "restarting plugin_loader..."
+    sudo systemctl restart plugin_loader
+}
+
+case $ACTION in
+"--update")
+    install_decky
+    install_decky_plugins $CPU_MATCH
+    install_css_theme
+    restart_plugin_loader
+    ;;
+*)
+    install_decky
+    install_decky_plugins $CPU_MATCH
+    install_css_theme
+    restart_plugin_loader
+    device_quirks
+    ;;
+esac
