@@ -63,25 +63,28 @@ else
     source /etc/sk-chos/sk-chos.conf
 fi
 
+MK_SWAPFILE_SERVICE="sk-mkswapfile.service"
+SWAP_FILE_SERVICE="frzr_root-swap-swapfile.swap"
+
 RESUME_CMD=""
 if [[ -n "${SWAP_PARTUUID}" ]]; then
     echo "SWAP_PARTUUID 非空，添加到内核参数"
     RESUME_CMD="resume=PARTUUID=${SWAP_PARTUUID}"
 
-    systemctl disable --now swapfile.service
-    systemctl disable --now frzr_root-swap-swapfile.swap
+    systemctl disable --now $MK_SWAPFILE_SERVICE
+    systemctl disable --now $SWAP_FILE_SERVICE
 
     rm -f /frzr_root/swap/swapfile 2>/dev/null
 
 elif [[ -n "${RESUME_OFFSET}" ]]; then
     echo "RESUME_OFFSET 非空, 启动swap服务, 添加到内核参数"
 
-    systemctl enable --now swapfile.service && systemctl enable --now frzr_root-swap-swapfile.swap
+    systemctl enable --now $MK_SWAPFILE_SERVICE && systemctl enable --now $SWAP_FILE_SERVICE
 
-    is_enabled=$(systemctl is-enabled frzr_root-swap-swapfile.swap)
-    is_active=$(systemctl is-active frzr_root-swap-swapfile.swap)
+    is_enabled=$(systemctl is-enabled $SWAP_FILE_SERVICE)
+    is_active=$(systemctl is-active $SWAP_FILE_SERVICE)
     if [[ "${is_enabled}" == "enabled" && "${is_active}" == "active" ]]; then
-        echo "frzr_root-swap-swapfile.swap is enabled"
+        echo "$SWAP_FILE_SERVICE is enabled"
     else
         echo "启动swap服务失败, 重新创建swap文件"
         /usr/bin/sk-mkswapfile
@@ -95,8 +98,8 @@ elif [[ "${SWAP_FILE}" == "1" ]]; then
     /usr/bin/sk-mkswapfile
 
     RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /frzr_root/swap/swapfile)
-    systemctl enable --now swapfile.service
-    systemctl enable --now frzr_root-swap-swapfile.swap
+    systemctl enable --now $MK_SWAPFILE_SERVICE
+    systemctl enable --now $SWAP_FILE_SERVICE
 
     RESUME_CMD="resume=PARTUUID=${root_partuuid} resume_offset=${RESUME_OFFSET}"
 fi

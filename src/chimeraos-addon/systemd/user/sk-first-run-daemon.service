@@ -5,7 +5,10 @@ ConditionPathExists=|/etc/sk-first-run-force
 
 [Service]
 Type=simple
+ExecStartPre=/usr/bin/sleep 30
 ExecStart=/usr/bin/__sk-first-run-daemon
+Restart=on-failure
+RestartSec=5s
 
 [Install]
 WantedBy=default.target
