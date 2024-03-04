@@ -4,13 +4,12 @@ on:
   push:
     paths:
         - "pkgbuild/gamescope-sk/PKGBUILD"
-    tags-ignore:
-        - 'v*'
   workflow_dispatch:
 
 jobs:
   public_aur:
     runs-on: ubuntu-latest
+    if: ! startsWith(github.ref, 'refs/tags/v')
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
