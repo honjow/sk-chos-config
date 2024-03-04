@@ -1,5 +1,5 @@
 _pkgname=gamescope
-pkgname=${_pkgname}-sk
+pkgname=${_pkgname}-sk-git
 pkgver=3.14.1.r14.gc3c54be
 pkgrel=1
 pkgdesc='SteamOS session compositing window manager'
@@ -49,8 +49,8 @@ makedepends=(
     vulkan-headers
     wayland-protocols
 )
-_tag=c3c54bebd48b3424eca0f41dd56c66fd425d184b
-source=("git+https://github.com/3003n/gamescope.git#commit=${_tag}")
+_branch=sk-gamscope
+source=("git+https://github.com/3003n/gamescope.git#bransh=${_branch}")
 b2sums=('SKIP')
 
 provides=("$_pkgname")
