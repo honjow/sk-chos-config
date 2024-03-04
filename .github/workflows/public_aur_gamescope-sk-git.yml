@@ -4,8 +4,6 @@ on:
   push:
     paths:
         - "pkgbuild/gamescope-sk-git/PKGBUILD"
-    tags-ignore:
-        - 'v*'
   workflow_dispatch:
 
 jobs:
