@@ -1,0 +1,28 @@
+name: Public AUR gamescope-session-sk-git
+
+on:
+  push:
+    paths:
+      - "pkgbuild/gamescope-session-sk-git/PKGBUILD"
+      - "pkgbuild/gamescope-session-sk-git/*.install"
+  workflow_dispatch:
+
+jobs:
+  public_aur:
+    runs-on: ubuntu-latest
+    if: ${{ ! startsWith(github.ref, 'refs/tags/v') }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Publish AUR package
+        uses: KSXGitHub/github-actions-deploy-aur@v2.7.0
+        with:
+          pkgname: gamescope-session-sk-git
+          pkgbuild: pkgbuild/gamescope-session-sk-git/PKGBUILD
+          assets: pkgbuild/gamescope-session-sk-git/*.install
+          commit_username: ${{ secrets.AUR_USERNAME }}
+          commit_email: ${{ secrets.AUR_EMAIL }}
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          commit_message: Update AUR package
+          ssh_keyscan_types: rsa,dsa,ecdsa,ed25519
