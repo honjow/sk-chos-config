@@ -17,7 +17,7 @@ jobs:
       - name: Publish AUR package
         uses: KSXGitHub/github-actions-deploy-aur@v2.7.0
         with:
-          pkgname: gamescope-sk
+          pkgname: gamescope-sk-git
           pkgbuild: pkgbuild/gamescope-sk-git/PKGBUILD
           commit_username: ${{ secrets.AUR_USERNAME }}
           commit_email: ${{ secrets.AUR_EMAIL }}
