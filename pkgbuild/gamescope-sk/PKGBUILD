@@ -1,5 +1,5 @@
 _pkgname=gamescope
-pkgname=${_pkgname}-sk-git
+pkgname=${_pkgname}-sk
 pkgver=3.14.1.r15.g6ed7472
 pkgrel=1
 pkgdesc='SteamOS session compositing window manager'
