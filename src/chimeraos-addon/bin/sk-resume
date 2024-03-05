@@ -7,12 +7,12 @@ if [[ "$ayaled_status" == "enabled" ]]; then
     sudo systemctl restart ayaled.service
 fi
 
-# geek 、geek 1s 唤醒重新加载触摸屏驱动
-if [[ "${DEVICENAME}" == "GEEK" || "${DEVICENAME}" == "GEEK 1S" ]];then
-    sleep 3
-    modprobe -r goodix_ts
-    modprobe goodix_ts
-fi
+# geek 、geek 1s 唤醒重新加载触摸屏驱动 (改到 device-quirks 中处理)
+# if [[ "${DEVICENAME}" == "GEEK" || "${DEVICENAME}" == "GEEK 1S" ]];then
+#     sleep 3
+#     modprobe -r goodix_ts
+#     modprobe goodix_ts
+# fi
 
 handycon_status=$(systemctl is-enabled handycon.service 2>/dev/null)
 if [[ "$handycon_status" == "enabled" ]]; then
