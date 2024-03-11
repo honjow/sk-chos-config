@@ -138,7 +138,7 @@ def boot_repair():
     return run_command(command, "修复启动项")
 
 def etc_repair():
-    command = f"sudo {SK_TOOL_SCRIPTS_PATH}/etc_repair.sh && sk-first-run"
+    command = f"sudo {SK_TOOL_SCRIPTS_PATH}/etc_repair.sh"
     success, ret_msg = run_command(command, "修复 /etc")
     if success:
         ret_msg = "重置完成, 重启生效"

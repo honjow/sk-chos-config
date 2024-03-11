@@ -37,7 +37,7 @@ class SwitchPage(Gtk.Box):
         usb_wakeup_enabled = utils.chk_usb_wakeup()
         switch_item_usb_wakeup = SwitchItem(
             "USB唤醒",
-            "默认启用, 如果睡眠后马上唤醒, 可以尝试禁用",
+            "",
             usb_wakeup_enabled,
             installs.usb_wakeup_switch_callback,
         )
