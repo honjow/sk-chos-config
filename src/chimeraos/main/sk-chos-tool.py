@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # coding=utf-8
 
+
 import gi
 from pages.advance import AdvancePage
 from pages.switch import SwitchPage
@@ -8,11 +9,14 @@ from pages.tool import ToolManagerPage
 from pages.soft import SoftManagerPage
 from pages.about import AboutPage
 from pages.autoupt_switch import AutoUpdateSwitchPage
+from pages.decky import DeckyManagerPage
+from pages.decky_advande import DeckyAdvanceManagerPage
 import utils
 from config import logging
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gio
+
 
 class ContentView(Gtk.Box):
     def __init__(self, category):
@@ -21,6 +25,7 @@ class ContentView(Gtk.Box):
         # 在这里添加每个选项的具体布局
         label = Gtk.Label(label=f"内容布局 {category}")
         self.pack_start(label, True, True, 0)
+
 
 class CategoryRow(Gtk.ListBoxRow):
     def __init__(self, category, activate_callback):
@@ -44,11 +49,13 @@ class CategoryRow(Gtk.ListBoxRow):
         if self.activate_callback:
             self.activate_callback(widget, self.category)
 
+
 class PanedScrolledWindow(Gtk.ScrolledWindow):
     def __init__(self, box: Gtk.Box):
         Gtk.ScrolledWindow.__init__(self)
         self.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         self.add(box)
+
 
 class ColumnedWindow(Gtk.ApplicationWindow):
     def __init__(self, app):
@@ -58,6 +65,8 @@ class ColumnedWindow(Gtk.ApplicationWindow):
         self.box_mapping = {
             "功能开关": SwitchPage(),
             "工具": ToolManagerPage(),
+            "Decky 插件": DeckyManagerPage(),
+            "Decky 高级": DeckyAdvanceManagerPage(),
             "软件&游戏": SoftManagerPage(),
             "高级": AdvancePage(),
             "自动更新": AutoUpdateSwitchPage(),
@@ -88,7 +97,7 @@ class ColumnedWindow(Gtk.ApplicationWindow):
 
         # 右边栏
         self.right_panel = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        
+
         paned.pack2(self.right_panel, True, True)
 
         # 默认显示第一项的内容
@@ -99,7 +108,7 @@ class ColumnedWindow(Gtk.ApplicationWindow):
         # 移除之前显示的内容
         if self.current_content:
             self.right_panel.remove(self.current_content)
-        
+
         # 使用字典中的对应关系获取对应的 Box 类
         content_view = self.scrolled_window_mapping[category]
 

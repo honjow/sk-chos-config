@@ -8,11 +8,7 @@ from gi.repository import Gtk
 import gi
 from component import ManagerItem
 import installs
-
-from utils import (
-    check_decky_plugin_exists,
-    check_service_exists,
-)
+import utils
 
 from config import (
     PANED_RIGHT_MARGIN_START,
@@ -40,7 +36,7 @@ class ToolManagerPage(Gtk.Box):
         item_decky = ManagerItem(
             "Decky",
             "游戏模式的插件平台",
-            lambda: check_service_exists("plugin_loader.service"),
+            lambda: utils.check_service_exists("plugin_loader.service"),
             installs.simple_decky_install,
         )
         self.pack_start(item_decky, False, False, 0)
@@ -48,7 +44,7 @@ class ToolManagerPage(Gtk.Box):
         item_decky_cn = ManagerItem(
             "Decky(CN源)",
             "游戏模式的插件平台",
-            lambda: check_service_exists("plugin_loader.service"),
+            lambda: utils.check_service_exists("plugin_loader.service"),
             installs.simple_cn_decky_install,
         )
         self.pack_start(item_decky_cn, False, False, 0)
@@ -56,7 +52,7 @@ class ToolManagerPage(Gtk.Box):
         item_handycon = ManagerItem(
             "HandyGCCS",
             "驱动部分掌机的手柄按钮",
-            lambda: check_service_exists("handycon.service"),
+            lambda: utils.check_service_exists("handycon.service"),
             installs.handycon_install,
             installs.handycon_uninstall,
         )
@@ -66,157 +62,17 @@ class ToolManagerPage(Gtk.Box):
             item_hhd = ManagerItem(
                 "HHD",
                 "Handheld Daemon , 另一个手柄驱动程序",
-                lambda: check_service_exists(f"hhd@{USER}.service"),
+                lambda: utils.check_service_exists(f"hhd@{USER}.service"),
                 installs.hhd_install,
                 installs.hhd_install,
             )
             self.pack_start(item_hhd, False, False, 0)
 
-            item_hhd_decky_bin = ManagerItem(
-                "HHD Decky (直装)",
-                "配合 HHD 使用, 直接安装版",
-                lambda: check_decky_plugin_exists("hhd-decky-bin"),
-                installs.power_control_bin_install,
-                lambda: installs.remove_decky_plugin("hhd-decky-bin"),
-            )
-            self.pack_start(item_hhd_decky_bin, False, False, 0)
-
-            item_hhd_decky = ManagerItem(
-                "HHD Decky (编译版)",
-                "配合 HHD 使用",
-                lambda: check_decky_plugin_exists("hhd-decky"),
-                installs.hhd_decky_install,
-                lambda: installs.remove_decky_plugin("hhd-decky"),
-            )
-            self.pack_start(item_hhd_decky, False, False, 0)
-
-        # if self.product_name in (
-        #     "ROG Ally RC71L_RC71L",
-        #     "ROG Ally RC71L",
-        # ):
-        #     item_spb_ally = ManagerItem(
-        #         "SBP-ROG-Ally-Theme",
-        #         "配合 HHD 使用的 CSS Loader 皮肤, 把模拟的 PS5 手柄按钮显示为 ROG Ally 的样式",
-        #         installs.spb_ally_exist,
-        #         installs.spb_ally_install,
-        #         installs.spb_ally_uninstall,
-        #     )
-        #     self.pack_start(item_spb_ally, False, False, 0)
-
-        if self.product_name in ("83E1",):
-            item_spb_lego = ManagerItem(
-                "SBP-Legion-Go-Theme",
-                "配合 HHD 使用的 CSS Loader 皮肤, 把模拟的 PS5 按钮显示为 Legion Go 的样式",
-                installs.spb_lego_exist,
-                installs.spb_lego_install,
-                installs.spb_lego_uninstall,
-            )
-            self.pack_start(item_spb_lego, False, False, 0)
-
-        if IS_HHD_SUPPORT:
-            item_ps5_to_h = ManagerItem(
-                "SBP-PS5-to-Handheld",
-                "配合 HHD 使用的 CSS Loader 皮肤, 整合了 ROG Ally 和其它掌机以及 XBox 的样式",
-                installs.ps5_to_h_exist,
-                installs.ps5_to_h_install,
-                installs.ps5_to_h_uninstall,
-            )
-            self.pack_start(item_ps5_to_h, False, False, 0)
-
-        # if IS_HHD_SUPPORT:
-        #     item_ps5_to_xbox = ManagerItem(
-        #         "PS5-to-Xbox-glyphs",
-        #         "配合 HHD 使用的 CSS Loader 皮肤, 把模拟的 PS5 手柄按钮显示为 Xbox 的样式",
-        #         installs.ps5_to_xbox_exist,
-        #         installs.ps5_to_xbox_install,
-        #         installs.ps5_to_xbox_uninstall,
-        #     )
-        #     self.pack_start(item_ps5_to_xbox, False, False, 0)
-
-        item_simple_decky_TDP = ManagerItem(
-            "SimpleDeckyTDP",
-            "掌机功耗性能管理 Decky插件, 只有 TDP 相关功能",
-            lambda: check_decky_plugin_exists("SimpleDeckyTDP"),
-            installs.simple_decky_TDP_install,
-            lambda: installs.remove_decky_plugin("SimpleDeckyTDP"),
+        item_nix_ = ManagerItem(
+            "Nix",
+            "Nix 包管理器, 可以在不可变系统上安装软件, 系统更新不会影响软件",
+            lambda: utils.check_nix_exists(),
+            installs.nix_install,
+            installs.nix_uninstall,
         )
-        self.pack_start(item_simple_decky_TDP, False, False, 0)
-
-        if (
-            self.product_name
-            in (
-                "AIR",
-                "AIR 1S",
-                "AIR 1S Limited",
-                "AIR Pro",
-                "AYANEO 2",
-                "GEEK",
-                "AYANEO 2S",
-                "GEEK 1S",
-            )
-            or IS_LED_SUPPORTED
-        ):
-            item_huesync_bin = ManagerItem(
-                "HueSync (原Ayaled)",
-                "掌机 LED 灯控制Decky插件, 直接安装版",
-                lambda: check_decky_plugin_exists("HueSync"),
-                installs.huesync_bin_install,
-                lambda: installs.remove_decky_plugin("HueSync"),
-            )
-            self.pack_start(item_huesync_bin, False, False, 0)
-
-            item_huesync = ManagerItem(
-                "HueSync (原Ayaled) (编译版)",
-                "掌机 LED 灯控制Decky插件, 源码编译安装",
-                lambda: check_decky_plugin_exists("HueSync"),
-                installs.huesync_install,
-                lambda: installs.remove_decky_plugin("HueSync"),
-            )
-            self.pack_start(item_huesync, False, False, 0)
-
-        # Lenovo Legion Go
-        if self.product_name == "83E1":
-            item_LegionGoRemapper = ManagerItem(
-                "LegionGoRemapper",
-                "Lenovo Legion Go 手柄按键映射, 灯光控制 Decky 插件",
-                lambda: check_decky_plugin_exists("LegionGoRemapper"),
-                installs.LegionGoRemapper_install,
-                lambda: installs.remove_decky_plugin("LegionGoRemapper"),
-            )
-            self.pack_start(item_LegionGoRemapper, False, False, 0)
-
-        item_power_control_bin = ManagerItem(
-            "PowerControl",
-            "掌机功耗性能管理Decky插件, 直接安装版",
-            lambda: check_decky_plugin_exists("PowerControl"),
-            installs.power_control_bin_install,
-            lambda: installs.remove_decky_plugin("PowerControl"),
-        )
-        self.pack_start(item_power_control_bin, False, False, 0)
-
-        item_power_control = ManagerItem(
-            "PowerControl (编译版)",
-            "下载最新github源码编译安装",
-            lambda: check_decky_plugin_exists("PowerControl"),
-            installs.power_control_install,
-            lambda: installs.remove_decky_plugin("PowerControl"),
-        )
-        self.pack_start(item_power_control, False, False, 0)
-
-        # item_mango_peel = ManagerItem(
-        #     "MangoPeel",
-        #     "性能监测自定义Decky插件",
-        #     lambda: check_decky_plugin_exists("MangoPeel"),
-        #     installs.mango_peel_install,
-        #     lambda: installs.remove_decky_plugin("MangoPeel"),
-        # )
-        # self.pack_start(item_mango_peel, False, False, 0)
-
-        item_tomoon = ManagerItem(
-            "ToMoon",
-            "网络加速Decky插件",
-            lambda: check_decky_plugin_exists("tomoon"),
-            installs.tomoon_install,
-            lambda: installs.remove_decky_plugin("tomoon"),
-        )
-        self.pack_start(item_tomoon, False, False, 0)
+        self.pack_start(item_nix_, False, False, 0)

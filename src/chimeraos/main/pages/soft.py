@@ -34,15 +34,6 @@ class SoftManagerPage(Gtk.Box):
         )
         self.pack_start(item_emudeck, False, False, 0)
 
-        item_nix_ = ManagerItem(
-            "Nix",
-            "Nix 包管理器, 可以在不可变系统上安装软件, 系统更新不会影响软件",
-            lambda: utils.check_nix_exists(),
-            installs.nix_install,
-            installs.nix_uninstall,
-        )
-        self.pack_start(item_nix_, False, False, 0)
-
         # item_noto_fonts_cjk = ManagerItem(
         #     "Noto CJK 字体", "Noto CJK 字体, 因为字体太大不内置到系统中, 可以单独安装, 不受系统更新影响", 
         #     lambda: utils.user_noto_fonts_cjk_exists(),
