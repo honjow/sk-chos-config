@@ -46,3 +46,12 @@ if [[ -f $pre_zshrc ]]; then
         cp $pre_zshrc "${HOME}/.zshrc.new"
     fi
 fi
+
+
+# after update run
+after_update_flag=/.after-update
+if [[ ! -f $after_update_flag ]]; then
+    echo "after update run first-run..."
+    /usr/bin/sk-first-run
+    sudo touch $after_update_flag
+fi

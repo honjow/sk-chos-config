@@ -110,13 +110,50 @@ EOM
     fi
 }
 
+function compare_version() {
+    local current_version=$1
+    local new_version=$2
+    local current_version_arr=(${current_version//./ })
+    local new_version_arr=(${new_version//./ })
+
+    for i in {0..2}; do
+        if [[ ${new_version_arr[$i]} -gt ${current_version_arr[$i]} ]]; then
+            return 1
+        elif [[ ${new_version_arr[$i]} -lt ${current_version_arr[$i]} ]]; then
+            return -1
+        fi
+    done
+    return 0
+}
+
 function install_decky_plugins() {
     local NEED_TDP_CONTORL=$1
 
     if [[ -d $decky_plugin_path ]]; then
         echo "Installing decky plugins..."
         sudo chmod -R +w $HOMEBREW_FOLDER
-        cp -rf $decky_plugin_path/* "${HOMEBREW_FOLDER}/plugins"
+
+        # cp -rf $decky_plugin_path/* "${HOMEBREW_FOLDER}/plugins"
+        for plugin in $(ls $decky_plugin_path); do
+            if [[ -d "${HOMEBREW_FOLDER}/plugins/$plugin" ]]; then
+                if [[ -f "${HOMEBREW_FOLDER}/plugins/$plugin/package.json" ]]; then
+
+                    # check version, if new version larger than current version, update
+                    current_version=$(cat "${HOMEBREW_FOLDER}/plugins/$plugin/package.json" | jq -r '.version')
+                    new_version=$(cat "$decky_plugin_path/$plugin/package.json" | jq -r '.version')
+
+                    # compare version
+                    compare_result=$(compare_version $current_version $new_version)
+                    if [[ $compare_result -eq 1 ]]; then
+                        cp -rf $decky_plugin_path/$plugin "${HOMEBREW_FOLDER}/plugins"
+                    fi
+                else
+                    cp -rf $decky_plugin_path/$plugin "${HOMEBREW_FOLDER}/plugins"
+                fi
+            else
+                cp -rf $decky_plugin_path/$plugin "${HOMEBREW_FOLDER}/plugins"
+            fi
+        done
 
         # if PRODUCT not in LED_LIST and LED_PATH not exists, delete HueSync
         if [[ ! ":${LED_LIST}:" =~ ":${PRODUCT}:" && ! -d "${LED_PATH}" ]]; then
