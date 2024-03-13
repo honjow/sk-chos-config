@@ -66,7 +66,7 @@ class ColumnedWindow(Gtk.ApplicationWindow):
             "功能开关": SwitchPage(),
             "工具": ToolManagerPage(),
             "Decky 插件": DeckyManagerPage(),
-            "Decky 高级": DeckyAdvanceManagerPage(),
+            # "Decky 高级": DeckyAdvanceManagerPage(),
             "软件&游戏": SoftManagerPage(),
             "高级": AdvancePage(),
             "自动更新": AutoUpdateSwitchPage(),
