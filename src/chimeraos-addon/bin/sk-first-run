@@ -127,8 +127,35 @@ function compare_version() {
     return 0
 }
 
+function copy_plugin() {
+    local name=$1
+
+    case $name in
+    "PowerControl")
+        if [[ $CPU_MATCH == true ]]; then
+            echo "Copying PowerControl plugin..."
+            cp -rf $decky_plugin_path/$name "${HOMEBREW_FOLDER}/plugins"
+        fi
+        ;;
+    "HueSync")
+        if [[ "${LED_LIST}:" =~ ":${PRODUCT}:" && -d "${LED_PATH}" && "${PRODUCT}" != "G1618-04" ]]; then
+            echo "Copying HueSync plugin..."
+            cp -rf $decky_plugin_path/$name "${HOMEBREW_FOLDER}/plugins"
+        fi
+        ;;
+    "GPD-WinControl")
+        if [[ ":${GPD_LIST}:" =~ ":${PRODUCT}:" ]]; then
+            echo "Copying GPD-WinControl plugin..."
+            cp -rf $decky_plugin_path/$name "${HOMEBREW_FOLDER}/plugins"
+        fi
+        ;;
+    *)
+        cp -rf $decky_plugin_path/$name "${HOMEBREW_FOLDER}/plugins"
+        ;;
+    esac
+}
+
 function install_decky_plugins() {
-    local NEED_TDP_CONTORL=$1
 
     if [[ -d $decky_plugin_path ]]; then
         echo "Installing decky plugins..."
@@ -146,29 +173,15 @@ function install_decky_plugins() {
                     # compare version
                     compare_result=$(compare_version $current_version $new_version)
                     if [[ $compare_result -eq 1 ]]; then
-                        cp -rf $decky_plugin_path/$plugin "${HOMEBREW_FOLDER}/plugins"
+                        copy_plugin $plugin
                     fi
                 else
-                    cp -rf $decky_plugin_path/$plugin "${HOMEBREW_FOLDER}/plugins"
+                    copy_plugin $plugin
                 fi
             else
-                cp -rf $decky_plugin_path/$plugin "${HOMEBREW_FOLDER}/plugins"
+                copy_plugin $plugin
             fi
         done
-
-        # if PRODUCT not in LED_LIST and LED_PATH not exists, delete HueSync
-        if [[ ! ":${LED_LIST}:" =~ ":${PRODUCT}:" && ! -d "${LED_PATH}" ]]; then
-            echo "Removing HueSync plugin..."
-            rm -rf "${HOMEBREW_FOLDER}/plugins/ayaled" || true
-            rm -rf "${HOMEBREW_FOLDER}/plugins/HueSync" || true
-        fi
-
-        # if not NEED_TDP_CONTORL, delete PowerControl
-        if [[ $NEED_TDP_CONTORL == false ]]; then
-            echo "Removing PowerControl plugin..."
-            rm -rf "${HOMEBREW_FOLDER}/plugins/PowerControl" || true
-            rm -rf "${HOMEBREW_FOLDER}/plugins/SimpleDeckyTDP" || true
-        fi
     fi
 
     if [[ -d $decky_plugin_hhd_path ]]; then
@@ -240,13 +253,13 @@ function restart_plugin_loader() {
 case $ACTION in
 "--update")
     install_decky
-    install_decky_plugins $CPU_MATCH
+    install_decky_plugin
     install_css_theme
     restart_plugin_loader
     ;;
 *)
     install_decky
-    install_decky_plugins $CPU_MATCH
+    install_decky_plugins
     install_css_theme
     restart_plugin_loader
     device_quirks
