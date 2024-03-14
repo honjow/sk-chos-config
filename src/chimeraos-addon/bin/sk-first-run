@@ -41,7 +41,6 @@ decky_path=$pre_path/decky
 decky_file=$decky_path/PluginLoader
 decky_version_file=$decky_path/.loader.version
 decky_plugin_path=$pre_path/decky-plugins
-decky_plugin_hhd_path=$pre_path/decky-plugin-hhd
 css_path=$pre_path/css
 css_hhd_path=$pre_path/css-hhd
 
@@ -119,12 +118,14 @@ function compare_version() {
 
     for i in {0..2}; do
         if [[ ${new_version_arr[$i]} -gt ${current_version_arr[$i]} ]]; then
-            return 1
+            echo "1"
+            return
         elif [[ ${new_version_arr[$i]} -lt ${current_version_arr[$i]} ]]; then
-            return -1
+            echo "-1"
+            return
         fi
     done
-    return 0
+    echo "0"
 }
 
 function copy_plugin() {
@@ -150,6 +151,7 @@ function copy_plugin() {
         fi
         ;;
     *)
+        echo "Copying $name plugin..."
         cp -rf $decky_plugin_path/$name "${HOMEBREW_FOLDER}/plugins"
         ;;
     esac
@@ -172,7 +174,7 @@ function install_decky_plugins() {
 
                     # compare version
                     compare_result=$(compare_version $current_version $new_version)
-                    if [[ $compare_result -eq 1 ]]; then
+                    if [[ "$compare_result" == "1" ]]; then
                         copy_plugin $plugin
                     fi
                 else
@@ -184,16 +186,10 @@ function install_decky_plugins() {
         done
     fi
 
-    if [[ -d $decky_plugin_hhd_path ]]; then
-        echo "Installing decky HHD plugins..."
-        sudo chmod -R +w $HOMEBREW_FOLDER
-        cp -rf $decky_plugin_hhd_path/* "${HOMEBREW_FOLDER}/plugins" || true
-
-        if [[ ":${HHD_SUPPORT_LIST}:" =~ ":${PRODUCT}:" ]]; then
-            echo "disabling handycon and enabling hhd@${USER}..."
-            sudo systemctl disable --now handycon
-            sudo systemctl enable --now hhd@${USER}
-        fi
+    if [[ ":${HHD_SUPPORT_LIST}:" =~ ":${PRODUCT}:" ]]; then
+        echo "disabling handycon and enabling hhd@${USER}..."
+        sudo systemctl disable --now handycon
+        sudo systemctl enable --now hhd@${USER}
     fi
 }
 
