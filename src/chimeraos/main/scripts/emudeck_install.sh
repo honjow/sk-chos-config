@@ -19,11 +19,16 @@ echo "github_prefix: ${github_prefix}"
 
 tmp_dir=$(mktemp -d)
 
-
 EMUDECK_GITHUB_URL="https://api.github.com/repos/EmuDeck/emudeck-electron/releases/latest"
 RELEASE=$(curl -s ${github_prefix}${EMUDECK_GITHUB_URL})
 
-# echo "RELEASE $RELEASE"
+echo "RELEASE $RELEASE"
+
+# if $RELEASE not starting with '{', then there is an error
+if [[ "x${RELEASE:0:1}" != "x{" ]]; then
+  github_prefix=""
+  RELEASE=$(curl -s ${EMUDECK_GITHUB_URL})
+fi
 
 MESSAGE=$(echo "$RELEASE" | jq -r '.message')
 

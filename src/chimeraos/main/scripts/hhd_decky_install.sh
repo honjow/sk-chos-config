@@ -16,6 +16,12 @@ temp=$(mktemp -d)
 # Download latest release
 RELEASE=$(curl -s "${github_prefix}https://api.github.com/repos/hhd-dev/hhd-decky/releases/latest")
 
+# if $RELEASE not starting with '{', then there is an error
+if [[ "x${RELEASE:0:1}" != "x{" ]]; then
+  github_prefix=""
+  RELEASE=$(curl -s ${EMUDECK_GITHUB_URL})
+fi
+
 MESSAGE=$(echo "$RELEASE" | jq -r '.message')
 
 if [[ "$MESSAGE" != "null" ]]; then
