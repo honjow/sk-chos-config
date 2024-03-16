@@ -64,7 +64,7 @@ curl -L "${ICON_URL}" -o ${tmp_dir}/EmuDeck.png --connect-timeout 10 -m 30
 cp -f ${tmp_dir}/EmuDeck.png ~/Applications/EmuDeck.png
 
 echo "Downloading AppImage"
-curl -L "${RELEASE_URL}" -o ${tmp_dir}/EmuDeck.AppImage --connect-timeout 10 -m 120
+curl -L "${RELEASE_URL}" -o ${tmp_dir}/EmuDeck.AppImage --connect-timeout 10
 
 echo "Installing EmuDeck $RELEASE_VERSION"
 mv ${tmp_dir}/EmuDeck.AppImage ~/Applications/EmuDeck.AppImage

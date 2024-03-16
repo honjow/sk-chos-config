@@ -27,21 +27,6 @@ def run_command(command, name=""):
             universal_newlines=True,
         )
 
-        # while True:
-        #     output = process.stdout.readline()
-        #     if output == '' and process.poll() is not None:
-        #         break
-        #     if output:
-        #         logging.info(output.strip())
-        # return_code = process.wait()
-
-        # if return_code != 0:
-        #     success = False
-        #     # ret_msg = stderr.strip()
-        #     ret_msg = process.stderr.read().strip()
-        #     logging.error(f"{name}操作失败: {ret_msg}")
-        # else:
-        #     logging.info(f"{name}操作完成")
         def reader_thread(process, stream_name):
             stream = getattr(process, stream_name)
             for line in iter(stream.readline, ''):
