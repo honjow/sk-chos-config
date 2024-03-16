@@ -50,9 +50,9 @@ class DeckyManagerPage(Gtk.Box):
             item_hhd_decky_bin = ManagerItem(
                 "HHD Decky",
                 "配合 HHD 使用",
-                lambda: check_decky_plugin_exists("hhd-decky-bin"),
+                lambda: check_decky_plugin_exists("hhd-decky"),
                 installs.power_control_bin_install,
-                lambda: installs.remove_decky_plugin("hhd-decky-bin"),
+                lambda: installs.remove_decky_plugin("hhd-decky"),
             )
             self.pack_start(item_hhd_decky_bin, False, False, 0)
 
