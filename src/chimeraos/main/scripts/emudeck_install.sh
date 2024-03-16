@@ -51,6 +51,7 @@ if [[ -n "$github_release_prefix" ]]; then
 fi
 
 ICON_URL="https://raw.githubusercontent.com/dragoonDorise/EmuDeck/main/icons/EmuDeck.png"
+ICON_URL_CN="https://gitee.com/honjow/EmuDeck/raw/main/icons/EmuDeck.png"
 if [[ -n "$github_raw_prefix" ]]; then
   # replace 'https://raw.githubusercontent.com' with the custom prefix
   ICON_URL=$(echo $ICON_URL | sed "s|https://raw.githubusercontent.com|${github_raw_prefix}|")
@@ -59,11 +60,17 @@ fi
 
 mkdir -p ~/Applications
 
-echo "Downloading icon"
-curl -L "${ICON_URL}" -o ${tmp_dir}/EmuDeck.png --connect-timeout 10 -m 30
-cp -f ${tmp_dir}/EmuDeck.png ~/Applications/EmuDeck.png
+echo "Downloading icon ......"
+icon_path=${tmp_dir}/EmuDeck.png
+curl -L "${ICON_URL}" -o ${icon_path} --connect-timeout 10 -m 30
+# if iconfile is text, then it's an error
+if [[ $(file --mime-type -b ${icon_path}) =~ "text" ]]; then
+  echo ">>> Failed to download icon, trying gitee source"
+  curl -L "${ICON_URL_CN}" -o ${icon_path} --connect-timeout 10 -m 30
+fi
+cp -f ${icon_path} ~/Applications/EmuDeck.png
 
-echo "Downloading AppImage"
+echo "Downloading AppImage ......"
 curl -L "${RELEASE_URL}" -o ${tmp_dir}/EmuDeck.AppImage --connect-timeout 10
 
 echo "Installing EmuDeck $RELEASE_VERSION"
