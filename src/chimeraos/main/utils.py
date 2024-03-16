@@ -3,6 +3,7 @@
 
 import configparser
 import os
+import random
 import subprocess
 import glob
 
@@ -220,7 +221,32 @@ def get_config_value(filename, section, key):
 def get_github_clone_cdn():
     config_file = "/etc/sk-chos-tool/github_cdn.conf"
     cdn = get_config_value(config_file, "clone", "server")
+    cdn_list = cdn.split(":::")
+    # random select one
+    cdn = cdn_list[random.randint(0, len(cdn_list) - 1)]
     logging.info(f"github clone cdn: {cdn}")
+    if not cdn is None:
+        clear_cache()
+    return cdn
+
+def get_github_release_cdn():
+    config_file = "/etc/sk-chos-tool/github_cdn.conf"
+    cdn = get_config_value(config_file, "release", "server")
+    cdn_list = cdn.split(":::")
+    # random select one
+    cdn = cdn_list[random.randint(0, len(cdn_list) - 1)]
+    logging.info(f"github release cdn: {cdn}")
+    if not cdn is None:
+        clear_cache()
+    return cdn
+
+def get_github_raw_cdn():
+    config_file = "/etc/sk-chos-tool/github_cdn.conf"
+    cdn = get_config_value(config_file, "raw", "server")
+    cdn_list = cdn.split(":::")
+    # random select one
+    cdn = cdn_list[random.randint(0, len(cdn_list) - 1)]
+    logging.info(f"github raw cdn: {cdn}")
     if not cdn is None:
         clear_cache()
     return cdn

@@ -8,13 +8,13 @@ fi
 
 set -e
 
-github_prefix=$1
-echo "github_prefix: ${github_prefix}"
+github_release_prefix=$1
+echo "github_release_prefix: ${github_release_prefix}"
 
 temp=$(mktemp -d)
 
 # Download latest release
-RELEASE=$(curl -s "${github_prefix}https://api.github.com/repos/hhd-dev/hhd-decky/releases/latest")
+RELEASE=$(curl -s "https://api.github.com/repos/hhd-dev/hhd-decky/releases/latest")
 
 # if $RELEASE not starting with '{', then there is an error
 if [[ "x${RELEASE:0:1}" != "x{" ]]; then
@@ -37,7 +37,13 @@ if [ -z "$RELEASE_VERSION" ] || [ -z "$RELEASE_URL" ]; then
   exit 1
 fi
 
-curl -L -o ${temp}/hhd-decky.tar.gz "${github_prefix}${RELEASE_URL}"
+if [[ -n "$github_release_prefix" ]]; then
+  # replace 'https://github.com' with the custom prefix
+  RELEASE_URL=$(echo $RELEASE_URL | sed "s|https://github.com|${github_release_prefix}|")
+  echo "RELEASE_URL: ${RELEASE_URL}"
+fi
+
+curl -L -o ${temp}/hhd-decky.tar.gz "${RELEASE_URL}"
 
 echo "Installing hhd-decky $RELEASE_VERSION"
 

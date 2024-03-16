@@ -4,7 +4,7 @@ import os
 import urllib.request
 
 # import utils
-from utils import get_github_clone_cdn, run_command, toggle_service
+from utils import get_github_clone_cdn, get_github_raw_cdn, get_github_release_cdn, run_command, toggle_service
 
 from config import SK_TOOL_SCRIPTS_PATH, logging, USER
 
@@ -275,21 +275,18 @@ def power_control_install():
     return decky_plugin_update(git_url)
 
 def power_control_bin_install():
-    github_cdn_url = get_github_clone_cdn()
-    github_prefix = github_cdn_url.replace("https://github.com", "")
-    command = f"{SK_TOOL_SCRIPTS_PATH}/power_control_install.sh {github_prefix}"
+    release_prefix = get_github_release_cdn()
+    command = f"{SK_TOOL_SCRIPTS_PATH}/power_control_install.sh {release_prefix}"
     return run_command(command, "PowerControl bin")
 
 def huesync_bin_install():
-    github_cdn_url = get_github_clone_cdn()
-    github_prefix = github_cdn_url.replace("https://github.com", "")
-    command = f"{SK_TOOL_SCRIPTS_PATH}/huesync_install.sh {github_prefix}"
+    release_prefix = get_github_release_cdn()
+    command = f"{SK_TOOL_SCRIPTS_PATH}/huesync_install.sh {release_prefix}"
     return run_command(command, "HueSync bin")
 
 def hhd_decky_bin_install():
-    github_cdn_url = get_github_clone_cdn()
-    github_prefix = github_cdn_url.replace("https://github.com", "")
-    command = f"{SK_TOOL_SCRIPTS_PATH}/hhd_decky_install.sh {github_prefix}"
+    release_prefix = get_github_release_cdn()
+    command = f"{SK_TOOL_SCRIPTS_PATH}/hhd_decky_install.sh {release_prefix}"
     return run_command(command, "HHD-Decky bin")
 
 def huesync_install():
@@ -372,9 +369,9 @@ def usb_wakeup_switch_callback(enable):
     logging.info("USB唤醒设置完成")
 
 def emudeck_install():
-    github_cdn_url = get_github_clone_cdn()
-    github_prefix = github_cdn_url.replace("https://github.com", "")
-    command = f"bash {SK_TOOL_SCRIPTS_PATH}/emudeck_install.sh {github_prefix}"
+    release_prefix = get_github_release_cdn()
+    raw_prefix = get_github_raw_cdn()
+    command = f"bash {SK_TOOL_SCRIPTS_PATH}/emudeck_install.sh {release_prefix} {raw_prefix}"
     return run_command(command, "EmuDeck")
 
 def noto_fonts_cjk_install():
@@ -384,20 +381,6 @@ def noto_fonts_cjk_install():
 def noto_fonts_cjk_uninstall():
     command = f"{SK_TOOL_SCRIPTS_PATH}/noto_fonts_cjk_install.sh uninstall"
     return run_command(command, "Noto CJK Fonts")
-
-# def spb_ally_exist():
-#     path = "~/homebrew/themes/SBP-ROG-Ally"
-#     path = os.path.expanduser(path)
-#     return os.path.exists(path)
-
-# def spb_ally_install():
-#     command = "curl -L https://raw.githubusercontent.com/honjow/sk-holoiso-config/master/scripts/install-SBP-ROG-Ally.sh | sh"
-#     return run_command(command, "SBP-ROG-Ally")
-
-# def spb_ally_uninstall():
-#     path = "~/homebrew/themes/SBP-ROG-Ally"
-#     command = f"rm -rf {path}"
-#     return run_command(command, "SBP-ROG-Ally")
 
 def spb_lego_exist():
     path = "~/homebrew/themes/SBP-Legion-Go-Theme"
@@ -426,20 +409,6 @@ def ps5_to_h_uninstall():
     path = "~/homebrew/themes/SBP-PS5-to-Handheld"
     command = f"rm -rf {path}"
     return run_command(command, "SBP-PS5-to-Handheld")
-
-# def ps5_to_xbox_exist():
-#     path = "~/homebrew/themes/PS5-to-Xbox-glyphs"
-#     path = os.path.expanduser(path)
-#     return os.path.exists(path)
-
-# def ps5_to_xbox_install():
-#     command = "curl -L https://raw.githubusercontent.com/honjow/sk-holoiso-config/master/scripts/install-PS5-to-Xbox-glyphs.sh | sh"
-#     return run_command(command, "PS5-to-Xbox-glyphs")
-
-# def ps5_to_xbox_uninstall():
-#     path = "~/homebrew/themes/PS5-to-Xbox-glyphs"
-#     command = f"rm -rf {path}"
-#     return run_command(command, "PS5-to-Xbox-glyphs")
 
 def nix_install():
     command = f"/usr/bin/sk-nix-install install"

@@ -14,21 +14,18 @@ fi
 
 set -e
 
-github_prefix=$1
-echo "github_prefix: ${github_prefix}"
+github_release_prefix=$1
+github_raw_prefix=$2
+
+echo "github_release_prefix: ${github_release_prefix}"
+echo "github_raw_prefix: ${github_raw_prefix}"
 
 tmp_dir=$(mktemp -d)
 
 EMUDECK_GITHUB_URL="https://api.github.com/repos/EmuDeck/emudeck-electron/releases/latest"
-RELEASE=$(curl -s ${github_prefix}${EMUDECK_GITHUB_URL})
+RELEASE=$(curl -s ${EMUDECK_GITHUB_URL})
 
 echo "RELEASE $RELEASE"
-
-# if $RELEASE not starting with '{', then there is an error
-if [[ "x${RELEASE:0:1}" != "x{" ]]; then
-  github_prefix=""
-  RELEASE=$(curl -s ${EMUDECK_GITHUB_URL})
-fi
 
 MESSAGE=$(echo "$RELEASE" | jq -r '.message')
 
@@ -49,17 +46,28 @@ if [ -z "$RELEASE_VERSION" ] || [ -z "$RELEASE_URL" ]; then
   exit 1
 fi
 
-ICON_URL="https://github.com/dragoonDorise/EmuDeck/blob/main/icons/EmuDeck.png?raw=true"
+if [[ -n "$github_release_prefix" ]]; then
+  # replace 'https://github.com' with the custom prefix
+  RELEASE_URL=$(echo $RELEASE_URL | sed "s|https://github.com|${github_release_prefix}|")
+  echo "RELEASE_URL: ${RELEASE_URL}"
+fi
+
+ICON_URL="https://raw.githubusercontent.com/dragoonDorise/EmuDeck/main/icons/EmuDeck.png"
+if [[ -n "$github_raw_prefix" ]]; then
+  # replace 'https://raw.githubusercontent.com' with the custom prefix
+  ICON_URL=$(echo $ICON_URL | sed "s|https://raw.githubusercontent.com|${github_raw_prefix}|")
+  echo "ICON_URL: ${ICON_URL}"
+fi
 
 mkdir -p ~/Applications
 
 echo "Downloading icon"
-curl -L "${github_prefix}${ICON_URL}" -o ${tmp_dir}/EmuDeck.png
+curl -L "${ICON_URL}" -o ${tmp_dir}/EmuDeck.png
 cp ${tmp_dir}/EmuDeck.png ~/Applications/EmuDeck.png
 
 echo "Installing EmuDeck $RELEASE_VERSION"
 
-curl -L "${github_prefix}${RELEASE_URL}" -o ${tmp_dir}/EmuDeck.AppImage
+curl -L "${RELEASE_URL}" -o ${tmp_dir}/EmuDeck.AppImage
 mv ${tmp_dir}/EmuDeck.AppImage ~/Applications/EmuDeck.AppImage
 chmod +x ~/Applications/EmuDeck.AppImage
 
