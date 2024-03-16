@@ -22,7 +22,7 @@ echo "github_raw_prefix: ${github_raw_prefix}"
 
 tmp_dir=$(mktemp -d)
 
-EMUDECK_GITHUB_URL="https://api.github.com/repos/an-anime-team/an-anime-games-launcher/releases/latest"
+EMUDECK_GITHUB_URL="https://api.github.com/repos/an-anime-team/the-honkers-railway-launcher/releases/latest"
 RELEASE=$(curl -s ${EMUDECK_GITHUB_URL} --connect-timeout 10)
 
 MESSAGE=$(echo "$RELEASE" | jq -r '.message')
@@ -50,8 +50,8 @@ if [[ -n "$github_release_prefix" ]]; then
   echo "RELEASE_URL: ${RELEASE_URL}"
 fi
 
-ICON_URL="https://raw.githubusercontent.com/an-anime-team/an-anime-games-launcher/master/assets/images/icon.png"
-ICON_URL_CN="https://gitee.com/honjow/sk-holoiso-config/raw/master/assets/icons/an-anime-games-launcher.png"
+ICON_URL="https://raw.githubusercontent.com/an-anime-team/the-honkers-railway-launcher/main/assets/images/icon.png"
+ICON_URL_CN="https://gitee.com/honjow/sk-holoiso-config/raw/master/assets/icons/the-honkers-railway-launcher.png"
 if [[ -n "$github_raw_prefix" ]]; then
   # replace 'https://raw.githubusercontent.com' with the custom prefix
   ICON_URL=$(echo $ICON_URL | sed "s|https://raw.githubusercontent.com|${github_raw_prefix}|")
@@ -61,34 +61,34 @@ fi
 mkdir -p ~/Applications
 
 echo "Downloading icon ......"
-icon_path=${tmp_dir}/an-anime-games-launcher.png
+icon_path=${tmp_dir}/the-honkers-railway-launcher.png
 curl -L "${ICON_URL}" -o ${icon_path} --connect-timeout 10 -m 30
 # if iconfile is text, then it's an error
 if [[ $(file --mime-type -b ${icon_path}) =~ "text" ]]; then
   echo ">>> Failed to download icon, trying gitee source"
   curl -L "${ICON_URL_CN}" -o ${icon_path} --connect-timeout 10 -m 30
 fi
-cp -f ${icon_path} ~/Applications/an-anime-games-launcher.png
+cp -f ${icon_path} ~/Applications/the-honkers-railway-launcher.png
 
 echo "Downloading AppImage ......"
-curl -L "${RELEASE_URL}" -o ${tmp_dir}/an-anime-games-launcher.AppImage --connect-timeout 10
+curl -L "${RELEASE_URL}" -o ${tmp_dir}/the-honkers-railway-launcher.AppImage --connect-timeout 10
 
-echo "Installing an-anime-games-launcher $RELEASE_VERSION"
-mv ${tmp_dir}/an-anime-games-launcher.AppImage ~/Applications/an-anime-games-launcher.AppImage
-chmod +x ~/Applications/an-anime-games-launcher.AppImage
+echo "Installing the-honkers-railway-launcher $RELEASE_VERSION"
+mv ${tmp_dir}/the-honkers-railway-launcher.AppImage ~/Applications/the-honkers-railway-launcher.AppImage
+chmod +x ~/Applications/the-honkers-railway-launcher.AppImage
 
 
 user_home=$(eval echo ~${SUDO_USER})
 
 echo "Creating desktop shortcut"
-cat > ${user_home}/.local/share/applications/an-anime-games-launcher.desktop <<EOL
+cat > ${user_home}/.local/share/applications/the-honkers-railway-launcher.desktop <<EOL
 [Desktop Entry]
-Name=An Anime Games Launcher
+Name=The Honkers Railway Launcher
 Comment=An Launcher for a specific anime game with auto-patching, discord rpc and time tracking
-Exec=${user_home}/Applications/an-anime-games-launcher.AppImage
-Icon=${user_home}/Applications/an-anime-games-launcher.png
+Exec=${user_home}/Applications/the-honkers-railway-launcher.AppImage
+Icon=${user_home}/Applications/the-honkers-railway-launcher.png
 Terminal=false
 Type=Application
 Categories=Gaming
-StartupWMClass=moe.launcher.an-anime-games-launcher
+StartupWMClass=moe.launcher.the-honkers-railway-launcher
 EOL

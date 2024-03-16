@@ -380,11 +380,11 @@ def anime_games_launcher_install():
     command = f"bash {SK_TOOL_SCRIPTS_PATH}/anime-games-launcher_install.sh {release_prefix} {raw_prefix}"
     return run_command(command, "Anime Games Launcher")
 
-def an_anime_games_launcher_install():
+def an_anime_game_launcher_install():
     release_prefix = get_github_release_cdn()
     raw_prefix = get_github_raw_cdn()
-    command = f"bash {SK_TOOL_SCRIPTS_PATH}/an-anime-games-launcher_install.sh {release_prefix} {raw_prefix}"
-    return run_command(command, "An Anime Games Launcher")
+    command = f"bash {SK_TOOL_SCRIPTS_PATH}/an-anime-game-launcher_install.sh {release_prefix} {raw_prefix}"
+    return run_command(command, "An Anime Game Launcher")
 
 def noto_fonts_cjk_install():
     command = f"{SK_TOOL_SCRIPTS_PATH}/noto_fonts_cjk_install.sh install"

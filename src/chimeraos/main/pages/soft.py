@@ -43,12 +43,13 @@ class SoftManagerPage(Gtk.Box):
         )
         self.pack_start(item_anime_games_launcher, False, False, 0)
 
-        item_an_anime_games_launcher = ManagerItem(
-            "An Anime Games Launcher",
-            "动漫游戏启动器 (原神)",
+        item_an_anime_game_launcher = ManagerItem(
+            "An Anime Game Launcher",
+            "原神启动器",
             lambda: os.path.isfile(os.path.expanduser("~/Applications/an-anime-games-launcher.AppImage")),
-            installs.an_anime_games_launcher_install,
+            installs.an_anime_game_launcher_install,
         )
+        self.pack_start(item_an_anime_game_launcher, False, False, 0)
 
         # item_noto_fonts_cjk = ManagerItem(
         #     "Noto CJK 字体", "Noto CJK 字体, 因为字体太大不内置到系统中, 可以单独安装, 不受系统更新影响", 
