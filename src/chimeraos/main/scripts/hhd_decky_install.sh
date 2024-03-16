@@ -14,7 +14,7 @@ echo "github_release_prefix: ${github_release_prefix}"
 temp=$(mktemp -d)
 
 # Download latest release
-RELEASE=$(curl -s "https://api.github.com/repos/hhd-dev/hhd-decky/releases/latest")
+RELEASE=$(curl -s "https://api.github.com/repos/hhd-dev/hhd-decky/releases/latest" --connect-timeout 10)
 
 # if $RELEASE not starting with '{', then there is an error
 if [[ "x${RELEASE:0:1}" != "x{" ]]; then
@@ -43,7 +43,7 @@ if [[ -n "$github_release_prefix" ]]; then
   echo "RELEASE_URL: ${RELEASE_URL}"
 fi
 
-curl -L -o ${temp}/hhd-decky.tar.gz "${RELEASE_URL}"
+curl -L -o ${temp}/hhd-decky.tar.gz "${RELEASE_URL}" --connect-timeout 10 -m 120
 
 echo "Installing hhd-decky $RELEASE_VERSION"
 

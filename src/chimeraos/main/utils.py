@@ -16,14 +16,22 @@ def run_command(command, name=""):
     logging.info(f"执行{name}操作")
     try:
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-        for line in process.stdout:
-            logging.info(line.strip())
-        stdout, stderr = process.communicate()
-        return_code = process.returncode
+        # for line in process.stdout:
+        #     logging.info(line.strip())
+        # stdout, stderr = process.communicate()
+        # return_code = process.returncode
+        while True:
+            output = process.stdout.readline()
+            if output == '' and process.poll() is not None:
+                break
+            if output:
+                logging.info(output.strip())
+        return_code = process.wait()
 
         if return_code != 0:
             success = False
-            ret_msg = stderr.strip()
+            # ret_msg = stderr.strip()
+            ret_msg = process.stderr.read().strip()
             logging.error(f"{name}操作失败: {ret_msg}")
         else:
             logging.info(f"{name}操作完成")

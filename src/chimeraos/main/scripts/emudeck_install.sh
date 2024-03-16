@@ -23,9 +23,7 @@ echo "github_raw_prefix: ${github_raw_prefix}"
 tmp_dir=$(mktemp -d)
 
 EMUDECK_GITHUB_URL="https://api.github.com/repos/EmuDeck/emudeck-electron/releases/latest"
-RELEASE=$(curl -s ${EMUDECK_GITHUB_URL})
-
-echo "RELEASE $RELEASE"
+RELEASE=$(curl -s ${EMUDECK_GITHUB_URL} --connect-timeout 10)
 
 MESSAGE=$(echo "$RELEASE" | jq -r '.message')
 
@@ -62,12 +60,13 @@ fi
 mkdir -p ~/Applications
 
 echo "Downloading icon"
-curl -L "${ICON_URL}" -o ${tmp_dir}/EmuDeck.png
-cp ${tmp_dir}/EmuDeck.png ~/Applications/EmuDeck.png
+curl -L "${ICON_URL}" -o ${tmp_dir}/EmuDeck.png --connect-timeout 10 -m 30
+cp -f ${tmp_dir}/EmuDeck.png ~/Applications/EmuDeck.png
+
+echo "Downloading AppImage"
+curl -L "${RELEASE_URL}" -o ${tmp_dir}/EmuDeck.AppImage --connect-timeout 10 -m 120
 
 echo "Installing EmuDeck $RELEASE_VERSION"
-
-curl -L "${RELEASE_URL}" -o ${tmp_dir}/EmuDeck.AppImage
 mv ${tmp_dir}/EmuDeck.AppImage ~/Applications/EmuDeck.AppImage
 chmod +x ~/Applications/EmuDeck.AppImage
 

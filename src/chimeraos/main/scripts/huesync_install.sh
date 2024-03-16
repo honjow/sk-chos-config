@@ -16,7 +16,7 @@ plugin_name="HueSync"
 temp=$(mktemp -d)
 
 # Download latest release
-RELEASE=$(curl -s "https://api.github.com/repos/honjow/HueSync/releases/latest")
+RELEASE=$(curl -s "https://api.github.com/repos/honjow/HueSync/releases/latest" --connect-timeout 10)
 
 MESSAGE=$(echo "$RELEASE" | jq -r '.message')
 
@@ -39,7 +39,7 @@ if [[ -n "$github_release_prefix" ]]; then
   echo "RELEASE_URL: ${RELEASE_URL}"
 fi
 
-curl -L -o "${temp}/${plugin_name}.tar.gz" "${RELEASE_URL}"
+curl -L -o "${temp}/${plugin_name}.tar.gz" "${RELEASE_URL}" --connect-timeout 10 -m 120
 
 echo "Installing $plugin_name $RELEASE_VERSION"
 

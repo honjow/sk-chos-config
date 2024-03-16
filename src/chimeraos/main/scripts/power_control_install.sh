@@ -14,7 +14,7 @@ echo "github_release_prefix: ${github_release_prefix}"
 temp=$(mktemp -d)
 
 # Download latest release
-RELEASE=$(curl -s "https://api.github.com/repos/mengmeet/PowerControl/releases/latest")
+RELEASE=$(curl -s "https://api.github.com/repos/mengmeet/PowerControl/releases/latest" --connect-timeout 10)
 
 MESSAGE=$(echo "$RELEASE" | jq -r '.message')
 
@@ -37,7 +37,7 @@ if [[ -n "$github_release_prefix" ]]; then
   echo "RELEASE_URL: ${RELEASE_URL}"
 fi
 
-curl -L -o ${temp}/PowerControl.tar.gz "${RELEASE_URL}"
+curl -L -o ${temp}/PowerControl.tar.gz "${RELEASE_URL}" --connect-timeout 10 -m 120
 
 echo "Installing PowerControl $RELEASE_VERSION"
 
