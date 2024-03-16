@@ -89,6 +89,7 @@ Exec=${user_home}/Applications/the-honkers-railway-launcher.AppImage
 Icon=${user_home}/Applications/the-honkers-railway-launcher.png
 Terminal=false
 Type=Application
-Categories=Gaming
+Categories=Gaming;
+Keywords=gaming;
 StartupWMClass=moe.launcher.the-honkers-railway-launcher
 EOL

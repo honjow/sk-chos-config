@@ -89,6 +89,7 @@ Exec=${user_home}/Applications/an-anime-game-launcher.AppImage
 Icon=${user_home}/Applications/an-anime-game-launcher.png
 Terminal=false
 Type=Application
-Categories=Gaming
+Categories=Gaming;
+Keywords=gaming;
 StartupWMClass=moe.launcher.an-anime-game-launcher
 EOL

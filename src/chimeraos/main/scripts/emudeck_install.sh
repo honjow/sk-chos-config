@@ -88,5 +88,6 @@ Exec=${user_home}/Applications/EmuDeck.AppImage
 Icon=${user_home}/Applications/EmuDeck.png
 Terminal=false
 Type=Application
-Categories=Gaming
+Categories=Gaming;
+Keywords=gaming;
 EOL

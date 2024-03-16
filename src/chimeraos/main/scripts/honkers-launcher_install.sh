@@ -89,6 +89,7 @@ Exec=${user_home}/Applications/honkers-launcher.AppImage
 Icon=${user_home}/Applications/honkers-launcher.png
 Terminal=false
 Type=Application
-Categories=Gaming
+Categories=Gaming;
+Keywords=gaming;
 StartupWMClass=moe.launcher.honkers-launcher
 EOL
