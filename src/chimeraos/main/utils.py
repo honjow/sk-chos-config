@@ -130,7 +130,7 @@ def chk_override_bitrate():
     
 
 def clear_cache():
-    command = "rm -rf ~/.cache/sk-holoiso-config/* ; rm -rf ~/.local/share/pnpm/store/* ; yay -Scc --noconfirm"
+    command = "sudo rm -f /var/lib/pacman/db.lck ; rm -rf ~/.cache/sk-holoiso-config/* ; rm -rf ~/.local/share/pnpm/store/* ; yay -Scc --noconfirm"
     return run_command(command, "清除缓存")
 
 def boot_repair():
