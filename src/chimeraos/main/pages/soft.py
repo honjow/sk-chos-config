@@ -35,14 +35,6 @@ class SoftManagerPage(Gtk.Box):
         )
         self.pack_start(item_emudeck, False, False, 0)
 
-        item_anime_games_launcher = ManagerItem(
-            "Anime Games Launcher",
-            "动漫游戏启动器 (米哈游全家桶)",
-            lambda: os.path.isfile(os.path.expanduser("~/Applications/anime-games-launcher.AppImage")),
-            installs.anime_games_launcher_install,
-        )
-        self.pack_start(item_anime_games_launcher, False, False, 0)
-
         item_an_anime_game_launcher = ManagerItem(
             "An Anime Game Launcher",
             "原神 启动器",
@@ -66,6 +58,14 @@ class SoftManagerPage(Gtk.Box):
             installs.honkers_launcher_install,
         )
         self.pack_start(item_honkers_launcher, False, False, 0)
+
+        item_anime_games_launcher = ManagerItem(
+            "Anime Games Launcher",
+            "动漫游戏启动器 (米哈游全家桶)",
+            lambda: os.path.isfile(os.path.expanduser("~/Applications/anime-games-launcher.AppImage")),
+            installs.anime_games_launcher_install,
+        )
+        self.pack_start(item_anime_games_launcher, False, False, 0)
 
         # item_noto_fonts_cjk = ManagerItem(
         #     "Noto CJK 字体", "Noto CJK 字体, 因为字体太大不内置到系统中, 可以单独安装, 不受系统更新影响", 
