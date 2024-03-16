@@ -45,11 +45,27 @@ class SoftManagerPage(Gtk.Box):
 
         item_an_anime_game_launcher = ManagerItem(
             "An Anime Game Launcher",
-            "原神启动器",
+            "原神 启动器",
             lambda: os.path.isfile(os.path.expanduser("~/Applications/an-anime-games-launcher.AppImage")),
             installs.an_anime_game_launcher_install,
         )
         self.pack_start(item_an_anime_game_launcher, False, False, 0)
+
+        item_the_honkers_railway_launcher = ManagerItem(
+            "The Honkers Railway Launcher",
+            "崩坏:星穹铁道 启动器",
+            lambda: os.path.isfile(os.path.expanduser("~/Applications/the-honkers-railway-launcher.AppImage")),
+            installs.the_honkers_railway_launcher_install,
+        )
+        self.pack_start(item_the_honkers_railway_launcher, False, False, 0)
+
+        item_honkers_launcher = ManagerItem(
+            "Honkers Launcher",
+            "崩坏3 启动器",
+            lambda: os.path.isfile(os.path.expanduser("~/Applications/honkers-launcher.AppImage")),
+            installs.honkers_launcher_install,
+        )
+        self.pack_start(item_honkers_launcher, False, False, 0)
 
         # item_noto_fonts_cjk = ManagerItem(
         #     "Noto CJK 字体", "Noto CJK 字体, 因为字体太大不内置到系统中, 可以单独安装, 不受系统更新影响", 

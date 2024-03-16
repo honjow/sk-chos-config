@@ -386,6 +386,18 @@ def an_anime_game_launcher_install():
     command = f"bash {SK_TOOL_SCRIPTS_PATH}/an-anime-game-launcher_install.sh {release_prefix} {raw_prefix}"
     return run_command(command, "An Anime Game Launcher")
 
+def the_honkers_railway_launcher_install():
+    release_prefix = get_github_release_cdn()
+    raw_prefix = get_github_raw_cdn()
+    command = f"bash {SK_TOOL_SCRIPTS_PATH}/the-honkers-railway-launcher_install.sh {release_prefix} {raw_prefix}"
+    return run_command(command, "The Honkers Railway Launcher")
+
+def honkers_launcher_install():
+    release_prefix = get_github_release_cdn()
+    raw_prefix = get_github_raw_cdn()
+    command = f"bash {SK_TOOL_SCRIPTS_PATH}/honkers-launcher_install.sh {release_prefix} {raw_prefix}"
+    return run_command(command, "Honkers Launcher")
+
 def noto_fonts_cjk_install():
     command = f"{SK_TOOL_SCRIPTS_PATH}/noto_fonts_cjk_install.sh install"
     return run_command(command, "Noto CJK Fonts")
