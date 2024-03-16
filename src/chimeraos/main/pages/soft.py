@@ -38,7 +38,7 @@ class SoftManagerPage(Gtk.Box):
         item_an_anime_game_launcher = ManagerItem(
             "An Anime Game Launcher",
             "原神 启动器",
-            lambda: os.path.isfile(os.path.expanduser("~/Applications/an-anime-games-launcher.AppImage")),
+            lambda: os.path.isfile(os.path.expanduser("~/Applications/an-anime-game-launcher.AppImage")),
             installs.an_anime_game_launcher_install,
         )
         self.pack_start(item_an_anime_game_launcher, False, False, 0)
