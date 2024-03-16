@@ -374,6 +374,12 @@ def emudeck_install():
     command = f"bash {SK_TOOL_SCRIPTS_PATH}/emudeck_install.sh {release_prefix} {raw_prefix}"
     return run_command(command, "EmuDeck")
 
+def anime_games_launcher_install():
+    release_prefix = get_github_release_cdn()
+    raw_prefix = get_github_raw_cdn()
+    command = f"bash {SK_TOOL_SCRIPTS_PATH}/anime-games-launcher_install.sh {release_prefix} {raw_prefix}"
+    return run_command(command, "Anime Games Launcher")
+
 def noto_fonts_cjk_install():
     command = f"{SK_TOOL_SCRIPTS_PATH}/noto_fonts_cjk_install.sh install"
     return run_command(command, "Noto CJK Fonts")
