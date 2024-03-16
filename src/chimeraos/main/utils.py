@@ -32,6 +32,8 @@ def run_command(command, name=""):
             for line in iter(stream.readline, ''):
                 logging.info(line.strip())
                 if stream_name == 'stderr':  # 如果是读取stderr，那么将内容添加到队列中
+                    while not stderr_queue.empty():  # 清空队列
+                        stderr_queue.get()
                     stderr_queue.put(line.strip())
 
         for stream_name in ('stdout', 'stderr'):
@@ -41,8 +43,8 @@ def run_command(command, name=""):
 
         if process.returncode != 0:
             success = False
-            while not stderr_queue.empty():  # 从队列中获取stderr的内容
-                ret_msg += stderr_queue.get() + '\n'
+            if not stderr_queue.empty():  # 从队列中获取stderr的内容
+                ret_msg = stderr_queue.get()
             logging.error(f"{name}操作失败: {ret_msg}")
         else:
             logging.info(f"{name}操作完成")

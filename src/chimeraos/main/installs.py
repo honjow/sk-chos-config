@@ -191,7 +191,7 @@ def tomoon_install():
     return run_command(command, "ToMoon")
 
 def this_app_install():
-    command = "yay -Sy sk-chos-tool --noconfirm --overwrite \"*\""
+    command = "yay -Sy sk-chos-tool sk-chos-addon --noconfirm --overwrite \"*\""
     success, ret_msg = run_command(command, "Sk ChimeraOS Tool")
     if success:
         ret_msg = "更新完成, 请重新启动应用"
