@@ -49,24 +49,24 @@ class ToolManagerPage(Gtk.Box):
         )
         self.pack_start(item_decky_cn, False, False, 0)
 
-        item_handycon = ManagerItem(
-            "HandyGCCS",
-            "驱动部分掌机的手柄按钮",
-            lambda: utils.check_service_exists("handycon.service"),
-            installs.handycon_install,
-            installs.handycon_uninstall,
-        )
-        self.pack_start(item_handycon, False, False, 0)
+        # item_handycon = ManagerItem(
+        #     "HandyGCCS",
+        #     "驱动部分掌机的手柄按钮",
+        #     lambda: utils.check_service_exists("handycon.service"),
+        #     installs.handycon_install,
+        #     # installs.handycon_uninstall,
+        # )
+        # self.pack_start(item_handycon, False, False, 0)
 
-        if IS_HHD_SUPPORT:
-            item_hhd = ManagerItem(
-                "HHD",
-                "Handheld Daemon , 另一个手柄驱动程序",
-                lambda: utils.check_service_exists(f"hhd@{USER}.service"),
-                installs.hhd_install,
-                installs.hhd_install,
-            )
-            self.pack_start(item_hhd, False, False, 0)
+        # if IS_HHD_SUPPORT:
+        #     item_hhd = ManagerItem(
+        #         "HHD",
+        #         "Handheld Daemon , 另一个更好的手柄驱动程序",
+        #         lambda: utils.check_service_exists(f"hhd@{USER}.service"),
+        #         installs.hhd_install,
+        #         # installs.hhd_uninstall,
+        #     )
+        #     self.pack_start(item_hhd, False, False, 0)
 
         item_nix_ = ManagerItem(
             "Nix",

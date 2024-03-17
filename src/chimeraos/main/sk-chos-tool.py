@@ -62,6 +62,9 @@ class ColumnedWindow(Gtk.ApplicationWindow):
         Gtk.Window.__init__(self, application=app, title="Sk ChimeraOS 配置")
         self.set_default_size(800, 500)
 
+        # 检查必须依赖
+        utils.check_and_install_addon()
+
         self.box_mapping = {
             "功能开关": SwitchPage(),
             "工具": ToolManagerPage(),

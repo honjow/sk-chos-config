@@ -10,6 +10,7 @@ import glob
 import threading
 
 from config import logging, SK_TOOL_SCRIPTS_PATH, USER
+import installs
 
 
 # 执行命令
@@ -277,7 +278,7 @@ def get_config_value(filename, section, key):
 
 def get_github_clone_cdn():
     config_file = "/etc/sk-chos-tool/github_cdn.conf"
-    cdn = get_config_value(config_file, "clone", "server")
+    cdn = get_config_value(config_file, "clone", "server") or ""
     cdn_list = cdn.split(":::")
     # random select one
     cdn = cdn_list[random.randint(0, len(cdn_list) - 1)]
@@ -289,7 +290,7 @@ def get_github_clone_cdn():
 
 def get_github_release_cdn():
     config_file = "/etc/sk-chos-tool/github_cdn.conf"
-    cdn = get_config_value(config_file, "release", "server")
+    cdn = get_config_value(config_file, "release", "server") or ""
     cdn_list = cdn.split(":::")
     # random select one
     cdn = cdn_list[random.randint(0, len(cdn_list) - 1)]
@@ -301,7 +302,7 @@ def get_github_release_cdn():
 
 def get_github_raw_cdn():
     config_file = "/etc/sk-chos-tool/github_cdn.conf"
-    cdn = get_config_value(config_file, "raw", "server")
+    cdn = get_config_value(config_file, "raw", "server") or ""
     cdn_list = cdn.split(":::")
     # random select one
     cdn = cdn_list[random.randint(0, len(cdn_list) - 1)]
@@ -387,3 +388,11 @@ def get_autoupdate(pkg_name):
     key = f"autoupdate.{pkg_name}"
     value = get_autoupdate_config(key)
     return value == "true"
+
+def check_and_install_addon():
+    file_path = "/usr/bin/__sk-chos-tool-update"
+    if not os.path.isfile(file_path):
+        return
+    else:
+        installs.this_app_cn_install()
+    
