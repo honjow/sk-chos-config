@@ -91,7 +91,6 @@ class DeckyAdvanceManagerPage(Gtk.Box):
             )
             self.pack_start(item_LegionGoRemapper, False, False, 0)
 
-
         item_power_control = ManagerItem(
             "PowerControl",
             "下载最新github源码编译安装",

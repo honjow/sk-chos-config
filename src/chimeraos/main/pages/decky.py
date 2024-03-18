@@ -99,7 +99,6 @@ class DeckyManagerPage(Gtk.Box):
             )
             self.pack_start(item_huesync_bin, False, False, 0)
 
-
         # Lenovo Legion Go
         if self.product_name == "83E1":
             item_LegionGoRemapper = ManagerItem(

@@ -10,7 +10,6 @@ import glob
 import threading
 
 from config import logging, SK_TOOL_SCRIPTS_PATH, USER
-import installs
 
 
 # 执行命令
@@ -30,14 +29,14 @@ def run_command(command, name=""):
 
         def reader_thread(process, stream_name):
             stream = getattr(process, stream_name)
-            for line in iter(stream.readline, ''):
+            for line in iter(stream.readline, ""):
                 logging.info(line.strip())
-                if stream_name == 'stderr':  # 如果是读取stderr，那么将内容添加到队列中
+                if stream_name == "stderr":  # 如果是读取stderr，那么将内容添加到队列中
                     while not stderr_queue.empty():  # 清空队列
                         stderr_queue.get()
                     stderr_queue.put(line.strip())
 
-        for stream_name in ('stdout', 'stderr'):
+        for stream_name in ("stdout", "stderr"):
             threading.Thread(target=reader_thread, args=(process, stream_name)).start()
 
         process.wait()
@@ -317,6 +316,7 @@ def check_emudeck_exists():
     # check if appimage exists
     return os.path.isfile(os.path.expanduser(appimage_path))
 
+
 def user_noto_fonts_cjk_exists():
     return os.path.isdir(os.path.expanduser("~/.fonts/noto-cjk"))
 
@@ -389,10 +389,11 @@ def get_autoupdate(pkg_name):
     value = get_autoupdate_config(key)
     return value == "true"
 
+
 def check_and_install_addon():
     file_path = "/usr/bin/__sk-chos-tool-update"
-    if not os.path.isfile(file_path):
+    if os.path.isfile(file_path):
         return
     else:
-        installs.this_app_cn_install()
-    
+        from installs import this_app_cn_install
+        this_app_cn_install()

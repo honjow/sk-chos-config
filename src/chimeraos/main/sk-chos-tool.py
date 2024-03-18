@@ -11,8 +11,11 @@ from pages.about import AboutPage
 from pages.autoupt_switch import AutoUpdateSwitchPage
 from pages.decky import DeckyManagerPage
 from pages.decky_advande import DeckyAdvanceManagerPage
-import utils
 from config import logging
+from utils import (
+    run_command,
+    check_and_install_addon,
+)
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gio
@@ -63,7 +66,7 @@ class ColumnedWindow(Gtk.ApplicationWindow):
         self.set_default_size(800, 500)
 
         # 检查必须依赖
-        utils.check_and_install_addon()
+        check_and_install_addon()
 
         self.box_mapping = {
             "功能开关": SwitchPage(),
@@ -136,7 +139,7 @@ class SkHoloisoConfigApp(Gtk.Application):
     def on_activate(self, app):
         logging.info("启动Sk chirmeaos Tool New")
 
-        utils.run_command("sudo frzr-unlock")
+        run_command("sudo frzr-unlock")
 
         win = ColumnedWindow(self)
         win.show_all()

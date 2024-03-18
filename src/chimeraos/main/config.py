@@ -15,13 +15,15 @@ PANED_RIGHT_MARGIN_BOTTOM = 20
 
 LOG_LOCATION = "/tmp/sk-chos-tool.log"
 logging.basicConfig(
-    level = logging.INFO,
+    level=logging.INFO,
     format="[%(asctime)s | %(filename)s:%(lineno)s:%(funcName)s] %(levelname)s: %(message)s",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler(LOG_LOCATION, mode="a", encoding="utf-8")
+        logging.FileHandler(LOG_LOCATION, mode="a", encoding="utf-8"),
     ],
-    force = True)
+    force=True,
+)
+
 
 def get_product_name():
     product_name = ""
@@ -33,6 +35,7 @@ def get_product_name():
     logging.info(f"设备名称: {product_name}")
     return product_name
 
+
 def get_vendor_name():
     vendor_name = ""
     try:
@@ -42,6 +45,7 @@ def get_vendor_name():
         logging.error(f"读取设备厂商名称失败: {e}")
     logging.info(f"设备厂商名称: {vendor_name}")
     return vendor_name
+
 
 PRODUCT_NAME = get_product_name()
 
@@ -77,8 +81,9 @@ hhd_support_vendor = [
     "GPD",
 ]
 
+
 def is_hhd_support():
     return PRODUCT_NAME in hhd_support_product or VENDOR_NAME in hhd_support_vendor
 
-IS_HHD_SUPPORT = is_hhd_support()
 
+IS_HHD_SUPPORT = is_hhd_support()
