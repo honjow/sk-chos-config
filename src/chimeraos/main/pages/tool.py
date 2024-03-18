@@ -33,21 +33,21 @@ class ToolManagerPage(Gtk.Box):
         self.create_page()
 
     def create_page(self):
-        item_decky = ManagerItem(
-            "Decky",
-            "游戏模式的插件平台",
-            lambda: utils.check_service_exists("plugin_loader.service"),
-            installs.simple_decky_install,
-        )
-        self.pack_start(item_decky, False, False, 0)
+        # item_decky = ManagerItem(
+        #     "Decky",
+        #     "游戏模式的插件平台",
+        #     lambda: utils.check_service_exists("plugin_loader.service"),
+        #     installs.simple_decky_install,
+        # )
+        # self.pack_start(item_decky, False, False, 0)
 
-        item_decky_cn = ManagerItem(
-            "Decky(CN源)",
-            "游戏模式的插件平台",
-            lambda: utils.check_service_exists("plugin_loader.service"),
-            installs.simple_cn_decky_install,
-        )
-        self.pack_start(item_decky_cn, False, False, 0)
+        # item_decky_cn = ManagerItem(
+        #     "Decky(CN源)",
+        #     "游戏模式的插件平台",
+        #     lambda: utils.check_service_exists("plugin_loader.service"),
+        #     installs.simple_cn_decky_install,
+        # )
+        # self.pack_start(item_decky_cn, False, False, 0)
 
         # item_handycon = ManagerItem(
         #     "HandyGCCS",
