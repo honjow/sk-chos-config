@@ -83,7 +83,7 @@ user_home=$(eval echo ~${SUDO_USER})
 echo "Creating desktop shortcut"
 cat > ${user_home}/.local/share/applications/honkers-launcher.desktop <<EOL
 [Desktop Entry]
-Honkers Launcher
+Name=Honkers Launcher
 Comment=An Launcher for a specific anime game with auto-patching, discord rpc and time tracking
 Exec=${user_home}/Applications/honkers-launcher.AppImage
 Icon=${user_home}/Applications/honkers-launcher.png
