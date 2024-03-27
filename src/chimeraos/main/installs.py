@@ -15,13 +15,13 @@ from config import SK_TOOL_SCRIPTS_PATH, logging, USER
 
 
 def handycon_switch_callback(active):
-    toggle_service(f"hhd@{os.getenv('USER')}.service", not active)
+    toggle_service(f"hhd@{USER}.service", not active)
     toggle_service("handycon.service", active)
 
 
 def hhd_switch_callback(active):
     toggle_service("handycon.service", not active)
-    toggle_service(f"hhd@{os.getenv('USER')}.service", active)
+    toggle_service(f"hhd@{USER}.service", active)
 
 
 def oxp2lsusb_switch_callback(active):

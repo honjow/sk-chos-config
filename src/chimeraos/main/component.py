@@ -91,6 +91,8 @@ class ManagerItem(Gtk.Box):
         installed_cb,
         install_callback=None,
         uninstall_callback=None,
+        version_cb=None,
+        latest_version_cb=None,
     ):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
         self.set_margin_start(2)
@@ -103,6 +105,8 @@ class ManagerItem(Gtk.Box):
         self.uninstall_callback = uninstall_callback
         self.install_button = None
         self.uninstall_button = None
+        self.version_cb = version_cb
+        self.latest_version_cb = latest_version_cb
 
         # 创建按钮时不显示
         self.uninstall_button_visible = False
@@ -114,6 +118,16 @@ class ManagerItem(Gtk.Box):
             self.current_installed = self.installed_cb()
         else:
             self.current_installed = self.installed_cb
+        
+        if callable(version_cb):
+            self.current_version = self.version_cb()
+        else:
+            self.current_version = self.version_cb
+        
+        if callable(latest_version_cb):
+            self.latest_version = self.latest_version_cb()
+        else:
+            self.latest_version = self.latest_version_cb
 
         # 左边文字部分
         left_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
@@ -137,6 +151,23 @@ class ManagerItem(Gtk.Box):
         desc_label.set_markup("<small>" + desc_label.get_text() + "</small>")
         left_box.pack_start(desc_label, False, False, 0)
 
+        # 版本信息
+        version_Box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        self.pack_start(version_Box, True, True, 0)
+        if self.current_version:
+            version_label = Gtk.Label()
+            version_label.set_text("当前: " + self.current_version)
+            version_label.set_halign(Gtk.Align.START)
+            version_label.set_valign(Gtk.Align.START)
+            version_Box.pack_start(version_label, False, False, 0)
+        if self.latest_version:
+            latest_version_label = Gtk.Label()
+            latest_version_label.set_text("最新: " + self.latest_version)
+            latest_version_label.set_halign(Gtk.Align.START)
+            latest_version_label.set_valign(Gtk.Align.START)
+            version_Box.pack_start(latest_version_label, False, False, 0)
+
+        # 加载动画部分
         self.spinner = Gtk.Spinner()
         self.spinner.set_valign(Gtk.Align.CENTER)
         self.spinner.set_margin_end(10)
