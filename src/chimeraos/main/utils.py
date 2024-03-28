@@ -210,7 +210,7 @@ def make_swapfile():
 
 
 def etc_repair_full():
-    command = f"sudo {SK_TOOL_SCRIPTS_PATH}/etc_repair.sh full && sk-first-run"
+    command = f"sudo {SK_TOOL_SCRIPTS_PATH}/etc_repair.sh full"
     success, ret_msg = run_command(command, "修复 /etc (完全)")
     if success:
         ret_msg = "重置完成, 重启生效"
