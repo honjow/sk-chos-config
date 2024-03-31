@@ -2,6 +2,16 @@
 
 set -e
 
+if [ "$EUID" -eq 0 ]; then
+    echo "Please run this script as a normal user, not root."
+    exit 1
+fi
+
+# /usr/bin/sk-unlock-pacman
+if [ -f "/bin/bash/sk-unlock-pacman" ]; then
+    sudo /usr/bin/sk-unlock-pacman
+fi
+
 pkgname=chimeraos-device-quirks-git
 
 temp_dir=$(mktemp -d)

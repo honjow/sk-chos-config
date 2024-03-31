@@ -71,6 +71,11 @@ echo "update_gamescope_session: $update_gamescope_session"
 
 
 sudo frzr-unlock
+
+if [ -f "/bin/bash/sk-unlock-pacman" ]; then
+    sudo /usr/bin/sk-unlock-pacman
+fi
+
 sudo pacman -Sy
 
 if [[ "$update_sk_chos_tool" != "false" ]]; then

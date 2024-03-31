@@ -1,0 +1,31 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root or with sudo."
+    exit 1
+fi
+
+set -e
+
+LOCK_FILE="/var/lib/pacman/db.lck"
+
+WAIT_TIME=10
+
+# 使用 fuser 检查 /var/lib/pacman/db.lck 的占用，如果有占用，等待 WAIT_TIME 秒, 再次检查
+# 如果第二次检查仍然有占用，直接删除 /var/lib/pacman/db.lck
+while true; do
+    if [ -f "$LOCK_FILE" ]; then
+        if fuser $LOCK_FILE; then
+            echo "Waiting for $LOCK_FILE to be released..."
+            sleep $WAIT_TIME
+        else
+            break
+        fi
+    else
+        break
+    fi
+done
+
+if [ -f "$LOCK_FILE" ]; then
+    rm -fv $LOCK_FILE
+fi
