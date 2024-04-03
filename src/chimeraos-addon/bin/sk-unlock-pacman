@@ -9,15 +9,23 @@ set -e
 
 LOCK_FILE="/var/lib/pacman/db.lck"
 
-WAIT_TIME=10
+WAIT_TIME=3
+MAX_CHECKS=3  # 最大检查次数
 
-# 使用 fuser 检查 /var/lib/pacman/db.lck 的占用，如果有占用，等待 WAIT_TIME 秒, 再次检查
-# 如果第二次检查仍然有占用，直接删除 /var/lib/pacman/db.lck
+# 使用 fuser 检查 $LOCK_FILE 的占用，如果有占用，等待 WAIT_TIME 秒, 再次检查
+# 达到最大次数直接删除 $LOCK_FILE
+checks=0
 while true; do
     if [ -f "$LOCK_FILE" ]; then
         if fuser $LOCK_FILE; then
             echo "Waiting for $LOCK_FILE to be released..."
             sleep $WAIT_TIME
+            checks=$((checks+1))
+            if [ $checks -ge $MAX_CHECKS ]; then
+                echo "Maximum number of checks reached, deleting $LOCK_FILE..."
+                rm $LOCK_FILE
+                break
+            fi
         else
             break
         fi
