@@ -1,9 +1,9 @@
-name: Public AUR gnome-shell-extension-enhanced-osk-gnome-ext-git
+name: Public AUR gnome-shell-extension-enhanced-osk-git
 
 on:
   push:
     paths:
-      - "pkgbuild/gnome-shell-extension-enhanced-osk-gnome-ext-git/PKGBUILD"
+      - "pkgbuild/gnome-shell-extension-enhanced-osk-git/PKGBUILD"
   workflow_dispatch:
 
 jobs:
@@ -18,8 +18,8 @@ jobs:
       - name: Publish AUR package
         uses: KSXGitHub/github-actions-deploy-aur@v2.7.0
         with:
-          pkgname: gnome-shell-extension-enhanced-osk-gnome-ext-git
-          pkgbuild: pkgbuild/gnome-shell-extension-enhanced-osk-gnome-ext-git/PKGBUILD
+          pkgname: gnome-shell-extension-enhanced-osk-git
+          pkgbuild: pkgbuild/gnome-shell-extension-enhanced-osk-git/PKGBUILD
           commit_username: ${{ secrets.AUR_USERNAME }}
           commit_email: ${{ secrets.AUR_EMAIL }}
           ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}

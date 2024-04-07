@@ -1,4 +1,4 @@
-pkgname=gnome-shell-extension-enhanced-osk-gnome-ext-git
+pkgname=gnome-shell-extension-enhanced-osk-git
 pkgver=r174.1921f4c
 pkgrel=1
 pkgdesc="Enhanced On-Screen Keyboard for Gnome Shell"
