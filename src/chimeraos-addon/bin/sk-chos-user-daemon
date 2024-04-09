@@ -15,7 +15,7 @@ fi
 
 # pacman -Q , check install gnome-shell-extension-screen-autorotate
 if [[ $(pacman -Q | grep gnome-shell-extension-screen-autorotate) ]]; then
-    echo "gnome-shell-extension-screen-autorotate is installed"
+    echo "gnome-shell-extension-screen-autorotate is installed, set orientation-offset..."
     # check gsettings is installed
     if [[ -f /usr/bin/gsettings ]]; then
         if [[ -f /etc/sk-chos/screen-rotate ]]; then
@@ -54,4 +54,18 @@ if [[ ! -f $after_update_flag ]]; then
     echo "after update run first-run..."
     /usr/bin/sk-first-run
     sudo touch $after_update_flag
+fi
+
+# 如果安装了kde桌面, 根据 $HOME/.config/plasma-localerc 更新 locale.conf
+if pacman -Q | grep -q plasma-desktop; then
+    if [[ -f $HOME/.config/plasma-localerc ]]; then
+        # 读取 plasma-localerc 中 LANG= 的值
+        LANG=$(grep LANG= $HOME/.config/plasma-localerc | cut -d= -f2)
+        # 去掉.后面的内容
+        LANG=${LANG%%.*}
+        if [[ -n $LANG ]]; then
+            echo "update locale.conf LANG=${LANG}.UTF-8"
+            echo "LANG=${LANG}.UTF-8" | sudo tee /etc/locale.conf
+        fi
+    fi
 fi
