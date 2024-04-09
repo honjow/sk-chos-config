@@ -23,6 +23,7 @@ if [[ $1 == "full" ]];then
       --exclude=locale.conf \
       --exclude=passwd \
       --exclude=systemd/system/plugin_loader.service \
+      --exclude=systemd/system/multi-user.target.wants/onedrive@*.service \
       --exclude=systemd/system/multi-user.target.wants/plugin_loader.service
 
 else
@@ -36,6 +37,9 @@ else
       --exclude=locale.conf \
       --exclude=passwd \
       --exclude=systemd/system/plugin_loader.service \
+      --exclude=systemd/system/multi-user.target.wants/nix-daemon-restart.service \
+      --exclude=systemd/system/multi-user.target.wants/nix-daemon.service \
+      --exclude=systemd/system/multi-user.target.wants/onedrive@*.service \
       --exclude=systemd/system/multi-user.target.wants/plugin_loader.service \
       --exclude=systemd/sleep.conf.d/sleep.conf
 
