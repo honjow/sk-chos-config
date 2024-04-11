@@ -61,11 +61,21 @@ if pacman -Q | grep -q plasma-desktop; then
     if [[ -f $HOME/.config/plasma-localerc ]]; then
         # 读取 plasma-localerc 中 LANG= 的值
         LANG=$(grep LANG= $HOME/.config/plasma-localerc | cut -d= -f2)
+        ORIG_LANG=$LANG
         # 去掉.后面的内容
         LANG=${LANG%%.*}
-        if [[ -n $LANG ]]; then
+
+        if [[ "${ORIG_LANG}" != "${LANG}.UTF-8" ]]; then
+            echo "update plasma-localerc LANG=${LANG}.UTF-8"
+            sed -i "s/LANG=.*/LANG=${LANG}.UTF-8/" $HOME/.config/plasma-localerc
+        fi
+
+        # 读取 /etc/locale.conf 中 LANG= 的值
+        E_LANG=$(grep LANG= /etc/locale.conf | cut -d= -f2)
+        if [[ "${E_LANG}" != "${LANG}.UTF-8" ]]; then
             echo "update locale.conf LANG=${LANG}.UTF-8"
             echo "LANG=${LANG}.UTF-8" | sudo tee /etc/locale.conf
+            sudo locale-gen
         fi
     fi
 fi
