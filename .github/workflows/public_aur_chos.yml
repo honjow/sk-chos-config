@@ -2,11 +2,11 @@ name: Public AUR sk ChimeraOS Tool
 
 on:
   push:
-    tags:
-      - "v*"
     paths:
       - "pkgbuild/sk-chos-tool/PKGBUILD"
       - "pkgbuild/sk-chos-tool/*.install"
+    tags:
+      - "v*"
   workflow_dispatch:
 
 jobs:
