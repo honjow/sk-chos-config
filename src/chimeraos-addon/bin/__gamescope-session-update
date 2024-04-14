@@ -25,4 +25,4 @@ curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/aur-pkgs/${pkgname}
 
 PKGDEST=$(pwd) pikaur --noconfirm --rebuild -P PKGBUILD
 
-sudo pacman -U --noconfirm *.pkg.tar.zst --overwrite "*" --needed
+sudo pacman -U --noconfirm *.pkg.tar.zst --overwrite "*"

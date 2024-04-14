@@ -8,24 +8,4 @@ if [ "$EUID" -eq 0 ]; then
     exit 1
 fi
 
-# /usr/bin/sk-unlock-pacman
-if [ -f "/bin/bash/sk-unlock-pacman" ]; then
-    sudo /usr/bin/sk-unlock-pacman
-fi
-
-main_path="/usr/bin/sk-chos-tool"
-owner_package=$(LANG=en_US pacman -Qo $main_path 2>/dev/null | awk '{print $5}')
-
-pkgname=${owner_package:-"sk-chos-tool"}
-
-temp_dir=$(mktemp -d)
-
-mkdir -p $temp_dir/$pkgname
-cd $temp_dir/$pkgname
-
-curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/aur-pkgs/${pkgname}/PKGBUILD" -o PKGBUILD
-curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/aur-pkgs/${pkgname}/sk-chos-tool.install" -o sk-chos-tool.install
-
-PKGDEST=$(pwd) pikaur --noconfirm --rebuild -P PKGBUILD
-
-sudo pacman -U --noconfirm *.pkg.tar.zst --overwrite "*" --needed
+curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/install/install-sk-chos-tool.sh" | sh
