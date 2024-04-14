@@ -3,3 +3,12 @@
 if [ -f "/bin/bash/sk-unlock-pacman" ]; then
     /usr/bin/sk-unlock-pacman
 fi
+
+# 如果存在路径 /sys/devices/platform/*/mcu_powersave, 获取其值，如果是1，设置为0
+if [ -f "/sys/devices/platform/*/mcu_powersave" ]; then
+    for i in /sys/devices/platform/*/mcu_powersave; do
+        if [ "$(cat $i)" == "1" ]; then
+            echo 0 > $i
+        fi
+    done
+fi
