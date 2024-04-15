@@ -12,3 +12,5 @@ if [ -f "/sys/devices/platform/*/mcu_powersave" ]; then
         fi
     done
 fi
+
+mkdir -p /var/spool/atd
