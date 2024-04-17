@@ -1,9 +1,10 @@
 #!/bin/bash
 
-if [ -f "/bin/bash/sk-unlock-pacman" ]; then
-    /usr/bin/sk-unlock-pacman
+if [ -x "$(command -v sk-unlock-pacman)" ]; then
+    sk-unlock-pacman
 fi
 
+# 禁用 mcu powersave, 会导致 ROG Ally 睡眠唤醒后 N-Key 丢失
 # 如果存在路径 /sys/devices/platform/*/mcu_powersave, 获取其值，如果是1，设置为0
 if [ -f "/sys/devices/platform/*/mcu_powersave" ]; then
     for i in /sys/devices/platform/*/mcu_powersave; do
@@ -13,4 +14,5 @@ if [ -f "/sys/devices/platform/*/mcu_powersave" ]; then
     done
 fi
 
+# 为 atd 创建目录
 mkdir -p /var/spool/atd

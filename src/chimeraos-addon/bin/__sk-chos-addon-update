@@ -8,9 +8,8 @@ if [ "$EUID" -eq 0 ]; then
     exit 1
 fi
 
-# /usr/bin/sk-unlock-pacman
-if [ -f "/bin/bash/sk-unlock-pacman" ]; then
-    sudo /usr/bin/sk-unlock-pacman
+if [ -x "$(command -v sk-unlock-pacman)" ]; then
+    sudo sk-unlock-pacman
 fi
 
 main_path="/usr/bin/__sk-chos-addon-update"
