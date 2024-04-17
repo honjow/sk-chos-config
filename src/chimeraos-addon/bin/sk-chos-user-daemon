@@ -97,12 +97,12 @@ sarasa_path="/etc/fonts/conf.d/${sarasa_conf}"
 user_noto_cjk_path="$fontconfig_dir/${noto_cjk_conf}"
 user_sarasa_path="$fontconfig_dir/${sarasa_conf}"
 
-if [[ -f $noto_cjk_conf && ! -f $user_noto_cjk_path ]]; then
-    echo "copy $noto_cjk_conf to $fontconfig_dir"
-    cp $noto_cjk_conf $fontconfig_dir
+if [[ -f $noto_cjk_path && ! -f $user_noto_cjk_path ]]; then
+    echo "copy $noto_cjk_path to $fontconfig_dir"
+    cp $noto_cjk_path $fontconfig_dir
 fi
 
-if [[ -f $sarasa_conf && ! -f $user_sarasa_path ]]; then
-    echo "copy $sarasa_conf to $fontconfig_dir"
-    cp $sarasa_conf $fontconfig_dir
+if [[ -f $sarasa_path && ! -f $user_sarasa_path ]]; then
+    echo "copy $sarasa_path to $fontconfig_dir"
+    cp $sarasa_path $fontconfig_dir
 fi
