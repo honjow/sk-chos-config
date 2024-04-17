@@ -1,16 +1,21 @@
 #!/bin/bash
 
-VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
+VENDOR=$(cat "/sys/devices/virtual/dmi/id/sys_vendor")
 
 echo "Auto set shell"
-/usr/bin/sk-auto-set-shell
+if [[ -f /usr/bin/sk-auto-set-shell ]]; then
+    /usr/bin/sk-auto-set-shell
+fi
 
 echo "reset Internal screen"
 sed -i '/Internal screen/d' "${HOME}/.config/gamescope/modes.cfg"
 
-# check gpdconfig is installed
-if [[ -f /usr/bin/gpdconfig && "$VENDOR" == "GPD" ]]; then
-    gpdconfig l41=SYSRQ r41=PAUSE
+# check gpdconfig and hhd is installed
+if [[ -x "$(command -v gpdconfig)" && "$VENDOR" == "GPD" && -x "$(command -v hhd)" ]]; then
+    gpdconfig l41=SYSRQ r41=PAUSE \
+        l42=NONE r42=NONE l43=NONE r43=NONE l44=NONE r44=NONE \
+        l4delay1=0 r4delay1=0 l4delay2=0 r4delay2=0 \
+        l4delay3=0 r4delay3=0 l4delay4=300 r4delay4=300
 fi
 
 # pacman -Q , check install gnome-shell-extension-screen-autorotate
@@ -47,7 +52,6 @@ if [[ -f $pre_zshrc ]]; then
     fi
 fi
 
-
 # after update run
 after_update_flag=/.after-update
 if [[ ! -f $after_update_flag ]]; then
@@ -78,4 +82,27 @@ if pacman -Q | grep -q plasma-desktop; then
             sudo locale-gen
         fi
     fi
+fi
+
+# fontconfig
+fontconfig_dir="$HOME/.config/fontconfig/conf.d"
+mkdir -p $fontconfig_dir
+
+noto_cjk_conf="75-noto-cjk.conf"
+sarasa_conf="90-sarasa-gothic.conf"
+
+noto_cjk_path="/etc/fonts/conf.d/${noto_cjk_conf}"
+sarasa_path="/etc/fonts/conf.d/${sarasa_conf}"
+
+user_noto_cjk_path="$fontconfig_dir/${noto_cjk_conf}"
+user_sarasa_path="$fontconfig_dir/${sarasa_conf}"
+
+if [[ -f $noto_cjk_conf && ! -f $user_noto_cjk_path ]]; then
+    echo "copy $noto_cjk_conf to $fontconfig_dir"
+    cp $noto_cjk_conf $fontconfig_dir
+fi
+
+if [[ -f $sarasa_conf && ! -f $user_sarasa_path ]]; then
+    echo "copy $sarasa_conf to $fontconfig_dir"
+    cp $sarasa_conf $fontconfig_dir
 fi
