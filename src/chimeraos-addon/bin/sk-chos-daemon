@@ -1,18 +1,40 @@
 #!/bin/bash
 
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root or with sudo."
+    exit 1
+fi
+
+SYS_VENDOR=$(cat "/sys/class/dmi/id/sys_vendor")
+
 if [ -x "$(command -v sk-unlock-pacman)" ]; then
     sk-unlock-pacman
 fi
 
 # 禁用 mcu powersave, 会导致 ROG Ally 睡眠唤醒后 N-Key 丢失
 # 如果存在路径 /sys/devices/platform/*/mcu_powersave, 获取其值，如果是1，设置为0
-if [ -f "/sys/devices/platform/*/mcu_powersave" ]; then
+if [ -f /sys/devices/platform/*/mcu_powersave ]; then
     for i in /sys/devices/platform/*/mcu_powersave; do
         if [ "$(cat $i)" == "1" ]; then
-            echo 0 > $i
+            echo 0 >$i
         fi
     done
 fi
 
 # 为 atd 创建目录
 mkdir -p /var/spool/atd
+
+# asusctl
+shortcut_path="/usr/share/applications/rog-control-center.desktop"
+no_display="false"
+if [[ "$SYS_VENDOR" != "ASUSTeK COMPUTER INC." ]]; then
+    no_display="true"
+fi
+
+if [[ -f "$shortcut_path" ]]; then
+    if grep -q "NoDisplay=" "$shortcut_path"; then
+        sed -i "s/NoDisplay=.*/NoDisplay=$no_display/" "$shortcut_path"
+    else
+        echo "NoDisplay=$no_display" >>"$shortcut_path"
+    fi
+fi
