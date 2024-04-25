@@ -198,6 +198,7 @@ function set_ps5_theme_default() {
     # replace `: "Xbox" to` `: "$1"
     if [[ -f "${THEME_FOLDER}/SBP-PS5-to-Handheld/config_USER.json" ]]; then
         sed -i "s#: \"Xbox\"#: \"$PROFILE\"#g" "${THEME_FOLDER}/SBP-PS5-to-Handheld/config_USER.json"
+        sed -i "s#: false#: true#g" "${THEME_FOLDER}/SBP-PS5-to-Handheld/config_USER.json"
     fi
 }
 
