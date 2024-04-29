@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# Function to retrieve values from a .conf file
+# Usage: getValue filename section key
+get_conf_value() {
+    local filename="$1"
+    local section="$2"
+    local key="$3"
+
+    local section_found=false
+    local key_found=false
+    local values=()
+
+    while IFS= read -r line; do
+        # Remove leading and trailing whitespace
+        line=$(echo "$line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        
+        # Check if the line is a comment or empty
+        if [[ $line == \#* ]] || [[ -z $line ]]; then
+            continue
+        fi
+
+        # Check if the line matches the section header
+        if [[ $line == "[$section]" ]]; then
+            section_found=true
+        elif [[ $line == [* ]]; then
+            # If a new section is encountered, break
+            if $section_found; then
+                break
+            fi
+        elif $section_found; then
+            # Check if the line contains the desired key
+            if [[ $line == *"$key"* ]]; then
+                local value=$(echo "$line" | sed -n "s/.*$key *= *\([^ ]*\).*/\1/p")
+                values+=("$value")
+                key_found=true
+            fi
+        fi
+    done < "$filename"
+
+    if $key_found; then
+        if [ "${#values[@]}" -eq 1 ]; then
+            # If only one value is found, return it
+            echo "${values[0]}"
+        else
+            # If multiple values are found, return them as an array
+            echo "${values[@]}"
+        fi
+    fi
+}
+
+conf_path="${HOME}/.config/sk-chos-tool/sk-chos-tool.conf"
+section="download"
+
+if [ ! -f "$conf_path" ]; then
+    echo "Configuration file not found: $conf_path, default enable_github_cdn is true"
+    exit 0
+fi
+
+enable_github_cdn=$(get_conf_value "$conf_path" "$section" "enable_github_cdn")
+echo "enable_github_cdn: $enable_github_cdn"
+
+if [ "$enable_github_cdn" == "true" ]; then
+    echo "GitHub CDN is enabled"
+    exit 0
+else
+    echo "GitHub CDN is disabled"
+    exit 1
+fi
