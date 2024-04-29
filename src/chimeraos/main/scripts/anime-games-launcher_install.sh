@@ -71,10 +71,16 @@ fi
 cp -f ${icon_path} ~/Applications/anime-games-launcher.png
 
 echo "Downloading AppImage ......"
-curl -L "${RELEASE_URL}" -o ${tmp_dir}/anime-games-launcher.AppImage --connect-timeout 10
+temp_appimage="${tmp_dir}/anime-games-launcher.AppImage"
+curl -L "${RELEASE_URL}" -o $temp_appimage --connect-timeout 10
+
+if [[ ! $(file --mime-type -b $temp_appimage) =~ "application/x" ]]; then
+  echo "Failed to download AppImage" >&2
+  exit 1
+fi
 
 echo "Installing anime-games-launcher $RELEASE_VERSION"
-mv ${tmp_dir}/anime-games-launcher.AppImage ~/Applications/anime-games-launcher.AppImage
+mv $temp_appimage ~/Applications/anime-games-launcher.AppImage
 chmod +x ~/Applications/anime-games-launcher.AppImage
 
 

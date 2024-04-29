@@ -71,10 +71,16 @@ fi
 cp -f ${icon_path} ~/Applications/the-honkers-railway-launcher.png
 
 echo "Downloading AppImage ......"
-curl -L "${RELEASE_URL}" -o ${tmp_dir}/the-honkers-railway-launcher.AppImage --connect-timeout 10
+temp_appimage="${tmp_dir}/the-honkers-railway-launcher.AppImage"
+curl -L "${RELEASE_URL}" -o $temp_appimage --connect-timeout 10
+
+if [[ ! $(file --mime-type -b $temp_appimage) =~ "application/x" ]]; then
+  echo "Failed to download AppImage" >&2
+  exit 1
+fi
 
 echo "Installing the-honkers-railway-launcher $RELEASE_VERSION"
-mv ${tmp_dir}/the-honkers-railway-launcher.AppImage ~/Applications/the-honkers-railway-launcher.AppImage
+mv $temp_appimage ~/Applications/the-honkers-railway-launcher.AppImage
 chmod +x ~/Applications/the-honkers-railway-launcher.AppImage
 
 

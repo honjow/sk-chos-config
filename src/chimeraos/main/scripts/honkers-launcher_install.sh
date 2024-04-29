@@ -71,10 +71,16 @@ fi
 cp -f ${icon_path} ~/Applications/honkers-launcher.png
 
 echo "Downloading AppImage ......"
-curl -L "${RELEASE_URL}" -o ${tmp_dir}/honkers-launcher.AppImage --connect-timeout 10
+temp_appimage="${tmp_dir}/honkers-launcher.AppImage"
+curl -L "${RELEASE_URL}" -o $temp_appimage --connect-timeout 10
+
+if [[ ! $(file --mime-type -b $temp_appimage) =~ "application/x" ]]; then
+  echo "Failed to download AppImage" >&2
+  exit 1
+fi
 
 echo "Installing honkers-launcher $RELEASE_VERSION"
-mv ${tmp_dir}/honkers-launcher.AppImage ~/Applications/honkers-launcher.AppImage
+mv $temp_appimage ~/Applications/honkers-launcher.AppImage
 chmod +x ~/Applications/honkers-launcher.AppImage
 
 

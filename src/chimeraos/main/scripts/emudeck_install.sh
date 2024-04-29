@@ -71,10 +71,16 @@ fi
 cp -f ${icon_path} ~/Applications/EmuDeck.png
 
 echo "Downloading AppImage ......"
-curl -L "${RELEASE_URL}" -o ${tmp_dir}/EmuDeck.AppImage --connect-timeout 10
+temp_appimage="${tmp_dir}/EmuDeck.AppImage"
+curl -L "${RELEASE_URL}" -o $temp_appimage --connect-timeout 10
+
+if [[ ! $(file --mime-type -b $temp_appimage) =~ "application/x" ]]; then
+  echo "Failed to download AppImage" >&2
+  exit 1
+fi
 
 echo "Installing EmuDeck $RELEASE_VERSION"
-mv ${tmp_dir}/EmuDeck.AppImage ~/Applications/EmuDeck.AppImage
+mv $temp_appimage ~/Applications/EmuDeck.AppImage
 chmod +x ~/Applications/EmuDeck.AppImage
 
 
