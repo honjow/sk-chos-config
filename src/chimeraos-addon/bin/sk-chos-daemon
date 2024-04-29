@@ -24,6 +24,11 @@ fi
 # 为 atd 创建目录
 mkdir -p /var/spool/atd
 
+# frzr-unlock
+if [ -x "$(command -v frzr-unlock)" ]; then
+    frzr-unlock
+fi
+
 # asusctl
 shortcut_path="/usr/share/applications/rog-control-center.desktop"
 no_display="false"
