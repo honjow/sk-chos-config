@@ -23,7 +23,7 @@ get_conf_value() {
         # Check if the line matches the section header
         if [[ $line == "[$section]" ]]; then
             section_found=true
-        elif [[ $line == [*]* ]]; then
+        elif [[ $line == '['* ]]; then
             # If a new section is encountered, break
             if $section_found; then
                 break
