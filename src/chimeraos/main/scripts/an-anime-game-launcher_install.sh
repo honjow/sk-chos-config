@@ -73,7 +73,7 @@ fi
 cp -f ${icon_path} "$HOME/Applications/${app_name}.png"
 
 echo "Downloading AppImage ......"
-$temp_appimage="${tmp_dir}/${app_name}.AppImage"
+temp_appimage="${tmp_dir}/${app_name}.AppImage"
 curl -L "${RELEASE_URL}" -o $temp_appimage --connect-timeout 10
 
 # check file type
