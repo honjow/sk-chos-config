@@ -20,6 +20,8 @@ github_raw_prefix=$2
 echo "github_release_prefix: ${github_release_prefix}"
 echo "github_raw_prefix: ${github_raw_prefix}"
 
+app_name="anime-games-launcher"
+
 tmp_dir=$(mktemp -d)
 
 EMUDECK_GITHUB_URL="https://api.github.com/repos/an-anime-team/anime-games-launcher/releases/latest"
@@ -58,20 +60,20 @@ if [[ -n "$github_raw_prefix" ]]; then
   echo "ICON_URL: ${ICON_URL}"
 fi
 
-mkdir -p ~/Applications
+mkdir -p "$HOME/Applications"
 
 echo "Downloading icon ......"
-icon_path=${tmp_dir}/anime-games-launcher.png
+icon_path="${tmp_dir}/${app_name}.png"
 curl -L "${ICON_URL}" -o ${icon_path} --connect-timeout 10 -m 30
 # if iconfile is text, then it's an error
 if [[ $(file --mime-type -b ${icon_path}) =~ "text" ]]; then
   echo ">>> Failed to download icon, trying gitee source"
   curl -L "${ICON_URL_CN}" -o ${icon_path} --connect-timeout 10 -m 30
 fi
-cp -f ${icon_path} ~/Applications/anime-games-launcher.png
+cp -f ${icon_path} "$HOME/Applications/${app_name}.png"
 
 echo "Downloading AppImage ......"
-temp_appimage="${tmp_dir}/anime-games-launcher.AppImage"
+temp_appimage="${tmp_dir}/${app_name}.AppImage"
 curl -L "${RELEASE_URL}" -o $temp_appimage --connect-timeout 10
 
 if [[ ! $(file --mime-type -b $temp_appimage) =~ "application/x" ]]; then
@@ -79,23 +81,22 @@ if [[ ! $(file --mime-type -b $temp_appimage) =~ "application/x" ]]; then
   exit 1
 fi
 
-echo "Installing anime-games-launcher $RELEASE_VERSION"
-mv $temp_appimage ~/Applications/anime-games-launcher.AppImage
-chmod +x ~/Applications/anime-games-launcher.AppImage
+echo "Installing ${app_name} $RELEASE_VERSION"
+mv $temp_appimage "$HOME/Applications/${app_name}.AppImage"
+chmod +x "$HOME/Applications/${app_name}.AppImage"
 
 
 user_home=$(eval echo ~${SUDO_USER})
 
 echo "Creating desktop shortcut"
-cat > ${user_home}/.local/share/applications/anime-games-launcher.desktop <<EOL
+cat > ${user_home}/.local/share/applications/${app_name}.desktop <<EOL
 [Desktop Entry]
 Name=Anime Games Launcher
 Comment=Unified launcher for all of your specific anime game needs
-Exec=${user_home}/Applications/anime-games-launcher.AppImage
-Icon=${user_home}/Applications/anime-games-launcher.png
+Exec=${user_home}/Applications/${app_name}.AppImage
+Icon=${user_home}/Applications/${app_name}.png
 Terminal=false
 Type=Application
 Categories=Game;
 Keywords=game;
-StartupWMClass=moe.launcher.anime-games-launcher
 EOL
