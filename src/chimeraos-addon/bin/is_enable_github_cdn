@@ -11,7 +11,7 @@ get_conf_value() {
     local key_found=false
     local values=()
 
-    while IFS= read -r line; do
+    while IFS= read -r line || [[ -n $line ]]; do
         # Remove leading and trailing whitespace
         line=$(echo "$line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
         
