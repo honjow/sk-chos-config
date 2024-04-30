@@ -21,6 +21,7 @@ cpu_keywords=(
     "5825"
     "6800"
     "7320"
+    "7520"
     "7735"
     "7640"
     "7840"
@@ -54,7 +55,13 @@ VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
 ROG_LIST="ROG Ally RC71L_RC71L:ROG Ally RC71L"
 LGO_LIST="83E1"
 GPD_LIST="G1618-04:G1617-01:G1619-04:G1619-05"
-AYA_LIST="AIR Plus:AYANEO 2:AYANEO 2S:GEEK:GEEK 1S:AIR:AIR Pro:AIR 1S:AIR 1S Limited:SLIDE:NEXT Advance:NEXT Lite:NEXT Pro:NEXT"
+
+AYA_2_LIST="AYANEO 2:AYANEO 2S:GEEK:GEEK 1S"
+AYA_AIR_LIST="AIR:AIR Pro:AIR Plus:AIR 1S:AIR 1S Limited:SLIDE"
+AYA_NEXT_LIST="NEXT Advance:NEXT Lite:NEXT Pro:NEXT"
+AYA_2021_LIST="AYA NEO FOUNDER:AYA NEO 2021:AYANEO 2021:AYANEO 2021 Pro:AYANEO 2021 Pro Retro Power"
+AYA_LIST="${AYA_2_LIST}:${AYA_AIR_LIST}:${AYA_NEXT_LIST}:${AYA_2021_LIST}"
+
 AOKZOE_LIST="AOKZOE A1 AR07:AOKZOE A1 Pro"
 ONEXPLAYER_LIST="ONEXPLAYER Mini Pro"
 LOKI_LIST="Loki Max"
@@ -187,8 +194,9 @@ function install_decky_plugins() {
     fi
 
     if [[ ":${HHD_SUPPORT_LIST}:" =~ ":${PRODUCT}:" ]]; then
-        echo "disabling handycon and enabling hhd@${USER}..."
-        sudo systemctl disable --now handycon
+        echo "disabling handycon/inputplumber and enabling hhd@${USER}..."
+        sudo systemctl disable --now handycon || true
+        sudo systemctl disable --now inputplumber || true
         sudo systemctl enable --now hhd@${USER}
     fi
 }
