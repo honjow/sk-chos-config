@@ -2,6 +2,7 @@
 
 # Device specific configs
 DEVICENAME=$(cat /sys/devices/virtual/dmi/id/product_name)
+SCREEN_MODEL_NAME=$(cat /sys/class/drm/card1-eDP-1/edid | parse-edid 2>/dev/null | grep "ModelName" | cut -d \" -f 2)
 
 # OXP
 OXP_LIST="ONE XPLAYER:ONEXPLAYER 1 T08:ONEXPLAYER 1S A08:ONEXPLAYER 1S T08:ONEXPLAYER mini A07:ONEXPLAYER mini GA72:ONEXPLAYER mini GT72:ONEXPLAYER Mini Pro:ONEXPLAYER GUNDAM GA72:ONEXPLAYER 2 ARP23:ONEXPLAYER 2 PRO ARP23P:ONEXPLAYER 2 PRO ARP23P EVA-01:ONEXPLAYER F1:ONEXPLAYER F1 EVA-01"
@@ -27,6 +28,11 @@ if [[ ":${LEFT_LIST}:" =~ ":${DEVICENAME}:" ]]; then
     ROTATE_OFFSET="3"
 elif [[ ":${RIGHT_LIST}:" =~ ":${DEVICENAME}:" ]]; then
     ROTATE_OFFSET="1"
+fi
+
+# ROG Ally 和 win mini 2024 采用的屏幕
+if [[ "$SCREEN_MODEL_NAME" == "TL070FVXS01-0" ]]; then
+    ROTATE_OFFSET="0"
 fi
 
 if [[ "$ROTATE_OFFSET" != "0" ]]; then
