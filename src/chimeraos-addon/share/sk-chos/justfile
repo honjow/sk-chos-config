@@ -1,2 +1,5 @@
+import "/usr/share/sk-chos/just/00-default.just"
+import "/usr/share/sk-chos/just/20-clean.just"
+
 import "/usr/share/sk-chos/just/80-chos.just"
 import "/usr/share/sk-chos/just/81-chos-asus.just"
