@@ -1,7 +1,7 @@
 # vim: set ft=make :
 
 
-# Enable MCU powersave / 开启 MCU 省电模式
+# Enable MCU powersave / 开启 MCU 节能模式
 mcu-powersave-enable:
     #!/usr/bin/bash
     if [ -f /sys/devices/platform/*/mcu_powersave ]; then
@@ -10,7 +10,7 @@ mcu-powersave-enable:
         echo "MCU powersave not supported"
     fi
 
-# Disable MCU powersave / 关闭 MCU 省电模式
+# Disable MCU powersave / 关闭 MCU 节能模式
 mcu-powersave-disable:
     #!/usr/bin/bash
     if [ -f /sys/devices/platform/*/mcu_powersave ]; then
