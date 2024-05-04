@@ -1,0 +1,37 @@
+#!/usr/bin/bash
+
+# from bazzite https://github.com/ublue-os/bazzite/blob/main/system_files/desktop/shared/usr/bin/waydroid-launcher
+
+source /etc/default/waydroid-launcher
+
+# Kill any previous remnants
+if [ "$(systemctl is-active waydroid-container.service)" == 'active' ]; then
+	pkexec /usr/bin/sk-exec/waydroid-container-stop
+fi
+
+# Check if Waydroid is initialized, initialize if not
+if grep -qz 'not initialized' <<< $(/usr/bin/waydroid status); then
+	# /usr/bin/ujust init-waydroid
+	pkexec /usr/bin/sk-exec/setup-waydroid init
+fi
+
+# Launch Cage & Waydroid
+pkexec /usr/bin/sk-exec/waydroid-container-start
+if [ -z "$(pgrep wlr-randr)" ]; then
+	cage -- bash -c "wlr-randr --output X11-1 --custom-mode ${WAYDROID_WIDTH:-1280}x${WAYDROID_HEIGHT:-800}; sleep 1; waydroid show-full-ui &> /dev/null &" &
+fi
+
+# Fix controllers, we know Waydroid has started because surfaceflinger is running
+while [ "" ==  "$(pgrep surfaceflinger)" ]; do
+    sleep 1
+done
+sleep 10
+pkexec /usr/bin/sk-exec/waydroid-fix-controllers
+
+# Waydroid is now live!
+# Wait for exit and then clean up
+while [ -n "$(pgrep cage)" ]; do
+    sleep 1
+done
+
+pkexec /usr/bin/sk-exec/waydroid-container-stop

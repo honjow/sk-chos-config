@@ -1,0 +1,34 @@
+#!/bin/bash
+
+ACTION=$1
+
+function init {
+    sudo waydroid init -c 'https://ota.waydro.id/system' -v 'https://ota.waydro.id/vendor'
+    echo "Waydroid has been initialized, please run waydroid once before you Configure Waydroid"
+}
+
+function configure {
+    sudo /usr/bin/waydroid-extras
+}
+
+function reset {
+    echo "Resetting Waydroid"
+    bash -c 'sudo rm -rf /var/lib/waydroid /home/.waydroid ~/waydroid ~/.share/waydroid ~/.local/share/applications/*aydroid* ~/.local/share/waydroid'
+    echo "Waydroid has been reset"
+}
+
+case $ACTION in
+    init)
+        init
+        ;;
+    configure)
+        configure
+        ;;
+    reset)
+        reset
+        ;;
+    *)
+        echo "Usage: $0 {init|configure|reset}"
+        exit 1
+        ;;
+esac
