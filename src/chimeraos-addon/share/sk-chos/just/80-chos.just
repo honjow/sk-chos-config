@@ -17,6 +17,9 @@ hhd-fast-qam-toggle:
         echo "hhd fast qam enabled"
         exit 0
     fi
+    if [ ! -d "$HOME/.config/environment.d" ]; then
+        mkdir -p "$HOME/.config/environment.d"
+    fi
     if grep -q "HHD_QAM_GAMESCOPE=1" "$conf_file"; then
         sed -i 's/HHD_QAM_GAMESCOPE=1/HHD_QAM_GAMESCOPE=0/' "$conf_file"
         echo "hhd fast qam disabled"
