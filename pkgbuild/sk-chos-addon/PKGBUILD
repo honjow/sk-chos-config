@@ -19,6 +19,12 @@ sha256sums=('SKIP')
 options=(!strip)
 backup=('etc/sk-chos-tool/github_cdn.conf')
 
+prepare() {
+    source_dir="${srcdir}/${_reponame}-${pkgver}/src/chimeraos-addon"
+    cd "${source_dir}/share/sk-chos/completions"
+    ./gen.sh
+}
+
 package() {
     source_dir="${srcdir}/${_reponame}-${pkgver}/src/chimeraos-addon"
 
