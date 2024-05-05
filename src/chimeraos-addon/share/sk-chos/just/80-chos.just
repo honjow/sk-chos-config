@@ -68,7 +68,6 @@ quiet-boot-disable:
         echo "kernel-options-manager not found"
     fi
 
-
 # Disable swipe gestures for QAM and HOME / 禁用游戏模式的侧边滑动手势
 disable-swipe-gestures:
     #!/usr/bin/bash
@@ -92,3 +91,41 @@ enable-swipe-gestures:
         fi
     fi
     echo "Done. Please restart Steam Game Mode to see changes"
+
+# etc 修复
+etc-repair:
+    #!/bin/bash
+    if [ -f /usr/share/sk-chos-tool/scripts/etc_repair.sh ]; then
+        sudo /usr/share/sk-chos-tool/scripts/etc_repair.sh
+    else
+        echo "etc-repair not found"
+    fi
+
+# etc 修复(完全)
+etc-repair-full:
+    #!/bin/bash
+    if [ -f /usr/share/sk-chos-tool/scripts/etc_repair_full.sh ]; then
+        sudo /usr/share/sk-chos-tool/scripts/etc_repair.sh full
+    else
+        echo "etc-repair-full not found"
+    fi
+
+# rerun first init / 重新运行首次初始化
+rerun-first-init:
+    #!/bin/bash
+    /usr/bin/sk-first-run
+
+# expand partition / 扩展分区
+expand-partition:
+    #!/bin/bash
+    if [ -f /usr/bin/expand_home_partition ]; then
+        sudo /usr/bin/expand_home_partition
+    else
+        echo "sk-partition-expand not found"
+    
+expand-partition-force:
+    #!/bin/bash
+    if [ -f /usr/bin/expand_home_partition ]; then
+        sudo /usr/bin/expand_home_partition -f
+    else
+        echo "sk-partition-expand not found"
