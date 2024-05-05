@@ -9,7 +9,7 @@ shell := `grep :$(id -u): /etc/passwd | cut -d: -f7`
 bios:
     #!/usr/bin/bash
     if [ -d /sys/firmware/efi ]; then
-      systemctl reboot --firmware-setup
+      sudo systemctl reboot --firmware-setup
     else
       echo "Rebooting to legacy BIOS from OS is not supported."
     fi
