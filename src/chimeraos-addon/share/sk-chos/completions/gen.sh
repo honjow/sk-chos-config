@@ -1,6 +1,6 @@
 #!/bin/bash
 
-name=sjust
+name=ujust
 
 file_name=_${name}
 
