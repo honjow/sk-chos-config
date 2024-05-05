@@ -2,10 +2,12 @@
 
 # make swapfile / 重新生成 swapfile
 mkswapfile:
+    #!/bin/bash
     sudo /usr/bin/sk-mkswapfile
 
 # fix boot entry / 修复启动项
 boot-entry-fix:
+    #!/bin/bash
     sudo /usr/bin/sk-chos-boot-fix
 
 # HHD fast QAM 切换
@@ -26,4 +28,22 @@ hhd-fast-qam-toggle:
     else
         sed -i 's/HHD_QAM_GAMESCOPE=0/HHD_QAM_GAMESCOPE=1/' "$conf_file"
         echo "hhd fast qam enabled"
+    fi
+
+# 静默启动开启 / quiet boot enable
+quiet-boot-enable:
+    #!/bin/bash
+    if [ -f /usr/share/device-quirks/scripts/kernel-options-manager ]; then
+        sudo /usr/share/device-quirks/scripts/kernel-options-manager --append quiet
+    else
+        echo "kernel-options-manager not found"
+    fi
+
+# 静默启动关闭 / quiet boot disable
+quiet-boot-disable:
+    #!/bin/bash
+    if [ -f /usr/share/device-quirks/scripts/kernel-options-manager ]; then
+        sudo /usr/share/device-quirks/scripts/kernel-options-manager --remove quiet
+    else
+        echo "kernel-options-manager not found"
     fi
