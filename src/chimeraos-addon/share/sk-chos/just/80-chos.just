@@ -30,6 +30,26 @@ hhd-fast-qam-toggle:
         echo "hhd fast qam enabled"
     fi
 
+# Handheld Daemon enable / 启用 Handheld Daemon
+hhd-enable:
+    #!/bin/bash
+    sudo systemctl enable --now hhd@$(whoami).service
+
+# Handheld Daemon disable / 停用 Handheld Daemon
+hhd-disable:
+    #!/bin/bash
+    sudo systemctl disable --now hhd@$(whoami).service
+
+# InputPlumber enable / 启用 InputPlumber
+inputplumber-enable:
+    #!/bin/bash
+    sudo systemctl enable --now inputplumber.service
+
+# InputPlumber disable / 停用 InputPlumber
+inputplumber-disable:
+    #!/bin/bash
+    sudo systemctl disable --now inputplumber.service
+
 # 静默启动开启 / quiet boot enable
 quiet-boot-enable:
     #!/bin/bash
