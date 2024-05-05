@@ -1,6 +1,9 @@
 set allow-duplicate-recipes := true
 set ignore-comments := true
 
+product_name := `cat /sys/devices/virtual/dmi/id/product_name`
+sys_vendor := `cat /sys/devices/virtual/dmi/id/sys_vendor`
+
 _default:
     @just --list --list-heading $'Available commands:\n' --list-prefix $' - '
 
