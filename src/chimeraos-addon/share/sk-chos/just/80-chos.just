@@ -67,3 +67,17 @@ quiet-boot-disable:
     else
         echo "kernel-options-manager not found"
     fi
+
+
+disable-swipe-gestures:
+    #!/usr/bin/bash
+    echo "disabling swipe gestures for QAM and HOME"
+    mkdir -p $HOME/.config/environment.d
+    echo "export GAMESCOPE_DISABLE_TOUCH_GESTURES=1" > "$HOME/.config/environment.d/chos-disable-gamescope-gestures.conf"
+    echo "Done. Please restart Steam Game Mode to see changes"
+
+enable-swipe-gestures:
+    #!/usr/bin/bash
+    echo "enabling swipe gestures for QAM and HOME"
+    rm -f "$HOME/.config/environment.d/chos-disable-gamescope-gestures.conf"
+    echo "Done. Please restart Steam Game Mode to see changes"
