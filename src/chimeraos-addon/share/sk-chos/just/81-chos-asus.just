@@ -5,7 +5,7 @@
 mcu-powersave-enable:
     #!/usr/bin/bash
     if [ -f /sys/devices/platform/*/mcu_powersave ]; then
-        echi 1 | sudo tee /sys/devices/platform/*/mcu_powersave
+        sudo bash -c "echo 1 > /sys/devices/platform/*/mcu_powersave"
     else
         echo "MCU powersave not supported"
     fi
@@ -14,7 +14,7 @@ mcu-powersave-enable:
 mcu-powersave-disable:
     #!/usr/bin/bash
     if [ -f /sys/devices/platform/*/mcu_powersave ]; then
-        echo 0 | sudo tee /sys/devices/platform/*/mcu_powersave
+        sudo bash -c "echo 0 > /sys/devices/platform/*/mcu_powersave"
     else
         echo "MCU powersave not supported"
     fi
