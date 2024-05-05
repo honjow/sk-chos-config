@@ -1,4 +1,4 @@
-# HoloISO 定制化配置
+# Sk ChimeraOS 定制化配置
 
 ## 一些脚本
 
