@@ -106,3 +106,10 @@ if [[ -f $sarasa_path && ! -f $user_sarasa_path ]]; then
     echo "copy $sarasa_path to $fontconfig_dir"
     cp $sarasa_path $fontconfig_dir
 fi
+
+
+# gamescope-gestures
+gamescope_gestures_conf="$HOME/.config/environment.d/chos-disable-gamescope-gestures.conf"
+if [ ! -f $gamescope_gestures_conf ]; then
+    /usr/bin/cjust disable-swipe-gestures
+fi

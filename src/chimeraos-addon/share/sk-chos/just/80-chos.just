@@ -69,15 +69,26 @@ quiet-boot-disable:
     fi
 
 
+# Disable swipe gestures for QAM and HOME / 禁用游戏模式的侧边滑动手势
 disable-swipe-gestures:
     #!/usr/bin/bash
     echo "disabling swipe gestures for QAM and HOME"
     mkdir -p $HOME/.config/environment.d
+    conf_file="$HOME/.config/environment.d/chos-disable-gamescope-gestures.conf"
     echo "export GAMESCOPE_DISABLE_TOUCH_GESTURES=1" > "$HOME/.config/environment.d/chos-disable-gamescope-gestures.conf"
     echo "Done. Please restart Steam Game Mode to see changes"
 
+# Enable swipe gestures for QAM and HOME / 启用游戏模式的侧边滑动手势
 enable-swipe-gestures:
     #!/usr/bin/bash
     echo "enabling swipe gestures for QAM and HOME"
-    rm -f "$HOME/.config/environment.d/chos-disable-gamescope-gestures.conf"
+    conf_file="$HOME/.config/environment.d/chos-disable-gamescope-gestures.conf"
+    if [ -f "$conf_file" ]; then
+        if grep -q "GAMESCOPE_DISABLE_TOUCH_GESTURES=1" "$conf_file"; then
+            sed -i 's/GAMESCOPE_DISABLE_TOUCH_GESTURES=1/GAMESCOPE_DISABLE_TOUCH_GESTURES=0/' "$conf_file"
+            echo "Swipe gestures enabled"
+        else
+            echo "Swipe gestures already enabled"
+        fi
+    fi
     echo "Done. Please restart Steam Game Mode to see changes"
