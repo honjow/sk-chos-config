@@ -18,9 +18,13 @@ nix-search name:
 nix-update:
     nix-channel --update
 
+# Nix upgrade / Nix 升级
+nix-upgrade name="":
+    nix-env --upgrade --always --show-trace {{name}}
+
 # Nix install package / Nix 安装软件包
 nix-install name:
-    nix-env -i {{name}}
+    nix-env -iA {{name}}
 
 # Nix uninstall package / Nix 卸载软件包
 nix-uninstall name:
