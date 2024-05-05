@@ -2,7 +2,7 @@
 
 
 # Install Handheld Daemon / 安装更新 Handheld Daemon
-install=hhd:
+install-hhd:
     /usr/bin/__hhd-update
 
 # Install frzr / 安装更新 frzr

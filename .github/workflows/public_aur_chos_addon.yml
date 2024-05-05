@@ -2,10 +2,10 @@ name: Public AUR sk ChimeraOS Addon
 
 on:
   push:
-    tags:
-      - "v*"
     paths:
       - "pkgbuild/sk-chos-addon/PKGBUILD"
+    tags:
+      - "v*"
   workflow_dispatch:
 
 jobs:
