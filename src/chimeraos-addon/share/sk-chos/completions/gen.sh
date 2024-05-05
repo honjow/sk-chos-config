@@ -1,6 +1,6 @@
 #!/bin/bash
 
-name=cjust
+name=skjust
 
 file_name=_${name}
 

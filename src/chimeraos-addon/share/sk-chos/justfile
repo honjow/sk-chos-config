@@ -1,5 +1,10 @@
+set allow-duplicate-recipes := true
+set ignore-comments := true
+
 _default:
     @just --list --list-heading $'Available commands:\n' --list-prefix $' - '
+
+# Imports
 
 import "/usr/share/sk-chos/just/00-default.just"
 import "/usr/share/sk-chos/just/20-clean.just"
