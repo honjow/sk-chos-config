@@ -5,7 +5,7 @@
 uid := `id -u`
 shell := `grep :$(id -u): /etc/passwd | cut -d: -f7`
 
-# Boot into this device's BIOS/UEFI screen
+# Boot into this device's BIOS/UEFI screen / 重启进入 BIOS/UEFI 界面
 bios:
     #!/usr/bin/bash
     if [ -d /sys/firmware/efi ]; then
