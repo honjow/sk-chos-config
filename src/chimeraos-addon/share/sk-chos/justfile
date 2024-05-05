@@ -11,7 +11,7 @@ import "/usr/share/sk-chos/just/20-clean.just"
 import "/usr/share/sk-chos/just/40-nix.just"
 
 import "/usr/share/sk-chos/just/80-chos.just"
-import "/usr/share/sk-chos/just/80-chos-app.just"
+import "/usr/share/sk-chos/just/81-chos-app.just"
 import "/usr/share/sk-chos/just/81-chos-asus.just"
 
 # vim: set ft=make :
