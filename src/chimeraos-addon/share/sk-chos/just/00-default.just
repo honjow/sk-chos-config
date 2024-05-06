@@ -42,3 +42,9 @@ chsh new_shell:
         echo "{{ new_shell }} does not exist or is not executable!"
       fi
     fi
+
+# Gather device info to a pastebin / 收集设备信息到 pastebin
+device-info:
+    #!/usr/bin/bash
+    echo "Gathering device info..."
+    fpaste <(fpaste --sysinfo --printonly)

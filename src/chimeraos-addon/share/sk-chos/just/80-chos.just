@@ -1,5 +1,7 @@
 # vim: set ft=make :
 
+# some from https://github.com/ublue-os/config/blob/main/build/ublue-os-just
+
 # make swapfile / 重新生成 swapfile
 mkswapfile:
     #!/bin/bash
@@ -132,3 +134,15 @@ expand-partition-force:
 rerun-first-init:
     #!/bin/bash
     /usr/bin/sk-first-run
+
+alias tdp := set-tdp
+
+# set TDP / 设置 TDP
+set-tdp tdp_num:
+    #!/bin/bash
+    tdp_watt=(({{tdp_num}} * 1000))
+    if [ -x $(command -v ryzenadj) ]; then
+        sudo ryzenadj --stapm-limit $tdp_watt --fast-limit $tdp_watt --slow-limit $tdp_watt
+    else
+        echo "ryzenadj not found"
+    fi
