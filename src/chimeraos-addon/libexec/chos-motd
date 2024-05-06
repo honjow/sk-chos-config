@@ -16,4 +16,4 @@ fi
 
 sed -e "s/%IMAGE_NAME%/$IMAGE_NAME/g" \
     -e "s/%IMAGE_BRANCH%/$IMAGE_BRANCH/g" \
-    /usr/share/sk-chos/motd/chos.md | tr '~' '\n' | /usr/bin/glow -s auto -
+    $MOTD_PATH | tr '~' '\n' | /usr/bin/glow -s auto -
