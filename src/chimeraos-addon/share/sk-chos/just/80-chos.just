@@ -117,6 +117,7 @@ expand-partition:
         sudo /usr/bin/expand_home_partition
     else
         echo "sk-partition-expand not found"
+    fi
 
 # expand partition force / 扩展分区（强制）
 expand-partition-force:
@@ -125,6 +126,7 @@ expand-partition-force:
         sudo /usr/bin/expand_home_partition -f
     else
         echo "sk-partition-expand not found"
+    fi
 
 # rerun first init / 重新运行首次初始化
 rerun-first-init:
