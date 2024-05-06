@@ -4,7 +4,9 @@ After=network.target
 
 [Service]
 Type=oneshot
+RemainAfterExit=true
 ExecStart=/usr/bin/sk-set-next-boot-entry
+ExecStopPost=/usr/bin/efibootmgr -N
 
 [Install]
 WantedBy=multi-user.target

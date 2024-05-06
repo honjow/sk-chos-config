@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# 监控的目录
+WATCH_DIR="$HOME/.local/share/applications/"
+
+# 监控文件的名称
+FILE_TO_WATCH="Waydroid.desktop"
+
+# 监控文件的完整路径
+WATCH_FILE="$WATCH_DIR$FILE_TO_WATCH"
+
+# 待执行的操作
+function perform_action {
+    # 在这里执行相关操作
+    # echo "Detected creation of $FILE_TO_WATCH"
+    check_flag='/usr/bin/waydroid-launcher'
+    if ! grep -q $check_flag $WATCH_FILE; then
+        echo "copy system desktop file to user"
+        cp /usr/share/applications/Waydroid.desktop $WATCH_FILE
+    fi
+}
+
+if [ -f "$WATCH_FILE" ]; then
+    perform_action
+fi
+
+# 启动监控
+inotifywait -m -e create --format '%f' "$WATCH_DIR" | while read FILE_CREATED
+do
+    # 检查是否创建了目标文件
+    if [ "$FILE_CREATED" == "$FILE_TO_WATCH" ] && [ -e "$WATCH_FILE" ]; then
+        perform_action
+    fi
+done
