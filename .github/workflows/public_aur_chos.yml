@@ -5,8 +5,8 @@ on:
     paths:
       - "pkgbuild/sk-chos-tool/PKGBUILD"
       - "pkgbuild/sk-chos-tool/*.install"
-    tags:
-      - "v*"
+    # tags:
+    #   - "v*"
   workflow_dispatch:
 
 jobs:

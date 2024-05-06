@@ -4,8 +4,8 @@ on:
   push:
     paths:
       - "pkgbuild/sk-chos-addon/PKGBUILD"
-    tags:
-      - "v*"
+    # tags:
+    #   - "v*"
   workflow_dispatch:
 
 jobs:
