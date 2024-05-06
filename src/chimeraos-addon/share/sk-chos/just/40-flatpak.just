@@ -14,7 +14,7 @@ flatpak-reset:
 
 # 显示 flathub 源
 flatpak-remotes:
-    flatpak remotes --columns=name,url
+    flatpak remotes --columns=name,options,url
 
 # 自动设置 flathub 镜像源
 flatpak-auto-repo:

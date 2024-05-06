@@ -1,4 +1,5 @@
 #! /bin/sh
+# from https://gitlab.com/evlaV/steamdeck-kde-presets/-/blob/master/usr/bin/steamos-add-to-steam?ref_type=heads
 
 set -e
 

@@ -111,5 +111,5 @@ fi
 # gamescope-gestures
 gamescope_gestures_conf="$HOME/.config/environment.d/chos-disable-gamescope-gestures.conf"
 if [ ! -f $gamescope_gestures_conf ]; then
-    /usr/bin/cjust disable-swipe-gestures
+    /usr/bin/cjust disable-swipe-gestures || true
 fi
