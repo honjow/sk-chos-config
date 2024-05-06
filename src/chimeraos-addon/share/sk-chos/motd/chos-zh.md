@@ -1,5 +1,5 @@
 # 欢迎使用 Sk-ChimeraOS
-> %IMAGE_NAME%:%IMAGE_BRANCH%  构建版本:%IMAGE_BUILDID%
+> %IMAGE_NAME%:%IMAGE_BRANCH%  ID:%IMAGE_BUILDID%
 
 |    命令   |   说明      |
 | -------- | ----------- |
