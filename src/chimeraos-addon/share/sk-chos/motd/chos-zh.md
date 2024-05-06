@@ -1,6 +1,5 @@
 # 欢迎使用 Sk-ChimeraOS
-> %IMAGE_NAME%:%IMAGE_BRANCH%
-> %IMAGE_BUILDID%
+> %IMAGE_NAME%:%IMAGE_BRANCH%  %IMAGE_BUILDID%
 
 |    命令   |   说明      |
 | -------- | ----------- |
