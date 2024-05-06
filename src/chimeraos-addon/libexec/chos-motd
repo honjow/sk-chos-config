@@ -9,6 +9,11 @@ IMAGE_NAME="${NAME} ${BUILD_ID}"
 
 IMAGE_BRANCH=$(cat "$BRANCH_PATH" 2> /dev/null | cut -d':' -f2 | tr -d ' ')
 
+MOTD_PATH="/usr/share/sk-chos/motd/chos.md"
+if [[ "$LANG" =~ "^zh" ]]; then
+    MOTD_PATH="/usr/share/sk-chos/motd/chos-cn.md"
+fi
+
 sed -e "s/%IMAGE_NAME%/$IMAGE_NAME/g" \
     -e "s/%IMAGE_BRANCH%/$IMAGE_BRANCH/g" \
     /usr/share/sk-chos/motd/chos.md | tr '~' '\n' | /usr/bin/glow -s auto -
