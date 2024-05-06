@@ -94,24 +94,6 @@ enable-swipe-gestures:
     fi
     echo "Done. Please restart Steam Game Mode to see changes"
 
-# etc 修复
-etc-repair:
-    #!/bin/bash
-    if [ -f /usr/share/sk-chos-tool/scripts/etc_repair.sh ]; then
-        sudo /usr/share/sk-chos-tool/scripts/etc_repair.sh
-    else
-        echo "etc-repair not found"
-    fi
-
-# etc 修复(完全)
-etc-repair-full:
-    #!/bin/bash
-    if [ -f /usr/share/sk-chos-tool/scripts/etc_repair_full.sh ]; then
-        sudo /usr/share/sk-chos-tool/scripts/etc_repair.sh full
-    else
-        echo "etc-repair-full not found"
-    fi
-
 # expand partition / 扩展分区
 expand-partition:
     #!/bin/bash
