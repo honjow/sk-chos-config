@@ -1,8 +1,9 @@
 # 欢迎使用 Sk-ChimeraOS
 > %IMAGE_NAME%:%IMAGE_BRANCH%
+> %IMAGE_BUILDID%
 
-|  命令 | 说明 |
-| ------- | ----------- |
+|    命令   |   说明      |
+| -------- | ----------- |
 | `cjust`  | 列出所有可用命令 |
 | `cjust toggle-user-motd` | 切换本提示的开关 |
 

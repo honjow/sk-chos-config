@@ -1,8 +1,9 @@
 # Welcome to Sk-ChimeraOS
 > %IMAGE_NAME%:%IMAGE_BRANCH%
+> %IMAGE_BUILDID%
 
 |  Command | Description |
-| ------- | ----------- |
+| -------- | ----------- |
 | `cjust`  | List all available commands |
 | `cjust toggle-user-motd` | Toggle this banner on/off |
 

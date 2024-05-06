@@ -3,9 +3,8 @@
 BRANCH_PATH="/frzr_root/source"
 
 # read /etc/os-release
-NAME=$(grep "^NAME=" /etc/os-release | cut -d'=' -f2 | tr -d '"')
+IMAGE_NAME=$(grep "^NAME=" /etc/os-release | cut -d'=' -f2 | tr -d '"')
 BUILD_ID=$(grep "^BUILD_ID=" /etc/os-release | cut -d'=' -f2 | tr -d '"')
-IMAGE_NAME="${NAME} ${BUILD_ID}"
 
 IMAGE_BRANCH=$(cat "$BRANCH_PATH" 2> /dev/null | cut -d':' -f2 | tr -d ' ')
 
@@ -16,4 +15,5 @@ fi
 
 sed -e "s/%IMAGE_NAME%/$IMAGE_NAME/g" \
     -e "s/%IMAGE_BRANCH%/$IMAGE_BRANCH/g" \
+    -e "s/%IMAGE_BUILDID%/$BUILD_ID/g" \
     $MOTD_PATH | tr '~' '\n' | /usr/bin/glow -s auto -
