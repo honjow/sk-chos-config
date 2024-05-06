@@ -135,12 +135,13 @@ rerun-first-init:
     #!/bin/bash
     /usr/bin/sk-first-run
 
+# set TDP / 设置 TDP
 alias tdp := set-tdp
 
 # set TDP / 设置 TDP
 set-tdp tdp_num:
     #!/bin/bash
-    tdp_watt=(({{tdp_num}} * 1000))
+    tdp_watt=$(({{tdp_num}} * 1000))
     if [ -x $(command -v ryzenadj) ]; then
         sudo ryzenadj --stapm-limit $tdp_watt --fast-limit $tdp_watt --slow-limit $tdp_watt
     else
