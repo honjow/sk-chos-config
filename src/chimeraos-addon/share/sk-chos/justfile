@@ -14,9 +14,10 @@ import "/usr/share/sk-chos/just/20-clean.just"
 import "/usr/share/sk-chos/just/40-nix.just"
 
 import "/usr/share/sk-chos/just/80-chos.just"
-import "/usr/share/sk-chos/just/81-chos-apps.just"
-import "/usr/share/sk-chos/just/81-chos-asus.just"
-import "/usr/share/sk-chos/just/81-chos-decky.just"
 import "/usr/share/sk-chos/just/81-chos-fixes.just"
+import "/usr/share/sk-chos/just/82-chos-apps.just"
+import "/usr/share/sk-chos/just/82-chos-asus.just"
+import "/usr/share/sk-chos/just/82-chos-decky.just"
+import "/usr/share/sk-chos/just/82-chos-waydroid.just"
 
 # vim: set ft=make :
