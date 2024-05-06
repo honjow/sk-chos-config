@@ -110,11 +110,6 @@ etc-repair-full:
         echo "etc-repair-full not found"
     fi
 
-# rerun first init / 重新运行首次初始化
-rerun-first-init:
-    #!/bin/bash
-    /usr/bin/sk-first-run
-
 # expand partition / 扩展分区
 expand-partition:
     #!/bin/bash
@@ -122,10 +117,16 @@ expand-partition:
         sudo /usr/bin/expand_home_partition
     else
         echo "sk-partition-expand not found"
-    
+
+# expand partition force / 扩展分区（强制）
 expand-partition-force:
     #!/bin/bash
     if [ -f /usr/bin/expand_home_partition ]; then
         sudo /usr/bin/expand_home_partition -f
     else
         echo "sk-partition-expand not found"
+
+# rerun first init / 重新运行首次初始化
+rerun-first-init:
+    #!/bin/bash
+    /usr/bin/sk-first-run
