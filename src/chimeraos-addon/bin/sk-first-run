@@ -255,6 +255,13 @@ function restart_plugin_loader() {
     sudo systemctl restart plugin_loader
 }
 
+function flatpak_auto_repo() {
+    echo "Auto set flathub repo..."
+    if [ -x "$(command -v cjust)" ]; then
+        cjust flatpak-auto-repo || true
+    fi
+}
+
 case $ACTION in
 "--update")
     install_decky
@@ -268,5 +275,6 @@ case $ACTION in
     install_css_theme
     restart_plugin_loader
     device_quirks
+    flatpak_auto_repo
     ;;
 esac

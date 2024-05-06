@@ -56,7 +56,7 @@ fi
 after_update_flag=/.after-update
 if [[ ! -f $after_update_flag ]]; then
     echo "after update run first-run..."
-    /usr/bin/sk-first-run
+    /usr/bin/sk-first-run --update
     sudo touch $after_update_flag
 fi
 
