@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "pkgbuild/sk-chos-addon/PKGBUILD"
+      - "pkgbuild/sk-chos-addon/*.install"
     # tags:
     #   - "v*"
   workflow_dispatch:
@@ -30,6 +31,7 @@ jobs:
         with:
           pkgname: sk-chos-addon
           pkgbuild: pkgbuild/sk-chos-addon/PKGBUILD
+          assets: pkgbuild/sk-chos-addon/*.install
           commit_username: ${{ secrets.AUR_USERNAME }}
           commit_email: ${{ secrets.AUR_EMAIL }}
           ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}

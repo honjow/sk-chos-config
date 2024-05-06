@@ -28,6 +28,8 @@ replaces=(sk-chos-addon)
 source=("git+$url")
 sha256sums=('SKIP')
 options=(!strip)
+backup=('etc/sk-chos-tool/github_cdn.conf')
+install=sk-chos-addon.install
 
 pkgver() {
     cd "$srcdir/$_reponame"
