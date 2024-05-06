@@ -1,0 +1,14 @@
+#!/bin/bash
+
+BRANCH_PATH="/frzr_root/source"
+
+# read /etc/os-release
+NAME=$(grep "^NAME=" /etc/os-release | cut -d'=' -f2 | tr -d '"')
+BUILD_ID=$(grep "^BUILD_ID=" /etc/os-release | cut -d'=' -f2 | tr -d '"')
+IMAGE_NAME="${NAME} ${BUILD_ID}"
+
+IMAGE_BRANCH=$(cat "$BRANCH_PATH" 2> /dev/null | cut -d':' -f2 | tr -d ' ')
+
+sed -e "s/%IMAGE_NAME%/$IMAGE_NAME/g" \
+    -e "s/%IMAGE_BRANCH%/$IMAGE_BRANCH/g" \
+    /usr/share/sk-chos/motd/chos.md | tr '~' '\n' | /usr/bin/glow -s auto -

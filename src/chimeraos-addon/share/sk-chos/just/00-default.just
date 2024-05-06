@@ -48,3 +48,16 @@ device-info:
     #!/usr/bin/bash
     echo "Gathering device info..."
     fpaste <(fpaste --sysinfo --printonly)
+
+
+# Toggle display of the user-motd in terminal / 切换终端中是否显示信息
+toggle-user-motd:
+    #!/usr/bin/bash
+    if test -e "${HOME}/.config/no-show-user-motd"; then
+      rm -f "${HOME}/.config/no-show-user-motd"
+    else
+      if test ! -d "${HOME}/.config"; then
+        mkdir "${HOME}/.config"
+      fi
+      touch "${HOME}/.config/no-show-user-motd"
+    fi
