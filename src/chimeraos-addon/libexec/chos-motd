@@ -10,7 +10,7 @@ IMAGE_NAME="${NAME} ${BUILD_ID}"
 IMAGE_BRANCH=$(cat "$BRANCH_PATH" 2> /dev/null | cut -d':' -f2 | tr -d ' ')
 
 MOTD_PATH="/usr/share/sk-chos/motd/chos.md"
-if [[ "$LANG" =~ "^zh" ]]; then
+if [[ "$LANG" =~ ^zh ]]; then
     MOTD_PATH="/usr/share/sk-chos/motd/chos-zh.md"
 fi
 
