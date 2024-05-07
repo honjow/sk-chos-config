@@ -38,7 +38,16 @@ then
     echo "Usage: steamos-add-to-steam [-ui] <path>"
     exit 1
 fi
-mime=$(kmimetypefinder "$file")
+
+if [ -x "$(command -v kmimetypefinder)" ] && [ -x "$(command -v startplasma-wayland)" ]; then
+    mime=$(kmimetypefinder "$file")
+elif [ -x "$(command -v xdg-mime)" ]; then
+    mime=$(xdg-mime query filetype "$file")
+else
+    add_to_steam "$file"
+    exit 0
+fi
+
 case "$mime" in
     "application/x-desktop"|"application/x-ms-dos-executable")
         add_to_steam "$file"
