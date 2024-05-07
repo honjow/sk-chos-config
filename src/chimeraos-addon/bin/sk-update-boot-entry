@@ -8,6 +8,7 @@ fi
 
 set -e
 
+# reboot flag
 if [[ "$1" == "--reboot" ]]; then
     REBOOT=true
 fi
@@ -31,10 +32,20 @@ get_fbcon() {
         source /etc/sk-chos/screen-rotate
     fi
 
-    echo "fbcon=$FBCON_PARA"
+    if [[ -n "$FBCON_PARA" ]]; then
+        echo "fbcon=$FBCON_PARA"
+    fi
 }
 
-if efibootmgr | grep -q "Linux Boot Manager.*systemd-bootx64.efi"; then
+# source /etc/sk-chos/sk-chos.conf
+if [ -d /tmp/frzr_root ]; then
+    source ${MOUNT_PATH}/etc/sk-chos/sk-chos.conf
+else
+    source /etc/sk-chos/sk-chos.conf
+fi
+
+# systemd-bootx64.efi 忽略大小写
+if efibootmgr | grep "Linux Boot Manager" | grep -iq "systemd-bootx64.efi"; then
     # Linux Boot Manager 已存在，不需要再次添加
     echo "Linux Boot Manager exists, no need to add it"
 else
@@ -55,12 +66,6 @@ root_partuuid=$(lsblk -no PARTUUID $(mount | grep ' / ' | cut -d' ' -f1))
 
 if [ -f "/frzr_root/swap/swapfile" ]; then
     RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /frzr_root/swap/swapfile)
-fi
-
-if [ -d /tmp/frzr_root ]; then
-    source ${MOUNT_PATH}/etc/sk-chos/sk-chos.conf
-else
-    source /etc/sk-chos/sk-chos.conf
 fi
 
 MK_SWAPFILE_SERVICE="sk-mkswapfile.service"
@@ -93,7 +98,7 @@ elif [[ -n "${RESUME_OFFSET}" ]]; then
 
     RESUME_CMD="resume=PARTUUID=${root_partuuid} resume_offset=${RESUME_OFFSET}"
 
-elif [[ "${SWAP_FILE}" == "1" ]]; then
+elif [[ "${CREAT_SWAP_FILE}" == "1" ]]; then
     echo "新创建 swapfile"
     /usr/bin/sk-mkswapfile
 

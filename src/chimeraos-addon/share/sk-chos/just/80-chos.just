@@ -2,10 +2,10 @@
 
 # some from https://github.com/ublue-os/config/blob/main/build/ublue-os-just
 
-# make swapfile / 重新生成 swapfile
-mkswapfile:
+# make swapfile / 创建交换文件 参数可空 单位 GB
+mkswapfile SIZE="":
     #!/bin/bash
-    sudo /usr/bin/sk-mkswapfile
+    sudo /usr/bin/sk-mkswapfile {{SIZE}}
 
 # fix boot entry / 修复启动项
 boot-entry-fix:

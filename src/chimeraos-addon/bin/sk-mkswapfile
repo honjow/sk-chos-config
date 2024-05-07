@@ -1,5 +1,35 @@
 #!/bin/bash
 
+set -e
+
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root or with sudo."
+    exit 1
+fi
+
+SIZE=$1
+
+source /etc/sk-chos/sk-chos.conf
+swapfile_size=${4:-SWAP_FILE_SIZE}
+
+# 使用dmidecode查找RAM信息，然后使用grep和awk提取RAM大小
+ram_info=$(sudo dmidecode -t 17 | tr -d '\t' | grep "^Size: [0-9]* [MG]B" | awk '{print $2}')
+ram_size_num=$(echo "$ram_info" | awk '{sum += $1} END {print sum}')
+
+if cat /etc/systemd/system/systemd-suspend.service | grep -q "systemd-sleep hibernate"; then
+    # 创建和内存大小相同的swapfile
+    swapfile_size=$ram_size_num
+fi
+
+# 如果用户提供了参数，则使用用户提供的参数
+swapfile_size=${SIZE:-$swapfile_size}
+
+# 检查 swapfile 格式
+if ! [[ "$swapfile_size" =~ ^[0-9]+$ ]]; then
+    echo "swapfile大小必须是一个整数"
+    exit 1
+fi
+
 # 检查路径是否存在
 if [ ! -d "/frzr_root/swap" ]; then
     echo "/frzr_root/swap路径不存在, 将创建子卷"
@@ -27,10 +57,6 @@ fi
 
 chattr +C /frzr_root/swap
 
-# 使用dmidecode查找RAM信息，然后使用grep和awk提取RAM大小
-ram_info=$(sudo dmidecode -t 17 | grep Size)
-ram_size=$(echo "$ram_info" | awk '{sum += $2} END {print sum}')
-
 # 检查swapfile是否存在
 if [ -f "/frzr_root/swap/swapfile" ]; then
     echo "swapfile已存在, 将删除swapfile"
@@ -47,4 +73,4 @@ if [ -f "/frzr_root/swap/swapfile" ]; then
 fi
 
 # 创建swapfile
-mkswapfile /frzr_root/swap/swapfile "$ram_size"GiB
+mkswapfile /frzr_root/swap/swapfile "$swapfile_size"GiB
