@@ -27,9 +27,11 @@ fi
 # 如果用户提供了参数，则使用用户提供的参数
 swapfile_size=${SIZE:-$swapfile_size}
 
+echo "swapfile大小: $swapfile_size GiB"
+
 # 检查 swapfile 格式
 if ! [[ "$swapfile_size" =~ ^[0-9]+$ ]]; then
-    echo "swapfile大小必须是一个整数"
+    echo "swapfile大小必须是一个整数 (单位: GiB)"
     exit 1
 fi
 
@@ -63,6 +65,8 @@ chattr +C /frzr_root/swap
 # 检查swapfile是否存在
 if [ -f "/frzr_root/swap/swapfile" ]; then
     echo "swapfile已存在, 将删除swapfile"
+
+    swapoff /frzr_root/swap/swapfile || true
 
     # 删除swapfile
     rm -f /frzr_root/swap/swapfile
