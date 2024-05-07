@@ -27,6 +27,7 @@
       <allow_active>yes</allow_active>
     </defaults>
     <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/waydroid-install-libhoudini</annotate>
+  </action>
 
   <action id="org.sk-chos.policykit.waydroid.container.start">
     <description>Start Waydroid Container</description>
