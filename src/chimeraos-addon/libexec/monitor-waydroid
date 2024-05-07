@@ -6,8 +6,12 @@ WATCH_DIR="$HOME/.local/share/applications/"
 # 监控文件的名称
 FILE_TO_WATCH="Waydroid.desktop"
 
+FILE_RENAME_TO="Waydroid-Native.desktop"
+
 # 监控文件的完整路径
 WATCH_FILE="$WATCH_DIR$FILE_TO_WATCH"
+
+RENAME_FILE="$WATCH_DIR$FILE_RENAME_TO"
 
 # 待执行的操作
 function perform_action {
@@ -15,6 +19,10 @@ function perform_action {
     # echo "Detected creation of $FILE_TO_WATCH"
     check_flag='/usr/bin/waydroid-launcher'
     if ! grep -q $check_flag $WATCH_FILE; then
+        echo "rename desktop file"
+        mv $WATCH_FILE $RENAME_FILE
+        sed -i 's/Name=Waydroid/Name=Waydroid-Native/g' $RENAME_FILE
+        
         echo "copy system desktop file to user"
         cp /usr/share/applications/Waydroid.desktop $WATCH_FILE
     fi
