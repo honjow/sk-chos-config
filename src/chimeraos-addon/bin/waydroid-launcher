@@ -2,6 +2,20 @@
 
 # from bazzite https://github.com/ublue-os/bazzite/blob/main/system_files/desktop/shared/usr/bin/waydroid-launcher
 
+function is_steam_gamepad_running {
+    pid_file="$HOME/.steam/steam.pid"
+    if [ -f "$pid_file" ]; then
+        pid=$(cat $pid_file)
+        if [ -n "$pid" ]; then
+            cmd=$(cat /proc/$pid/cmdline | tr '\0' ' ')
+            if [[ "$cmd" =~ "-gamepadui" ]]; then
+                return 0
+            fi
+        fi
+    fi
+    return 1
+}
+
 source /etc/default/waydroid-launcher
 
 # Kill any previous remnants
@@ -11,8 +25,17 @@ fi
 
 # Check if Waydroid is initialized, initialize if not
 if grep -qz 'not initialized' <<< $(/usr/bin/waydroid status); then
-	# /usr/bin/ujust init-waydroid
-	pkexec /usr/libexec/setup-waydroid init
+	if is_steam_gamepad_running; then
+		pkexec /usr/libexec/setup-waydroid init
+	else
+		waydroid first-launch
+		pkexec /usr/libexec/waydroid-install-libhoudini
+	fi
+fi
+
+if grep -qz 'not initialized' <<< $(/usr/bin/waydroid status); then
+	echo "Waydroid failed to initialize"
+	exit 1
 fi
 
 # Launch Cage & Waydroid

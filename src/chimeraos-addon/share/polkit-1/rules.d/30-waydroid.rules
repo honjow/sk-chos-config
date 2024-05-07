@@ -1,5 +1,6 @@
 polkit.addRule(function(action, subject) {
     if ((action.id == "org.sk-chos.policykit.waydroid.setup" ||
+        action.id == "org.sk-chos.policykit.waydroid.install.libhoudini" ||
         action.id == "org.sk-chos.policykit.waydroid.container.start" || 
         action.id == "org.sk-chos.policykit.waydroid.container.stop" ||
         action.id == "org.sk-chos.policykit.waydroid.fix.controllers") &&
