@@ -11,15 +11,16 @@ setup-waydroid ACTION="":
     OPTION={{ ACTION }}
     if [ "$OPTION" == "help" ]; then
       echo "Usage: cjust configure-waydroid <option>"
-      echo "  <option>: Specify the quick option to skip the prompt"
-      echo "  Use 'init' to select Initialize Waydroid"
-      echo "  Use 'configure' to select Configure Waydroid"
-      echo "  Use 'gpu' to choose Select GPU for Waydroid"
-      echo "  Use 'reset' to select Configure Waydroid"
+      echo "  <option>: Specify the quick option to skip the prompt / 快速设置选项"
+      echo "  Use 'init' to select Initialize Waydroid / 初始化 Waydroid"
+      echo "  Use 'configure' to select Configure Waydroid / 配置 Waydroid"
+      echo "  Use 'gpu' to choose Select GPU for Waydroid / 选择 GPU"
+      echo "  Use 'reset' to select Configure Waydroid / 重置 Waydroid"
+      echo "  Use 'add-to-steam' to add Waydroid to Steam / 添加 Waydroid 到 Steam"
       exit 0
     elif [ "$OPTION" == "" ]; then
       echo "${bold}Waydroid Setup${normal}"
-      OPTION=$(Choose "Initialize Waydroid" "Configure Waydroid" "Select GPU for Waydroid" "Reset Waydroid (also removes waydroid-related files from user folder)")
+      OPTION=$(Choose "Initialize Waydroid / 初始化Waydroid" "Configure Waydroid / 配置Waydroid" "Select GPU for Waydroid / 选择 GPU" "Reset Waydroid / 重置 Waydroid" "Add Waydroid to Steam / 添加 Waydroid 到 Steam" )
     fi
     if [[ "${OPTION,,}" =~ ^init ]]; then
       sudo waydroid init -c 'https://ota.waydro.id/system' -v 'https://ota.waydro.id/vendor'
@@ -27,10 +28,12 @@ setup-waydroid ACTION="":
       echo "Waydroid has been initialized, please run waydroid once before you Configure Waydroid"
     elif [[ "${OPTION,,}" =~ ^configure ]]; then
       sudo /usr/bin/waydroid-extras
-    # elif [[ "${OPTION,,}" =~ gpu ]]; then
-    #   /usr/bin/waydroid-choose-gpu
+    elif [[ "${OPTION,,}" =~ gpu ]]; then
+      /usr/bin/waydroid-choose-gpu
     elif [[ "${OPTION,,}" =~ ^reset ]]; then
       echo "Resetting Waydroid"
       bash -c 'sudo rm -rf /var/lib/waydroid /home/.waydroid ~/waydroid ~/.share/waydroid ~/.local/share/applications/*aydroid* ~/.local/share/waydroid'
       echo "Waydroid has been reset"
+    elif [[ "${OPTION,,}" =~ ^add ]]; then
+      /usr/bin/steamos-add-to-steam /usr/share/applications/Waydroid.desktop
     fi
