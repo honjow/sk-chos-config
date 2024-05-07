@@ -41,8 +41,8 @@ fi
 
 if [ -x "$(command -v kmimetypefinder)" ] && [ -x "$(command -v startplasma-wayland)" ]; then
     mime=$(kmimetypefinder "$file")
-elif [ -x "$(command -v xdg-mime)" ]; then
-    mime=$(xdg-mime query filetype "$file")
+# elif [ -x "$(command -v xdg-mime)" ]; then
+#     mime=$(xdg-mime query filetype "$file")
 else
     add_to_steam "$file"
     exit 0
