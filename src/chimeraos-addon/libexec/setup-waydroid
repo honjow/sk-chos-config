@@ -8,7 +8,7 @@ function is_steam_gamepad_running {
         pid=$(cat $pid_file)
         if [ -n "$pid" ]; then
             cmd=$(cat /proc/$pid/cmdline | tr '\0' ' ')
-            if [[ "-gamepadui" =~ $cmd ]]; then
+            if [[ "$cmd" =~ "-gamepadui" ]]; then
                 return 0
             fi
         fi
@@ -18,7 +18,7 @@ function is_steam_gamepad_running {
 
 function init {
     if is_steam_gamepad_running; then
-        sudo waydroid init -c 'https://ota.waydro.id/system' -v 'https://ota.waydro.id/vendor'
+        sudo waydroid init -f -c 'https://ota.waydro.id/system' -v 'https://ota.waydro.id/vendor'
     else
         waydroid first-launch
     fi
