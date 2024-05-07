@@ -16,9 +16,12 @@ swapfile_size=${4:-SWAP_FILE_SIZE}
 ram_info=$(sudo dmidecode -t 17 | tr -d '\t' | grep "^Size: [0-9]* [MG]B" | awk '{print $2}')
 ram_size_num=$(echo "$ram_info" | awk '{sum += $1} END {print sum}')
 
-if cat /etc/systemd/system/systemd-suspend.service | grep -q "systemd-sleep hibernate"; then
-    # 创建和内存大小相同的swapfile
-    swapfile_size=$ram_size_num
+suspend_service_path="/etc/systemd/system/systemd-suspend.service"
+if [ -f $suspend_service_path ]; then
+    if cat $suspend_service_path | grep -q "systemd-sleep hibernate"; then
+        # 创建和内存大小相同的swapfile
+        swapfile_size=$ram_size_num
+    fi
 fi
 
 # 如果用户提供了参数，则使用用户提供的参数
@@ -33,10 +36,10 @@ fi
 # 检查路径是否存在
 if [ ! -d "/frzr_root/swap" ]; then
     echo "/frzr_root/swap路径不存在, 将创建子卷"
-    
+
     # 创建子卷
     btrfs subvolume create /frzr_root/swap
-    
+
     if [ $? -eq 0 ]; then
         echo "子卷创建成功"
     else
@@ -45,7 +48,7 @@ if [ ! -d "/frzr_root/swap" ]; then
     fi
 else
     # 检查路径是否是Btrfs子卷
-    if btrfs subvolume show "/frzr_root/swap" &> /dev/null; then
+    if btrfs subvolume show "/frzr_root/swap" &>/dev/null; then
         echo "/frzr_root/swap是Btrfs子卷"
     else
         echo "/frzr_root/swap存在但不是Btrfs子卷, 将删除路径并创建子卷"
@@ -60,10 +63,10 @@ chattr +C /frzr_root/swap
 # 检查swapfile是否存在
 if [ -f "/frzr_root/swap/swapfile" ]; then
     echo "swapfile已存在, 将删除swapfile"
-    
+
     # 删除swapfile
     rm -f /frzr_root/swap/swapfile
-    
+
     if [ $? -eq 0 ]; then
         echo "swapfile删除成功"
     else
