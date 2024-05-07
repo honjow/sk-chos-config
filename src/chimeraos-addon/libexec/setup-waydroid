@@ -2,8 +2,26 @@
 
 ACTION=$1
 
+function is_steam_gamepad_running {
+    pid_file="$HOME/.steam/steam.pid"
+    if [ -f "$pid_file" ]; then
+        pid=$(cat $pid_file)
+        if [ -n "$pid" ]; then
+            cmd=$(cat /proc/$pid/cmdline | tr '\0' ' ')
+            if [[ "-gamepadui" =~ $cmd ]]; then
+                return 0
+            fi
+        fi
+    fi
+    return 1
+}
+
 function init {
-    sudo waydroid init -c 'https://ota.waydro.id/system' -v 'https://ota.waydro.id/vendor'
+    if is_steam_gamepad_running; then
+        sudo waydroid init -c 'https://ota.waydro.id/system' -v 'https://ota.waydro.id/vendor'
+    else
+        waydroid first-launch
+    fi
     sudo waydroid-extras install libhoudini
     echo "Waydroid has been initialized, please run waydroid once before you Configure Waydroid"
 }
