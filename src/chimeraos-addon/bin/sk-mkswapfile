@@ -35,6 +35,12 @@ if ! [[ "$swapfile_size" =~ ^[0-9]+$ ]]; then
     exit 1
 fi
 
+# 检查 swapfile 大小
+if [ "$swapfile_size" -lt 1 ]; then
+    echo "swapfile大小必须大于等于1"
+    exit 1
+fi
+
 # 检查路径是否存在
 if [ ! -d "/frzr_root/swap" ]; then
     echo "/frzr_root/swap路径不存在, 将创建子卷"
