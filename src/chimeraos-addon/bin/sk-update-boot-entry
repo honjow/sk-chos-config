@@ -111,11 +111,11 @@ fi
 
 echo "RESUME_CMD=${RESUME_CMD}"
 
-FBCON=$(get_fbcon)
+FBCON=$(get_fbcon 2>/dev/null)
 echo "FBCON: ${FBCON}"
 
-# 遍历 /boot/loader/entries 路径下的所有 frzr*.conf 文件
-for conf in /boot/loader/entries/frzr*.conf; do
+# 遍历 /frzr_root/boot/loader/entries 路径下的所有 frzr*.conf 文件
+for conf in /frzr_root/boot/loader/entries/frzr*.conf; do
     if [ -f "$conf" ]; then
         conf_base_name=$(basename "$conf")
         curr_sys=$(grep -o "title [^[:space:]]*" "$conf" | sed "s/title //")
