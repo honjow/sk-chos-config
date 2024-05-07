@@ -81,3 +81,6 @@ fi
 
 # 创建swapfile
 mkswapfile /frzr_root/swap/swapfile "$swapfile_size"GiB
+
+# 启用swapfile
+swapon /frzr_root/swap/swapfile || true
