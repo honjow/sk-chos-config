@@ -3,7 +3,6 @@ Description=Waydroid Desktop Monitor
 
 [Service]
 Type=simple
-RemainAfterExit=true
 ExecStart=/usr/libexec/monitor-waydroid
 
 [Install]
