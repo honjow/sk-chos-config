@@ -10,7 +10,7 @@ fi
 SIZE=$1
 
 source /etc/sk-chos/sk-chos.conf
-swapfile_size=${4:-SWAP_FILE_SIZE}
+swapfile_size=${4:-$SWAP_FILE_SIZE}
 
 # 使用dmidecode查找RAM信息，然后使用grep和awk提取RAM大小
 ram_info=$(sudo dmidecode -t 17 | tr -d '\t' | grep "^Size: [0-9]* [MG]B" | awk '{print $2}')
