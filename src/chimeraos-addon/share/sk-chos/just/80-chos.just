@@ -76,7 +76,7 @@ disable-swipe-gestures:
     echo "disabling swipe gestures for QAM and HOME"
     mkdir -p $HOME/.config/environment.d
     conf_file="$HOME/.config/environment.d/chos-disable-gamescope-gestures.conf"
-    echo "export GAMESCOPE_DISABLE_TOUCH_GESTURES=1" > "$HOME/.config/environment.d/chos-disable-gamescope-gestures.conf"
+    echo "GAMESCOPE_DISABLE_TOUCH_GESTURES=1" > "$HOME/.config/environment.d/chos-disable-gamescope-gestures.conf"
     echo "Done. Please restart Steam Game Mode to see changes"
 
 # Enable swipe gestures for QAM and HOME / 启用游戏模式的侧边滑动手势
