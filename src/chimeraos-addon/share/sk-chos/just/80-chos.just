@@ -86,7 +86,7 @@ enable-swipe-gestures:
     conf_file="$HOME/.config/environment.d/chos-disable-gamescope-gestures.conf"
     if [ -f "$conf_file" ]; then
         if grep -q "GAMESCOPE_DISABLE_TOUCH_GESTURES=1" "$conf_file"; then
-            sed -i 's/GAMESCOPE_DISABLE_TOUCH_GESTURES=1/GAMESCOPE_DISABLE_TOUCH_GESTURES=0/' "$conf_file"
+            echo "" > "$conf_file"
             echo "Swipe gestures enabled"
         else
             echo "Swipe gestures already enabled"
