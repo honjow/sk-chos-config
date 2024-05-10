@@ -238,16 +238,16 @@ function install_css_theme() {
 
 function device_quirks() {
     # turn off usb wakeup
-    if [[ "$VENDOR" == "AYANEO" ]]; then
+    if [[ "$VENDOR" == "AYANEO" && "$VENDOR" == "GPD" ]]; then
         echo "Disabling USB wakeup..."
         config_path="/etc/device-quirks/device-quirks.conf"
         enable_str="USB_WAKE_ENABLED=1"
         disable_str="USB_WAKE_ENABLED=0"
         if [[ -f $config_path ]]; then
             sudo sed -i "s/$enable_str/$disable_str/g" $config_path
-            sudo frzr-tweaks
         fi
     fi
+    sudo frzr-tweaks
 }
 
 function restart_plugin_loader() {
@@ -268,6 +268,7 @@ case $ACTION in
     install_decky_plugin
     install_css_theme
     restart_plugin_loader
+    device_quirks
     ;;
 *)
     install_decky
