@@ -49,3 +49,12 @@ if [[ -f "/var/lib/waydroid/lxc/waydroid/config" ]]; then
   echo "Removing unneeded apparmor entry from Waydroid LXC"
   sed -i '/lxc\.apparmor\.profile\s*=\s*unconfined/d' "/var/lib/waydroid/lxc/waydroid/config"
 fi
+
+# set hibernatemode
+sleep_conf_dir="/etc/systemd/sleep.conf.d"
+hibernatemode_config="${sleep_conf_dir}/hibernatemode.conf"
+if [[ ! -f "$hibernatemode_config" ]]; then
+    mkdir -p "$sleep_conf_dir"
+    echo "[Sleep]" >"$hibernatemode_config"
+    echo "HibernateMode=shutdown" >>"$hibernatemode_config"
+fi
