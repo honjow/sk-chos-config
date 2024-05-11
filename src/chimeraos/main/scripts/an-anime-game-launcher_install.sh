@@ -94,7 +94,7 @@ cat > ${user_home}/.local/share/applications/${app_name}.desktop <<EOL
 [Desktop Entry]
 Name=An Anime Game Launcher
 Comment=An Launcher for a specific anime game with auto-patching, discord rpc and time tracking
-Exec=${user_home}/Applications/a${app_name}.AppImage
+Exec=${user_home}/Applications/${app_name}.AppImage
 Icon=${user_home}/Applications/${app_name}.png
 Terminal=false
 Type=Application
