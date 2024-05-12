@@ -1,0 +1,2 @@
+# from https://github.com/ublue-os/bazzite/pull/1105
+ACTION=="add", SUBSYSTEM=="bluetooth", RUN+="/usr/bin/cec-control onboot"
