@@ -8,15 +8,15 @@ fi
 
 mv /boot/vmlinuz-linux-chimeraos /boot/vmlinuz-linux
 mv /boot/initramfs-linux-chimeraos.img /boot/initramfs-linux.img
+rm -f /boot/initramfs-linux-chimeraos-fallback.img
 
 if [ -d "/boot/chimeraos-*_*" ]; then
     cp /boot/vmlinuz-linux /boot/initramfs-linux.img /boot/chimeraos-*_*/
 fi
 
 if [ -d "/efi/chimeraos-*_*" ]; then
+    cp /boot/vmlinuz-linux /boot/initramfs-linux.img /efi/
     cp /boot/vmlinuz-linux /boot/initramfs-linux.img /efi/chimeraos-*_*/
 fi
-
-rm -f /boot/initramfs-linux-chimeraos-fallback.img
 
 rm /etc/mkinitcpio.d/linux-chimeraos.preset
