@@ -265,7 +265,7 @@ function flatpak_auto_repo() {
 case $ACTION in
 "--update")
     install_decky
-    install_decky_plugin
+    install_decky_plugins
     install_css_theme
     restart_plugin_loader
     device_quirks
