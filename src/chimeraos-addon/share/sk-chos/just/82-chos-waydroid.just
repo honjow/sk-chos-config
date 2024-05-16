@@ -35,5 +35,17 @@ setup-waydroid ACTION="":
       bash -c 'sudo rm -rf /var/lib/waydroid /home/.waydroid ~/waydroid ~/.share/waydroid ~/.local/share/applications/*aydroid* ~/.local/share/waydroid'
       echo "Waydroid has been reset"
     elif [[ "${OPTION,,}" =~ ^add ]]; then
-      /usr/bin/steamos-add-to-steam /usr/share/applications/Waydroid.desktop
+      if steam_shortcuts -t isexisted -n "Waydroid" -e "\"/usr/bin/waydroid-launcher\""; then
+        echo "Waydroid is already added to Steam"
+      else
+        /usr/bin/steamos-add-to-steam /usr/share/applications/Waydroid.desktop
+        echo "Waydroid has been added to Steam"
+      fi
+      steam_shortcuts -t setimg -n "Waydroid" -e "\"/usr/bin/waydroid-launcher\"" \
+        --icon "/usr/share/applications/Waydroid/icon.png" \
+        --cover "/usr/share/applications/Waydroid/capsule.png" \
+        --banner "/usr/share/applications/Waydroid/store-capsule.png" \
+        --background "/usr/share/applications/Waydroid/hero.jpg" \
+        --logo "/usr/share/applications/Waydroid/logo.png"
+      pkill -HUP steam
     fi
