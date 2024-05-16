@@ -53,7 +53,8 @@ fi
 # set hibernatemode
 sleep_conf_dir="/etc/systemd/sleep.conf.d"
 hibernatemode_config="${sleep_conf_dir}/hibernatemode.conf"
-if [[ ! -f "$hibernatemode_config" ]]; then
+config=$(cat $hibernatemode_config | grep "HibernateMode")
+if [[ ! -f "$hibernatemode_config" || -z $config ]]; then
     mkdir -p "$sleep_conf_dir"
     echo "[Sleep]" >"$hibernatemode_config"
     echo "HibernateMode=shutdown" >>"$hibernatemode_config"
