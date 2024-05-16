@@ -164,8 +164,13 @@ def create_image_from_exe(exe, name, img_path, img_type_dst=None):
         steam_shortcuts_file = SteamShortcutsFile(os.path.basename(user_dir))
         shortcuts_map = steam_shortcuts_file.get_current_data()
         for key in shortcuts_map:
-            shortcut = shortcuts_map[key]
-            if shortcut["exe"] == exe and shortcut["appname"] == name:
+            shortcut = {k.lower(): v for k, v in shortcuts_map[key].items()}
+            if (
+                "exe" in shortcut
+                and "appname" in shortcut
+                and shortcut["exe"] == exe
+                and shortcut["appname"] == name
+            ):
                 app_id = shortcut["appid"]
                 compat_id = app_id + 2**32
                 dst = create_image(img_path, compat_id, user_dir, img_type_dst)
@@ -176,13 +181,19 @@ def create_image_from_exe(exe, name, img_path, img_type_dst=None):
                     shortcut["icon"] = dst
         steam_shortcuts_file.save()
 
+
 def check_shortcut_exists(name, exe):
     for user_dir in STEAM_USER_DIRS:
         steam_shortcuts_file = SteamShortcutsFile(os.path.basename(user_dir))
         shortcuts_map = steam_shortcuts_file.get_current_data()
         for key in shortcuts_map:
-            shortcut = shortcuts_map[key]
-            if shortcut["exe"] == exe and shortcut["appname"] == name:
+            shortcut = {k.lower(): v for k, v in shortcuts_map[key].items()}
+            if (
+                "exe" in shortcut
+                and "appname" in shortcut
+                and shortcut["exe"] == exe
+                and shortcut["appname"] == name
+            ):
                 return True
     return False
 
@@ -243,7 +254,9 @@ def main():
 
         if args.match == "name_exe":
             if args.name is None or args.exe is None:
-                sys.stderr.write("错误: 当 --match 为 'name_exe' 时，--name 和 --exe 是必需的\n")
+                sys.stderr.write(
+                    "错误: 当 --match 为 'name_exe' 时，--name 和 --exe 是必需的\n"
+                )
                 sys.exit(1)
 
             set_image_from_exe(
@@ -257,11 +270,13 @@ def main():
             )
     if args.type == "isexisted":
         if args.name is None or args.exe is None:
-            sys.stderr.write("错误: 当 --type 为 'setimg' 时，--match 是必需的\n")
+            sys.stderr.write("错误: 当 --type 为 'isexisted' 时，--match 是必需的\n")
             sys.exit(1)
         if args.match == "name_exe":
             if args.name is None or args.exe is None:
-                sys.stderr.write("错误: 当 --match 为 'name_exe' 时，--name 和 --exe 是必需的\n")
+                sys.stderr.write(
+                    "错误: 当 --match 为 'name_exe' 时，--name 和 --exe 是必需的\n"
+                )
                 sys.exit(1)
             if check_shortcut_exists(args.name, args.exe):
                 sys.exit(0)
