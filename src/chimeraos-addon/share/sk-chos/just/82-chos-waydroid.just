@@ -20,7 +20,7 @@ setup-waydroid ACTION="":
       exit 0
     elif [ "$OPTION" == "" ]; then
       echo "${bold}Waydroid Setup${normal}"
-      OPTION=$(Choose "Initialize Waydroid / 初始化Waydroid" "Configure Waydroid / 配置Waydroid" "Select GPU for Waydroid / 选择 GPU" "Reset Waydroid / 重置 Waydroid" "Add Waydroid to Steam / 添加 Waydroid 到 Steam" )
+      OPTION=$(Choose "Initialize Waydroid / 初始化Waydroid" "Configure Waydroid / 配置Waydroid" "Select GPU for Waydroid / 选择 GPU" "Reset Waydroid / 重置 Waydroid" "Add Waydroid to Steam / 添加 Waydroid 到 Steam (会重启 Steam)" )
     fi
     if [[ "${OPTION,,}" =~ ^init ]]; then
       sudo waydroid init -c 'https://ota.waydro.id/system' -v 'https://ota.waydro.id/vendor'
@@ -35,17 +35,22 @@ setup-waydroid ACTION="":
       bash -c 'sudo rm -rf /var/lib/waydroid /home/.waydroid ~/waydroid ~/.share/waydroid ~/.local/share/applications/*aydroid* ~/.local/share/waydroid'
       echo "Waydroid has been reset"
     elif [[ "${OPTION,,}" =~ ^add ]]; then
+      # 检查是否已经添加到 Steam
       if steam_shortcuts -t isexisted -n "Waydroid" -e "\"/usr/bin/waydroid-launcher\""; then
         echo "Waydroid is already added to Steam"
       else
         /usr/bin/steamos-add-to-steam /usr/share/applications/Waydroid.desktop
         echo "Waydroid has been added to Steam"
       fi
+
+      # 设置封面图片
       steam_shortcuts -t setimg -n "Waydroid" -e "\"/usr/bin/waydroid-launcher\"" \
         --icon "/usr/share/applications/Waydroid/icon.png" \
         --cover "/usr/share/applications/Waydroid/capsule.png" \
         --banner "/usr/share/applications/Waydroid/store-capsule.png" \
-        --background "/usr/share/applications/Waydroid/hero.jpg" \
+        --background "/usr/share/applications/Waydroid/hero.png" \
         --logo "/usr/share/applications/Waydroid/logo.png"
+        
+      # 重启 Steam
       pkill -HUP steam
     fi
