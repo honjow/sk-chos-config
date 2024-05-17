@@ -22,6 +22,10 @@ if [ -f $suspend_service_path ]; then
         # 创建和内存大小相同的swapfile
         swapfile_size=$ram_size_num
     fi
+    if cat $suspend_service_path | grep -q "systemd-sleep suspend-then-hibernate"; then
+        # 创建和内存大小相同的swapfile
+        swapfile_size=$ram_size_num
+    fi
 fi
 
 # 如果用户提供了参数，则使用用户提供的参数
