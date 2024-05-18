@@ -33,7 +33,7 @@ fnv_monitor() {
             fnv_save_rename "$file"
         done) &&
         cd -
-    inotifywait -m -e close_write,moved_to,create --format '%f' "$FNV_SAVE_DIR" | while read file; do
+    inotifywait -m -e close_write,moved_to,create --format '%f' "$FNV_SAVE_DIR" | while IFS= read -r file; do
         echo "Detected change in [$file]"
         cd "$FNV_SAVE_DIR" &&
             fnv_save_rename "$file" &&
