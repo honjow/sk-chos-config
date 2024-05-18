@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+nice_value=-19
+steam_pid=$(pidof steam 2 >/dev/null)
+
+if [ -n "$steam_pid" ]; then
+    sudo renice -n $nice_value -p $steam_pid
+fi
