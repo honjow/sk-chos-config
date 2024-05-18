@@ -1,0 +1,9 @@
+[Unit]
+Description=Game Save Monitor
+
+[Service]
+Type=simple
+ExecStart=/usr/libexec/monitor-gamesave
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,45 @@
+#!/bin/bash
+
+set -e
+
+# cant run this script as root
+if [ "$EUID" -eq 0 ]; then
+    echo "Please run this script as a normal user, not root."
+    exit 1
+fi
+
+FNV_SAVE_DIR="$HOME/.local/share/Steam/steamapps/compatdata/22380/pfx/drive_c/users/steamuser/Documents/My Games/FalloutNV/Saves/"
+
+fnv_save_rename() {
+    file="$1"
+    if [ -f "$file" ]; then
+        # 如果文件名是 .fos 结尾, 并且文件名为空格开头的，重命名文件，去掉前面的空格
+        if [[ "$file" == *.fos ]] && [[ "$file" == " "* ]]; then
+            echo "Detected space in filename starting with [$file], renaming."
+            new_file=$(echo "$file" | sed 's/^\s*//')
+            mv "$file" "$new_file"
+        fi
+    fi
+}
+
+fnv_monitor() {
+    echo "Monitoring FNV"
+    if [ ! -d "$FNV_SAVE_DIR" ]; then
+        echo "FNV save directory not found. Exiting."
+        exit 0
+    fi
+    cd "$FNV_SAVE_DIR" &&
+        (for file in *; do
+            fnv_save_rename "$file"
+        done) &&
+        cd -
+    inotifywait -m -e close_write,moved_to,create --format '%f' "$FNV_SAVE_DIR" | while read file; do
+        echo "Detected change in [$file]"
+        cd "$FNV_SAVE_DIR" &&
+            fnv_save_rename "$file" &&
+            cd -
+    done
+
+}
+
+fnv_monitor
