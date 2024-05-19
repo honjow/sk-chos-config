@@ -15,6 +15,7 @@ setup-waydroid ACTION="":
       echo "  Use 'init' to select Initialize Waydroid / 初始化 Waydroid"
       echo "  Use 'configure' to select Configure Waydroid / 配置 Waydroid"
       echo "  Use 'gpu' to choose Select GPU for Waydroid / 选择 GPU"
+      echo "  Use 'integration' to enable desktop window integration for Waydroid / 启用 Waydroid 的桌面窗口集成"
       echo "  Use 'reset' to select Configure Waydroid / 重置 Waydroid"
       echo "  Use 'add-to-steam' to add Waydroid to Steam / 添加 Waydroid 到 Steam"
       exit 0
@@ -29,7 +30,9 @@ setup-waydroid ACTION="":
     elif [[ "${OPTION,,}" =~ ^configure ]]; then
       sudo /usr/bin/waydroid-extras
     elif [[ "${OPTION,,}" =~ gpu ]]; then
-      /usr/bin/waydroid-choose-gpu
+      sudo /usr/bin/waydroid-choose-gpu
+    elif [[ "${OPTION,,}" =~ integration ]]; then
+      waydroid prop set persist.waydroid.multi_windows true
     elif [[ "${OPTION,,}" =~ ^reset ]]; then
       echo "Resetting Waydroid"
       bash -c 'sudo rm -rf /var/lib/waydroid /home/.waydroid ~/waydroid ~/.share/waydroid ~/.local/share/applications/*aydroid* ~/.local/share/waydroid'
