@@ -59,3 +59,8 @@ if [[ ! -f "$hibernatemode_config" || -z $config ]]; then
     echo "[Sleep]" >"$hibernatemode_config"
     echo "HibernateMode=shutdown" >>"$hibernatemode_config"
 fi
+
+# setup aw87xxx
+if [ -x "/usr/libexec/aw87xxx-setup" ]; then
+    /usr/libexec/aw87xxx-setup
+fi

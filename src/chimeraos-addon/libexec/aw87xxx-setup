@@ -1,0 +1,31 @@
+#!/bin/bash
+
+set -e
+
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root or with sudo."
+    exit 1
+fi
+
+PRODUCT=$(cat "/sys/class/dmi/id/product_name")
+
+AIR_1S_LIST="AIR 1S:AIR 1S Limited"
+
+link_path="/usr/lib/firmware/aw87xxx_acf.bin"
+
+if [[ ":$AIR_1S_LIST:" =~ ":$PRODUCT:" ]]; then
+    real_path="/usr/lib/firmware/aw87xxx/aw87556/awinic_smartk_acf.bin"
+fi
+
+# 如果 firmware_path 是一个软链接，那么获取它的真实路径
+if [ -L "$link_path" ]; then
+    current_real_path=$(readlink -f "$link_path")
+    if [ "$current_real_path" != "$real_path" ]; then
+        echo "Remove old link $link_path, and create new link to $real_path"
+        rm -f "$link_path"
+        ln -sf "$real_path" "$link_path"
+    fi
+else
+    echo "Create link $link_path to $real_path"
+    ln -sf "$real_path" "$link_path"
+fi
