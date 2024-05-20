@@ -11,12 +11,20 @@ mv /boot/initramfs-linux-chimeraos.img /boot/initramfs-linux.img
 rm -f /boot/initramfs-linux-chimeraos-fallback.img
 
 if [ -d "/boot/chimeraos-*_*" ]; then
+    echo "Copying kernel to boot"
     cp /boot/vmlinuz-linux /boot/initramfs-linux.img /boot/chimeraos-*_*/
 fi
 
 if [ -d "/efi/chimeraos-*_*" ]; then
+    echo "Copying kernel to efi"
     cp /boot/vmlinuz-linux /boot/initramfs-linux.img /efi/
     cp /boot/vmlinuz-linux /boot/initramfs-linux.img /efi/chimeraos-*_*/
+fi
+
+if mount | grep -q " /frzr_root/boot "; then
+    echo "Copying kernel to frzr_root"
+    cp /boot/vmlinuz-linux /boot/initramfs-linux.img /frzr_root/boot/
+    cp /boot/vmlinuz-linux /boot/initramfs-linux.img /frzr_root/boot/chimeraos-*_*/
 fi
 
 rm /etc/mkinitcpio.d/linux-chimeraos.preset
