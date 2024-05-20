@@ -11,21 +11,42 @@ PRODUCT=$(cat "/sys/class/dmi/id/product_name")
 
 AIR_1S_LIST="AIR 1S:AIR 1S Limited"
 
-link_path="/usr/lib/firmware/aw87xxx_acf.bin"
+sys_symbolic="/usr/lib/firmware/aw87xxx_acf.bin"
+user_symbolic="/etc/device-quirks/firmware/aw87xxx_acf.bin"
+
+if [ ! -d "/etc/device-quirks/firmware/" ]; then
+    mkdir -p "/etc/device-quirks/firmware/"
+fi
 
 if [[ ":$AIR_1S_LIST:" =~ ":$PRODUCT:" ]]; then
     real_path="/usr/lib/firmware/aw87xxx/aw87556/awinic_smartk_acf.bin"
 fi
 
-# 如果 firmware_path 是一个软链接，那么获取它的真实路径
-if [ -L "$link_path" ]; then
-    current_real_path=$(readlink -f "$link_path")
+
+if [ -L "$user_symbolic" ]; then
+    current_real_path=$(readlink -f "$user_symbolic")
     if [ "$current_real_path" != "$real_path" ]; then
-        echo "Remove old link $link_path, and create new link to $real_path"
-        rm -f "$link_path"
-        ln -sf "$real_path" "$link_path"
+        echo "Remove old link $user_symbolic, and create new link to $real_path"
+        rm -f "$user_symbolic"
+        ln -sf "$real_path" "$user_symbolic"
     fi
 else
-    echo "Create link $link_path to $real_path"
-    ln -sf "$real_path" "$link_path"
+    echo "Create link $user_symbolic to $real_path"
+    ln -sf "$real_path" "$user_symbolic"
+fi
+
+if [ ! -e "$sys_symbolic" ]; then
+    echo "Create link $sys_symbolic to $user_symbolic"
+    ln -sf "$user_symbolic" "$sys_symbolic"
+elif [ -L "$sys_symbolic" ]; then
+    dest_path=$(readlink "$sys_symbolic")
+    if [ "$dest_path" != "$user_symbolic" ]; then
+        echo "Remove old link $sys_symbolic, and create new link to $user_symbolic"
+        rm -f "$sys_symbolic"
+        ln -sf "$user_symbolic" "$sys_symbolic"
+    fi
+else
+    echo "Remove old file $sys_symbolic, and create new link to $user_symbolic"
+    rm -f "$sys_symbolic"
+    ln -sf "$user_symbolic" "$sys_symbolic"
 fi
