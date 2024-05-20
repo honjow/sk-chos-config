@@ -9,7 +9,7 @@ flatpak-sjtu:
 
 # 恢复 flathub 官方源
 flatpak-reset:
-    flatpak remote-modify flathub --url=https://flathub.org/repo/
+    flatpak --user remote-modify flathub --url=https://flathub.org/repo/
     sudo flatpak remote-modify flathub --url=https://flathub.org/repo/
 
 # 显示 flathub 源
