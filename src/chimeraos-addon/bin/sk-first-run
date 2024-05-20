@@ -210,6 +210,8 @@ function set_ps5_theme_default() {
     fi
 }
 
+AYANEO_AIR_LIST="AIR:AIR Pro:AIR Plus:AIR 1S:AIR 1S Limited"
+
 function install_css_theme() {
     if [[ -d $css_hhd_path ]]; then
         echo "Installing hhd themes..."
@@ -225,6 +227,8 @@ function install_css_theme() {
             elif [[ "$PRODUCT" == "G1618-04" ]]; then
                 # GPD Win4
                 set_ps5_theme_default "GPD Win4"
+            elif [[ ":$AYANEO_AIR_LIST:" =~ ":$PRODUCT:" ]]; then
+                set_ps5_theme_default "AYANEO AIR"
             elif [[ "$VENDOR" == "AYANEO" ]]; then
                 set_ps5_theme_default "AYANEO"
             elif [[ "$VENDOR" == "GPD" ]]; then
