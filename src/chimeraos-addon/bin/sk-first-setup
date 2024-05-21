@@ -1,0 +1,285 @@
+#!/bin/bash
+
+set -e
+
+# cant run this script as root
+if [ "$EUID" -eq 0 ]; then
+    echo "Please run this script as a normal user, not root."
+    exit 1
+fi
+
+ACTION=$1
+
+cpu_id=$(cat /proc/cpuinfo | grep "model name" | head -1 | awk -F ': ' '{print $2}' | xargs)
+cpu_keywords=(
+    "3050e"
+    "4500"
+    "4800"
+    "5560"
+    "5700"
+    "5800"
+    "5825"
+    "6800"
+    "7320"
+    "7520"
+    "7735"
+    "7640"
+    "7840"
+    "Z1"
+    "8840"
+)
+CPU_MATCH=false
+for keyword in "${cpu_keywords[@]}"; do
+    if [[ $cpu_id == *"$keyword"* ]]; then
+        CPU_MATCH=true
+        break
+    fi
+done
+
+pre_path=/usr/local/share/sk-pre
+
+decky_path=$pre_path/decky
+decky_file=$decky_path/PluginLoader
+decky_version_file=$decky_path/.loader.version
+decky_plugin_path=$pre_path/decky-plugins
+css_path=$pre_path/css
+css_hhd_path=$pre_path/css-hhd
+
+USER_DIR=$HOME
+HOMEBREW_FOLDER="${USER_DIR}/homebrew"
+THEME_FOLDER="${HOMEBREW_FOLDER}/themes"
+
+PRODUCT=$(cat /sys/devices/virtual/dmi/id/product_name)
+VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
+
+ROG_LIST="ROG Ally RC71L_RC71L:ROG Ally RC71L"
+LGO_LIST="83E1"
+GPD_LIST="G1618-04:G1617-01:G1619-04:G1619-05"
+
+AYA_2_LIST="AYANEO 2:AYANEO 2S:GEEK:GEEK 1S"
+AYA_AIR_LIST="AIR:AIR Pro:AIR Plus:AIR 1S:AIR 1S Limited:SLIDE"
+AYA_NEXT_LIST="NEXT Advance:NEXT Lite:NEXT Pro:NEXT"
+AYA_2021_LIST="AYA NEO FOUNDER:AYA NEO 2021:AYANEO 2021:AYANEO 2021 Pro:AYANEO 2021 Pro Retro Power"
+AYA_LIST="${AYA_2_LIST}:${AYA_AIR_LIST}:${AYA_NEXT_LIST}:${AYA_2021_LIST}"
+
+AOKZOE_LIST="AOKZOE A1 AR07:AOKZOE A1 Pro"
+ONEXPLAYER_LIST="ONEXPLAYER Mini Pro"
+LOKI_LIST="Loki Max"
+
+HHD_SUPPORT_LIST="${LGO_LIST}:${ROG_LIST}:${GPD_LIST}:${AYA_LIST}:${AOKZOE_LIST}:${ONEXPLAYER_LIST}:${LOKI_LIST}"
+
+LED_LIST="AIR Plus:AYANEO 2:AYANEO 2S:GEEK:GEEK 1S:AIR:AIR Pro:AIR 1S:AIR 1S Limited:SLIDE:G1618-04"
+LED_PATH="/sys/class/leds/multicolor:chassis/"
+
+function install_decky() {
+    # install decky from local
+    if [[ -f $decky_file ]]; then
+        echo "Installing decky..."
+        if [[ -d "${HOMEBREW_FOLDER}/services" ]]; then
+            sudo rm -rf "${HOMEBREW_FOLDER}/services"
+        fi
+
+        mkdir -p "${HOMEBREW_FOLDER}/services"
+        mkdir -p "${HOMEBREW_FOLDER}/plugins"
+        mkdir -p "${HOMEBREW_FOLDER}/themes"
+        touch "${USER_DIR}/.steam/steam/.cef-enable-remote-debugging"
+        [ -d "${USER_DIR}/.var/app/com.valvesoftware.Steam/data/Steam/" ] && touch "${USER_DIR}/.var/app/com.valvesoftware.Steam/data/Steam/.cef-enable-remote-debugging"
+
+        sudo cp $decky_file "${HOMEBREW_FOLDER}/services/PluginLoader"
+        sudo cp $decky_version_file "${HOMEBREW_FOLDER}/services/.loader.version"
+
+        sudo chmod +x "${HOMEBREW_FOLDER}/services/PluginLoader"
+
+        mkdir -p "${HOMEBREW_FOLDER}/services/.systemd"
+        cat >"${HOMEBREW_FOLDER}/services/.systemd/plugin_loader.service" <<-EOM
+[Unit]
+Description=SteamDeck Plugin Loader
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=simple
+User=root
+Restart=always
+ExecStart=${HOMEBREW_FOLDER}/services/PluginLoader
+WorkingDirectory=${HOMEBREW_FOLDER}/services
+KillSignal=SIGKILL
+Environment=PLUGIN_PATH=${HOMEBREW_FOLDER}/plugins
+Environment=UNPRIVILEGED_PATH=${HOMEBREW_FOLDER}
+Environment=PRIVILEGED_PATH=${HOMEBREW_FOLDER}
+Environment=LOG_LEVEL=INFO
+[Install]
+WantedBy=multi-user.target
+EOM
+        sudo cp "${HOMEBREW_FOLDER}/services/.systemd/plugin_loader.service" "/etc/systemd/system/plugin_loader.service"
+
+        sudo systemctl daemon-reload
+        sudo systemctl enable plugin_loader
+    fi
+}
+
+function compare_version() {
+    local current_version=$1
+    local new_version=$2
+    local current_version_arr=(${current_version//./ })
+    local new_version_arr=(${new_version//./ })
+
+    for i in {0..2}; do
+        if [[ ${new_version_arr[$i]} -gt ${current_version_arr[$i]} ]]; then
+            echo "1"
+            return
+        elif [[ ${new_version_arr[$i]} -lt ${current_version_arr[$i]} ]]; then
+            echo "-1"
+            return
+        fi
+    done
+    echo "0"
+}
+
+function copy_plugin() {
+    local name=$1
+
+    case $name in
+    "PowerControl")
+        if [[ $CPU_MATCH == true ]]; then
+            echo "Copying PowerControl plugin..."
+            cp -rf $decky_plugin_path/$name "${HOMEBREW_FOLDER}/plugins"
+        fi
+        ;;
+    "HueSync")
+        if [[ "${LED_LIST}:" =~ ":${PRODUCT}:" && -d "${LED_PATH}" && "${PRODUCT}" != "G1618-04" ]]; then
+            echo "Copying HueSync plugin..."
+            cp -rf $decky_plugin_path/$name "${HOMEBREW_FOLDER}/plugins"
+        fi
+        ;;
+    "GPD-WinControl")
+        if [[ ":${GPD_LIST}:" =~ ":${PRODUCT}:" ]]; then
+            echo "Copying GPD-WinControl plugin..."
+            cp -rf $decky_plugin_path/$name "${HOMEBREW_FOLDER}/plugins"
+        fi
+        ;;
+    *)
+        echo "Copying $name plugin..."
+        cp -rf $decky_plugin_path/$name "${HOMEBREW_FOLDER}/plugins"
+        ;;
+    esac
+}
+
+function install_decky_plugins() {
+
+    if [[ -d $decky_plugin_path ]]; then
+        echo "Installing decky plugins..."
+        sudo chmod -R +w $HOMEBREW_FOLDER
+
+        # cp -rf $decky_plugin_path/* "${HOMEBREW_FOLDER}/plugins"
+        for plugin in $(ls $decky_plugin_path); do
+            if [[ -d "${HOMEBREW_FOLDER}/plugins/$plugin" ]]; then
+                if [[ -f "${HOMEBREW_FOLDER}/plugins/$plugin/package.json" ]]; then
+
+                    # check version, if new version larger than current version, update
+                    current_version=$(cat "${HOMEBREW_FOLDER}/plugins/$plugin/package.json" | jq -r '.version')
+                    new_version=$(cat "$decky_plugin_path/$plugin/package.json" | jq -r '.version')
+
+                    # compare version
+                    compare_result=$(compare_version $current_version $new_version)
+                    if [[ "$compare_result" == "1" ]]; then
+                        copy_plugin $plugin
+                    fi
+                else
+                    copy_plugin $plugin
+                fi
+            else
+                copy_plugin $plugin
+            fi
+        done
+    fi
+
+    if [[ ":${HHD_SUPPORT_LIST}:" =~ ":${PRODUCT}:" ]]; then
+        echo "disabling handycon/inputplumber and enabling hhd@${USER}..."
+        sudo systemctl disable --now handycon || true
+        sudo systemctl disable --now inputplumber || true
+        sudo systemctl enable --now hhd@${USER}
+    fi
+}
+
+function set_ps5_theme_default() {
+    local PROFILE=$1
+    # replace `: "Xbox" to` `: "$1"
+    if [[ -f "${THEME_FOLDER}/SBP-PS5-to-Handheld/config_USER.json" ]]; then
+        sed -i "s#: \"Xbox\"#: \"$PROFILE\"#g" "${THEME_FOLDER}/SBP-PS5-to-Handheld/config_USER.json"
+        sed -i "s#: false#: true#g" "${THEME_FOLDER}/SBP-PS5-to-Handheld/config_USER.json"
+    fi
+}
+
+AYANEO_AIR_LIST="AIR:AIR Pro:AIR Plus:AIR 1S:AIR 1S Limited"
+
+function install_css_theme() {
+    if [[ -d $css_hhd_path ]]; then
+        echo "Installing hhd themes..."
+        if [[ ":${LGO_LIST}:" =~ ":${PRODUCT}:" ]]; then
+            cp -rf $css_hhd_path/*Legion-Go* "${THEME_FOLDER}"
+        else
+            cp -rf $css_hhd_path/*PS5-to* "${THEME_FOLDER}"
+            if [[ "$PRODUCT" =~ "ROG Ally RC71L" ]]; then
+                set_ps5_theme_default "ROG Ally"
+            elif [[ "$PRODUCT" == "G1617-01" ]]; then
+                # GPD Win Mini
+                set_ps5_theme_default "GPD Win Mini"
+            elif [[ "$PRODUCT" == "G1618-04" ]]; then
+                # GPD Win4
+                set_ps5_theme_default "GPD Win4"
+            elif [[ ":$AYANEO_AIR_LIST:" =~ ":$PRODUCT:" ]]; then
+                set_ps5_theme_default "AYANEO AIR"
+            elif [[ "$VENDOR" == "AYANEO" ]]; then
+                set_ps5_theme_default "AYANEO"
+            elif [[ "$VENDOR" == "GPD" ]]; then
+                set_ps5_theme_default "GPD"
+            elif [[ "$VENDOR" == "AOKZOE" || "$VENDOR" == "ONE-NETBOOK" ]]; then
+                set_ps5_theme_default "Aokzoe/OneXPlayer"
+            fi
+        fi
+    fi
+}
+
+function device_quirks() {
+    # turn off usb wakeup
+    if [[ "$VENDOR" == "AYANEO" && "$VENDOR" == "GPD" ]]; then
+        echo "Disabling USB wakeup..."
+        config_path="/etc/device-quirks/device-quirks.conf"
+        enable_str="USB_WAKE_ENABLED=1"
+        disable_str="USB_WAKE_ENABLED=0"
+        if [[ -f $config_path ]]; then
+            sudo sed -i "s/$enable_str/$disable_str/g" $config_path
+        fi
+    fi
+    sudo frzr-tweaks
+}
+
+function restart_plugin_loader() {
+    echo "restarting plugin_loader..."
+    sudo systemctl restart plugin_loader
+}
+
+function flatpak_auto_repo() {
+    echo "Auto set flathub repo..."
+    if [ -x "$(command -v cjust)" ]; then
+        cjust flatpak-auto-repo || true
+    fi
+}
+
+case $ACTION in
+"--update")
+    install_decky
+    install_decky_plugins
+    install_css_theme
+    restart_plugin_loader
+    device_quirks
+    ;;
+*)
+    install_decky
+    install_decky_plugins
+    install_css_theme
+    restart_plugin_loader
+    device_quirks
+    flatpak_auto_repo
+    ;;
+esac

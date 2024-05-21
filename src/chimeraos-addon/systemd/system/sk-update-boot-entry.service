@@ -1,11 +1,11 @@
 [Unit]
-Description=Auto update boot entry
+Description=Auto setup kernel options
 After=local-fs.target
 After=frzr_root-swap-swapfile.swap
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/sk-update-boot-entry
+ExecStart=/usr/bin/sk-setup-kernel-options
 
 [Install]
 WantedBy=multi-user.target
