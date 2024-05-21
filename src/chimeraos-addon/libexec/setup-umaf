@@ -1,0 +1,72 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root or with sudo."
+    exit 1
+fi
+
+current_boot=$(efibootmgr | grep "UMAF" | grep "umfa.efi")
+if [ -n "$current_boot" ]; then
+    echo "UMAF boot entry already exists."
+    exit 0
+fi
+
+set -e
+
+url="https://github.com/DavidS95/Smokeless_UMAF/raw/main/UniversalAMDFormBrowser.zip"
+
+temp_dir=$(mktemp -d)
+
+echo "Downloading UMAF..."
+curl -sL $url -o $temp_dir/UMAF.zip
+
+echo "Extracting UMAF.zip..."
+unzip -q $temp_dir/UMAF.zip -d $temp_dir
+
+rm -f $temp_dir/UMAF.zip
+
+cd $temp_dir/EFI/Boot
+mv *.efi umfa.efi
+
+mv $temp_dir/EFI/Boot $temp_dir/EFI/UMFA
+
+if mountpoint -q /frzr_root/boot; then
+    echo "Copying UMAF to /frzr_root/boot..."
+    cp -r $temp_dir/* /frzr_root/boot/
+else
+    echo "boot partition not mounted"
+    exit 1
+fi
+
+if mount | grep -q " /frzr_root/boot "; then
+    # 获取 /frzr_root/boot 分区的设备路径
+    boot_device=$(df -h /frzr_root/boot | awk 'NR==2 {print $1}')
+elif mount | grep -q " /boot "; then
+    boot_device=$(df -h /boot | awk 'NR==2 {print $1}')
+else
+    echo "No boot partition found."
+    exit 1
+fi
+
+if [ -n "$boot_device" ]; then
+    # 从设备路径中提取磁盘设备路径和分区号
+    disk_device=$(echo $boot_device | sed 's/p\?[0-9]*$//')
+    partition_number=$(echo $boot_device | awk -F '/' '{print $NF}' | sed 's/.*\([0-9]\+\)$/\1/g')
+
+    echo "Creating UMAF boot entry..."
+    # 使用 efibootmgr 添加启动项
+    efibootmgr -c -d $disk_device -p $partition_number -L "UMAF" -l "\EFI\UMFA\umfa.efi"
+    echo ""
+
+    current_boot=$(efibootmgr | grep "UMAF" | grep "umfa.efi" | awk '{print $1}'| sed 's/Boot//' | sed 's/\*//')
+
+    # 调整启动项顺序 将 current_boot 移动到最后
+    boot_order=$(efibootmgr | grep BootOrder | awk '{print $2}')
+    new_order=$(echo $boot_order | sed "s/$current_boot//" | sed 's/,,/,/' | sed 's/^,//' | sed 's/,$//')
+    new_order="$new_order,$current_boot"
+    echo "Setting boot order to: $new_order"
+    efibootmgr -o $new_order
+else
+    echo "Failed to create UMAF boot entry."
+    exit 1
+fi
