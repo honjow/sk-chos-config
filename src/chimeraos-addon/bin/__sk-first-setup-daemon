@@ -8,13 +8,13 @@ if [ "$EUID" -eq 0 ]; then
     exit 1
 fi
 
-flag_file=/etc/sk-first-run-done
+flag_file=/etc/sk-first-setup-done
 
-force_file=/etc/sk-first-run-force
+force_file=/etc/sk-first-setup-force
 
 if [[ -f $force_file || ! -f $flag_file ]]; then
     echo "Running first run setup..."
-    /usr/bin/sk-first-run
+    /usr/bin/sk-first-setup
 
     # mark first run as complete
     echo "First run setup complete. Marking as complete."

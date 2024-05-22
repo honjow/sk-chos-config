@@ -1,0 +1,14 @@
+[Unit]
+Description=Sk ChimersOS first setup daemon
+ConditionPathExists=|!/etc/sk-first-setup-done
+ConditionPathExists=|/etc/sk-first-setup-force
+
+[Service]
+Type=simple
+ExecStartPre=/usr/bin/sleep 30
+ExecStart=/usr/bin/__sk-first-setup-daemon
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=default.target
