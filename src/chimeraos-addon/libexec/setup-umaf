@@ -5,8 +5,8 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-current_boot=$(efibootmgr | grep "UMAF" | grep "umfa.efi")
-if [ -n "$current_boot" ]; then
+umaf_boot=$(efibootmgr | grep "UMAF" | grep "umaf.efi")
+if [ -n "$umaf_boot" ]; then
     echo "UMAF boot entry already exists."
     exit 0
 fi
@@ -26,9 +26,9 @@ unzip -q $temp_dir/UMAF.zip -d $temp_dir
 rm -f $temp_dir/UMAF.zip
 
 cd $temp_dir/EFI/Boot
-mv *.efi umfa.efi
+mv *.efi umaf.efi
 
-mv $temp_dir/EFI/Boot $temp_dir/EFI/UMFA
+mv $temp_dir/EFI/Boot $temp_dir/EFI/UMAF
 
 if mountpoint -q /frzr_root/boot; then
     echo "Copying UMAF to /frzr_root/boot..."
@@ -55,15 +55,15 @@ if [ -n "$boot_device" ]; then
 
     echo "Creating UMAF boot entry..."
     # 使用 efibootmgr 添加启动项
-    efibootmgr -c -d $disk_device -p $partition_number -L "UMAF" -l "\EFI\UMFA\umfa.efi"
+    efibootmgr -c -d $disk_device -p $partition_number -L "UMAF" -l "\EFI\UMAF\umaf.efi"
     echo ""
 
-    current_boot=$(efibootmgr | grep "UMAF" | grep "umfa.efi" | awk '{print $1}'| sed 's/Boot//' | sed 's/\*//')
+    umaf_boot=$(efibootmgr | grep "UMAF" | grep "umaf.efi" | awk '{print $1}'| sed 's/Boot//' | sed 's/\*//')
 
-    # 调整启动项顺序 将 current_boot 移动到最后
+    # 调整启动项顺序 将 umaf_boot 移动到最后
     boot_order=$(efibootmgr | grep BootOrder | awk '{print $2}')
-    new_order=$(echo $boot_order | sed "s/$current_boot//" | sed 's/,,/,/' | sed 's/^,//' | sed 's/,$//')
-    new_order="$new_order,$current_boot"
+    new_order=$(echo $boot_order | sed "s/$umaf_boot//" | sed 's/,,/,/' | sed 's/^,//' | sed 's/,$//')
+    new_order="$new_order,$umaf_boot"
     echo "Setting boot order to: $new_order"
     efibootmgr -o $new_order
 else

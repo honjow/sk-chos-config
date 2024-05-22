@@ -16,6 +16,10 @@ bios:
       echo "Rebooting to legacy BIOS from OS is not supported."
     fi
 
+# Boot to Universal AMD Form Browser / 重启进入通用 AMD BIOS/UEFI 界面
+boot-umaf:
+    sudo /usr/libexec/boot-umaf
+
 # Show all messages from this boot / 显示本次启动的所有日志
 logs-this-boot:
     sudo journalctl -b 0
