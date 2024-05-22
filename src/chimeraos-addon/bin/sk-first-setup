@@ -227,6 +227,9 @@ function install_css_theme() {
             elif [[ "$PRODUCT" == "G1618-04" ]]; then
                 # GPD Win4
                 set_ps5_theme_default "GPD Win4"
+            elif [[ "$PRODUCT" == "G1618-03" ]]; then
+                # GPD Win3
+                set_ps5_theme_default "GPD Win3"
             elif [[ ":$AYANEO_AIR_LIST:" =~ ":$PRODUCT:" ]]; then
                 set_ps5_theme_default "AYANEO AIR"
             elif [[ "$VENDOR" == "AYANEO" ]]; then
