@@ -13,12 +13,19 @@ fi
 
 set -e
 
+pre_path=/usr/local/share/sk-pre
+
 url="https://github.com/DavidS95/Smokeless_UMAF/raw/main/UniversalAMDFormBrowser.zip"
 
 temp_dir=$(mktemp -d)
 
-echo "Downloading UMAF..."
-curl -sL $url -o $temp_dir/UMAF.zip
+if [[ -f "$pre_path/UMAF.zip" ]]; then
+    echo "Using cached UMAF.zip..."
+    cp $pre_path/UMAF.zip $temp_dir/UMAF.zip
+else
+    echo "Downloading UMAF.zip..."
+    curl -sL $url -o $temp_dir/UMAF.zip --connect-timeout 10
+fi
 
 echo "Extracting UMAF.zip..."
 unzip -q $temp_dir/UMAF.zip -d $temp_dir
