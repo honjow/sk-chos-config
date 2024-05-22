@@ -11,8 +11,7 @@ nix-manager-uninstall:
 
 # Nix search / Nix 搜索
 nix-search name:
-    nix-env -qaP --description --attr-path --show-trace {{name}} | cat
-
+    nix-env -qaP --attr-path --show-trace '.*{{name}}.*' | cat
 
 # Nix uptate / Nix 更新
 nix-update:
@@ -32,7 +31,7 @@ nix-uninstall name:
 
 # Nix list installed packages / Nix 列出已安装的软件包
 nix-list-installed:
-    nix-env -q --out-path --description | cat
+    nix-env -q --out-path | cat
 
 # Nix 释放软件包
 nix-gc:
