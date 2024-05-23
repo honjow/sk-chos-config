@@ -65,3 +65,12 @@ toggle-user-motd:
       fi
       touch "${HOME}/.config/no-show-user-motd"
     fi
+
+# Test amd s2idle suspend / 测试 amd s2idle 睡眠
+amd-s2idle-test:
+    #!/usr/bin/bash
+    if [ -x $(command -v amd_s2idle-analysis) ]; then
+      sudo amd_s2idle-analysis --force --log "s2idle_report_$(date +%Y%m%d_%H%M%S).log"
+    else
+      echo "amd_s2idle-analysis is not installed."
+    fi
