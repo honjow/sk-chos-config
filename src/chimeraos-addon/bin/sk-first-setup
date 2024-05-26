@@ -27,6 +27,9 @@ cpu_keywords=(
     "7840"
     "Z1"
     "8840"
+    "1135G7"
+    "1165G7"
+    "1195G7"
 )
 CPU_MATCH=false
 for keyword in "${cpu_keywords[@]}"; do
@@ -182,6 +185,7 @@ function install_decky_plugins() {
                     # compare version
                     compare_result=$(compare_version $current_version $new_version)
                     if [[ "$compare_result" == "1" ]]; then
+                        echo "Updating $plugin plugin, current version: $current_version, new version: $new_version"
                         copy_plugin $plugin
                     fi
                 else
