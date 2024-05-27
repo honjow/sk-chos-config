@@ -273,6 +273,18 @@ function flatpak_auto_repo() {
     fi
 }
 
+function user_setup_after_update() {
+    script_dir="$HOME/.config/sk-chos-tool/update"
+    if [[ -d $script_dir ]]; then
+        for script in $(ls $script_dir); do
+            if [[ -x "$script_dir/$script" ]]; then
+                echo "Running $script..."
+                exec "$script_dir/$script" || true
+            fi
+        done
+    fi
+}
+
 case $ACTION in
 "--update")
     install_decky
@@ -280,6 +292,7 @@ case $ACTION in
     install_css_theme
     restart_plugin_loader
     device_quirks
+    user_setup_after_update
     ;;
 *)
     install_decky

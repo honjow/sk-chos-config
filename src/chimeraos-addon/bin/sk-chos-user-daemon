@@ -56,8 +56,19 @@ fi
 after_update_flag=/.after-update
 if [[ ! -f $after_update_flag ]]; then
     echo "after update run first-run..."
-    /usr/bin/sk-first-run --update
+    /usr/bin/sk-first-setup --update
     sudo touch $after_update_flag
+fi
+
+# user auto start
+script_dir="$HOME/.config/sk-chos-tool/auto-start"
+if [[ -d $script_dir ]]; then
+    for script in $(ls $script_dir); do
+        if [[ -x "${script_dir}/${script}" ]]; then
+            echo "run ${script_dir}/${script}"
+            exec "${script_dir}/${script}"
+        fi
+    done
 fi
 
 # 如果安装了kde桌面, 根据 $HOME/.config/plasma-localerc 更新 locale.conf

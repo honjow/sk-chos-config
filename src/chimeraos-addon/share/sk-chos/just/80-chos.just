@@ -112,10 +112,10 @@ expand-partition-force:
         echo "sk-partition-expand not found"
     fi
 
-# rerun first init / 重新运行首次初始化
-rerun-first-init:
+# run first setup / 运行首次设置
+run-first-setup:
     #!/bin/bash
-    /usr/bin/sk-first-run
+    /usr/bin/sk-first-setup
 
 # set TDP / 设置 TDP
 alias tdp := set-tdp

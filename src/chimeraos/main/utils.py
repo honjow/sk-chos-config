@@ -196,7 +196,7 @@ def etc_repair():
 
 
 def re_first_run():
-    command = "sk-first-run"
+    command = "sk-first-setup"
     success, ret_msg = run_command(command, "重新运行首次配置脚本")
     return success, ret_msg
 
