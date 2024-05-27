@@ -54,22 +54,24 @@ fi
 
 # after update run
 after_update_flag=/.after-update
-if [[ ! -f $after_update_flag ]]; then
+flag_file=/etc/sk-first-setup-done
+if [[ ! -f "$after_update_flag" && -f "$flag_file" ]]; then
     echo "after update run first-run..."
     /usr/bin/sk-first-setup --update
     sudo touch $after_update_flag
 fi
 
 # user auto start
-script_dir="$HOME/.config/sk-chos-tool/auto-start"
-if [[ -d $script_dir ]]; then
-    for script in $(ls $script_dir); do
-        if [[ -x "${script_dir}/${script}" ]]; then
-            echo "run ${script_dir}/${script}"
-            exec "${script_dir}/${script}"
-        fi
-    done
+script_dir="$HOME/.config/sk-chos-tool/startup"
+if [[ ! -d $script_dir ]]; then
+    mkdir -p $script_dir
 fi
+for script in $(ls $script_dir); do
+    if [[ -x "${script_dir}/${script}" ]]; then
+        echo "run ${script_dir}/${script}"
+        exec "${script_dir}/${script}"
+    fi
+done
 
 # 如果安装了kde桌面, 根据 $HOME/.config/plasma-localerc 更新 locale.conf
 if pacman -Q | grep -q plasma-desktop; then
@@ -117,7 +119,6 @@ if [[ -f $sarasa_path && ! -f $user_sarasa_path ]]; then
     echo "copy $sarasa_path to $fontconfig_dir"
     cp $sarasa_path $fontconfig_dir
 fi
-
 
 # gamescope-gestures
 gamescope_gestures_conf="$HOME/.config/environment.d/chos-disable-gamescope-gestures.conf"

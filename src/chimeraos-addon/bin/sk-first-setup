@@ -275,14 +275,15 @@ function flatpak_auto_repo() {
 
 function user_setup_after_update() {
     script_dir="$HOME/.config/sk-chos-tool/update"
-    if [[ -d $script_dir ]]; then
-        for script in $(ls $script_dir); do
-            if [[ -x "$script_dir/$script" ]]; then
-                echo "Running $script..."
-                exec "$script_dir/$script" || true
-            fi
-        done
+    if [[ ! -d $script_dir ]]; then
+        mkdir -p $script_dir
     fi
+    for script in $(ls $script_dir); do
+        if [[ -x "$script_dir/$script" ]]; then
+            echo "Running $script..."
+            exec "$script_dir/$script" || true
+        fi
+    done
 }
 
 case $ACTION in
@@ -300,6 +301,7 @@ case $ACTION in
     install_css_theme
     restart_plugin_loader
     device_quirks
+    user_setup_after_update
     flatpak_auto_repo
     ;;
 esac
