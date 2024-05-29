@@ -78,8 +78,9 @@ amd-s2idle-test:
 # Show battery information / 显示电池信息
 battery-info:
     #!/usr/bin/bash
+    battery=$(upower -e | grep 'BAT')
     if [ -x $(command -v upower) ]; then
-      upower -i /org/freedesktop/UPower/devices/battery_BAT0
+      upower -i $battery
     else
       echo "upower is not installed."
     fi
