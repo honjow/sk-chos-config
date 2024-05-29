@@ -74,3 +74,12 @@ amd-s2idle-test:
     else
       echo "amd_s2idle-analysis is not installed."
     fi
+
+# Show battery information / 显示电池信息
+battery-info:
+    #!/usr/bin/bash
+    if [ -x $(command -v upower) ]; then
+      upower -i /org/freedesktop/UPower/devices/battery_BAT0
+    else
+      echo "upower is not installed."
+    fi
