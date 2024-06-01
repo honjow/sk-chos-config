@@ -20,6 +20,10 @@ bios:
 boot-umaf:
     sudo /usr/libexec/boot-umaf
 
+# Boot to EFI Shell / 重启进入 EFI Shell
+boot-efi-shell:
+    sudo /usr/libexec/boot-efi-shell
+
 # Show all messages from this boot / 显示本次启动的所有日志
 logs-this-boot:
     sudo journalctl -b 0

@@ -1,0 +1,71 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root or with sudo."
+    exit 1
+fi
+
+efishell_boot=$(efibootmgr | grep "EFI Shell" | grep "Shell.efi")
+if [ -n "$efishell_boot" ]; then
+    echo "EFI Shell boot entry already exists."
+    exit 0
+fi
+
+set -e
+
+pre_path=/usr/local/share/sk-pre
+
+url="https://github.com/tianocore/edk2/raw/edk2-stable201903/ShellBinPkg/UefiShell/X64/Shell.efi"
+
+temp_dir=$(mktemp -d)
+shell_dir="$temp_dir/EFI/Shell"
+mkdir -p $shell_dir
+
+if [[ -f "$pre_path/Shell.efi" ]]; then
+    echo "Using pre-downloaded Shell.efi..."
+    cp $pre_path/Shell.efi $shell_dir/Shell.efi
+else
+    echo "Downloading Shell.efi..."
+    curl -L $url -o $shell_dir/Shell.efi
+fi
+
+if mountpoint -q /frzr_root/boot; then
+    echo "Copying to /frzr_root/boot..."
+    cp -r $temp_dir/EFI /frzr_root/boot
+else
+    echo "boot partition not mounted"
+    exit 1
+fi
+
+if mount | grep -q " /frzr_root/boot "; then
+    # 获取 /frzr_root/boot 分区的设备路径
+    boot_device=$(df -h /frzr_root/boot | awk 'NR==2 {print $1}')
+elif mount | grep -q " /boot "; then
+    boot_device=$(df -h /boot | awk 'NR==2 {print $1}')
+else
+    echo "No boot partition found."
+    exit 1
+fi
+
+if [ -n "$boot_device" ]; then
+    # 从设备路径中提取磁盘设备路径和分区号
+    disk_device=$(echo $boot_device | sed 's/p\?[0-9]*$//')
+    partition_number=$(echo $boot_device | awk -F '/' '{print $NF}' | sed 's/.*\([0-9]\+\)$/\1/g')
+
+    echo "Creating EFI Shell boot entry..."
+    # 使用 efibootmgr 添加启动项
+    efibootmgr -c -d $disk_device -p $partition_number -L "EFI Shell" -l "\EFI\Shell\Shell.efi"
+    echo ""
+
+    shell_boot=$(efibootmgr | grep "EFI Shell" | grep "Shell.efi" | awk '{print $1}'| sed 's/Boot//' | sed 's/\*//')
+
+    # 调整启动项顺序 将 shell_boot 移动到最后
+    boot_order=$(efibootmgr | grep BootOrder | awk '{print $2}')
+    new_order=$(echo $boot_order | sed "s/$shell_boot//" | sed 's/,,/,/' | sed 's/^,//' | sed 's/,$//')
+    new_order="$new_order,$shell_boot"
+    echo "Setting boot order to: $new_order"
+    efibootmgr -o $new_order
+else
+    echo "Failed to create EFI Shell boot entry."
+    exit 1
+fi

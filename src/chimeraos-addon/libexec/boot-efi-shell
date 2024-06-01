@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -e
+
+# 重试次数
+retry=3
+
+while
+    shell_boot=$(efibootmgr | grep "EFI Shell" | grep "Shell.efi" | awk '{print $1}' | sed 's/Boot//' | sed 's/\*//')
+    [ -z "$shell_boot" ] && [ $retry -gt 0 ]
+do
+    if [ $retry -eq 0 ]; then
+        echo "EFI Shell boot entry not found, creating one failed."
+        exit 1
+    fi
+    echo "EFI Shell boot entry not found, creating one..."
+    /usr/libexec/setup-efi-shell
+    retry=$((retry - 1))
+done
+
+echo "EFI Shell boot entry $shell_boot found, set to next boot..."
+efibootmgr -n $shell_boot
+sleep 1
+echo "Rebooting..."
+reboot
