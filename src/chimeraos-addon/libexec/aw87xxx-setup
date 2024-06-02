@@ -11,6 +11,8 @@ PRODUCT=$(cat "/sys/class/dmi/id/product_name")
 
 AIR_1S_LIST="AIR 1S:AIR 1S Limited"
 
+AW87556_LIST="$AIR_1S_LIST"
+
 sys_symbolic="/usr/lib/firmware/aw87xxx_acf.bin"
 user_symbolic="/etc/device-quirks/firmware/aw87xxx_acf.bin"
 
@@ -18,7 +20,7 @@ if [ ! -d "/etc/device-quirks/firmware/" ]; then
     mkdir -p "/etc/device-quirks/firmware/"
 fi
 
-if [[ ":$AIR_1S_LIST:" =~ ":$PRODUCT:" ]]; then
+if [[ ":$AW87556_LIST:" =~ ":$PRODUCT:" ]]; then
     real_path="/usr/lib/firmware/aw87xxx/aw87556/awinic_smartk_acf.bin"
 fi
 

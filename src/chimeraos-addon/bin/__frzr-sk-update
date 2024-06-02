@@ -8,19 +8,4 @@ if [ "$EUID" -eq 0 ]; then
     exit 1
 fi
 
-if [ -x "$(command -v sk-unlock-pacman)" ]; then
-    sudo sk-unlock-pacman
-fi
-
-pkgname=frzr-sk
-
-temp_dir=$(mktemp -d)
-
-mkdir -p $temp_dir/$pkgname
-cd $temp_dir/$pkgname
-
-curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/aur-pkgs/${pkgname}/PKGBUILD" -o PKGBUILD
-
-PKGDEST=$(pwd) pikaur --noconfirm --rebuild -P PKGBUILD
-
-sudo pacman -U --noconfirm *.pkg.tar.zst --overwrite "*" --needed
+curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/install/install-frzr-sk.sh" | sh

@@ -8,29 +8,4 @@ if [ "$EUID" -eq 0 ]; then
     exit 1
 fi
 
-if [ -x "$(command -v sk-unlock-pacman)" ]; then
-    sudo sk-unlock-pacman
-fi
-
-hhd_path="/usr/bin/hhd"
-# LANG=en_US pacman -Qo $hhd_path
-hhd_owner_package=$(LANG=en_US pacman -Qo $hhd_path 2>/dev/null | awk '{print $5}')
-
-pkgname=${hhd_owner_package:-"hhd"}
-
-# if pkgname equals to hhd
-if [ "$pkgname" == "hhd" ]; then
-    yay -Sy hhd --noconfirm --needed --overwrite "*"
-    exit 0
-fi
-
-temp_dir=$(mktemp -d)
-
-mkdir -p $temp_dir/$pkgname
-cd $temp_dir/$pkgname
-
-curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/aur-pkgs/${pkgname}/PKGBUILD" -o PKGBUILD
-
-PKGDEST=$(pwd) pikaur --noconfirm --rebuild -P PKGBUILD
-
-sudo pacman -U --noconfirm *.pkg.tar.zst --overwrite "*" --needed
+curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/install/install-hhd.sh" | sh

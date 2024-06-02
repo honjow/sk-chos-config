@@ -8,21 +8,4 @@ if [ "$EUID" -eq 0 ]; then
     exit 1
 fi
 
-# /usr/bin/sk-unlock-pacman
-if [ -x "$(command -v sk-unlock-pacman)" ]; then
-    sudo sk-unlock-pacman
-fi
-
-pkgname=gamescope-session-git
-
-temp_dir=$(mktemp -d)
-
-mkdir -p $temp_dir/$pkgname
-cd $temp_dir/$pkgname
-
-curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/aur-pkgs/${pkgname}/PKGBUILD" -o PKGBUILD
-curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/aur-pkgs/${pkgname}/gamescope-session.install" -o gamescope-session.install
-
-PKGDEST=$(pwd) pikaur --noconfirm --rebuild -P PKGBUILD
-
-sudo pacman -U --noconfirm *.pkg.tar.zst --overwrite "*"
+curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/install/install-gamescope-session.sh" | sh
