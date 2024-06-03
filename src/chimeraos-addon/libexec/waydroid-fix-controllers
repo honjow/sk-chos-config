@@ -2,4 +2,4 @@
 
 # from https://github.com/ublue-os/bazzite/blob/main/system_files/desktop/shared/usr/libexec/waydroid-fix-controllers
 
-sudo /usr/bin/bash -c 'echo add > /sys/devices/virtual/input/input*/event*/uevent'
+echo "add" | sudo tee /sys/devices/virtual/input/input*/event*/uevent
