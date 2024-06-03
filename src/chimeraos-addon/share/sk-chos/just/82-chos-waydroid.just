@@ -15,7 +15,7 @@ setup-waydroid ACTION="":
       echo "  Use 'init' to select Initialize Waydroid / 初始化 Waydroid"
       echo "  Use 'configure' to select Configure Waydroid / 配置 Waydroid"
       echo "  Use 'gpu' to choose Select GPU for Waydroid / 选择 GPU"
-      echo "  Use 'integration' to enable desktop window integration for Waydroid / 启用 Waydroid 的桌面窗口集成"
+      echo "  Use 'integration' to toggle desktop window integration for Waydroid / 切换 Waydroid 的桌面窗口集成"
       echo "  Use 'reset' to select Configure Waydroid / 重置 Waydroid"
       echo "  Use 'add-to-steam' to add Waydroid to Steam / 添加 Waydroid 到 Steam"
       exit 0
@@ -25,7 +25,7 @@ setup-waydroid ACTION="":
         "Initialize Waydroid / 初始化Waydroid" \
         "Configure Waydroid / 配置Waydroid" \
         "Select GPU for Waydroid / 选择 GPU" \
-        "Enable Desktop Window Integration / 启用桌面窗口集成" \
+        "Toggle Desktop Window Integration / 切换桌面窗口集成" \
         "Reset Waydroid / 重置 Waydroid" \
         "Add Waydroid to Steam / 添加 Waydroid 到 Steam (会重启 Steam)" \
         )
@@ -39,7 +39,14 @@ setup-waydroid ACTION="":
     elif [[ "${OPTION,,}" =~ gpu ]]; then
       sudo /usr/bin/waydroid-choose-gpu
     elif [[ "${OPTION,,}" =~ integration ]]; then
-      waydroid prop set persist.waydroid.multi_windows true
+      current=$(waydroid prop get persist.waydroid.multi_windows)
+      if [[ "$current" == "true" ]]; then
+        waydroid prop set persist.waydroid.multi_windows false
+        echo "Waydroid Desktop Window Integration has been disabled"
+      else
+        waydroid prop set persist.waydroid.multi_windows true
+        echo "Waydroid Desktop Window Integration has been enabled"
+      fi
     elif [[ "${OPTION,,}" =~ ^reset ]]; then
       echo "Resetting Waydroid"
       bash -c 'sudo rm -rf /var/lib/waydroid /home/.waydroid ~/waydroid ~/.share/waydroid ~/.local/share/applications/*aydroid* ~/.local/share/waydroid'
