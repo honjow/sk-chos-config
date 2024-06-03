@@ -7,6 +7,7 @@ alias configure-waydroid := setup-waydroid
 # Launch Waydroid configuration helper
 setup-waydroid ACTION="":
     #!/usr/bin/bash
+    set -eu
     source /usr/lib/cjust/cjust.sh
     OPTION={{ ACTION }}
     if [ "$OPTION" == "help" ]; then
