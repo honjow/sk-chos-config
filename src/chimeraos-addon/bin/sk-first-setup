@@ -74,6 +74,8 @@ HHD_SUPPORT_LIST="${LGO_LIST}:${ROG_LIST}:${GPD_LIST}:${AYA_LIST}:${AOKZOE_LIST}
 LED_LIST="AIR Plus:AYANEO 2:AYANEO 2S:GEEK:GEEK 1S:AIR:AIR Pro:AIR 1S:AIR 1S Limited:SLIDE:G1618-04"
 LED_PATH="/sys/class/leds/multicolor:chassis/"
 
+LED_VENDOR_LIST="ONE-NETBOOK:ONE-NETBOOK TECHNOLOGY CO., LTD.:AOKZOE"
+
 function install_decky() {
     # install decky from local
     if [[ -f $decky_file ]]; then
@@ -141,6 +143,10 @@ function compare_version() {
 function copy_plugin() {
     local name=$1
 
+    if [[ ! -d "${HOMEBREW_FOLDER}/plugins" ]]; then
+        mkdir -p "${HOMEBREW_FOLDER}/plugins"
+    fi
+
     case $name in
     "PowerControl")
         if [[ $CPU_MATCH == true ]]; then
@@ -149,7 +155,7 @@ function copy_plugin() {
         fi
         ;;
     "HueSync")
-        if [[ "${LED_LIST}:" =~ ":${PRODUCT}:" && -d "${LED_PATH}" && "${PRODUCT}" != "G1618-04" ]]; then
+        if [[ ":${LED_LIST}:" =~ ":${PRODUCT}:" && "${PRODUCT}" != "G1618-04" ]] || [[ -d "${LED_PATH}" ]] || [[ ":${LED_VENDOR_LIST}:" =~ ":${VENDOR}:" ]]; then
             echo "Copying HueSync plugin..."
             cp -rf $decky_plugin_path/$name "${HOMEBREW_FOLDER}/plugins"
         fi
