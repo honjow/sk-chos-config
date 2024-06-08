@@ -155,7 +155,10 @@ function copy_plugin() {
         fi
         ;;
     "HueSync")
-        if [[ ":${LED_LIST}:" =~ ":${PRODUCT}:" && "${PRODUCT}" != "G1618-04" ]] || [[ -d "${LED_PATH}" ]] || [[ ":${LED_VENDOR_LIST}:" =~ ":${VENDOR}:" ]]; then
+        if [[ ":${LED_LIST}:" =~ ":${PRODUCT}:" && "${PRODUCT}" != "G1618-04" ]] ||
+            [[ -d "${LED_PATH}" ]] ||
+            [[ "${PRODUCT}" =~ "ROG Ally RC71L" ]] ||
+            [[ ":${LED_VENDOR_LIST}:" =~ ":${VENDOR}:" ]]; then
             echo "Copying HueSync plugin..."
             cp -rf $decky_plugin_path/$name "${HOMEBREW_FOLDER}/plugins"
         fi
