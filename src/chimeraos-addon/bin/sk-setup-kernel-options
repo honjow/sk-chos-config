@@ -6,7 +6,7 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-set -e
+set -euo pipefail
 
 # reboot flag
 if [[ "$1" == "--reboot" ]]; then
@@ -51,7 +51,7 @@ if efibootmgr | grep "Linux Boot Manager" | grep -iq "systemd-bootx64.efi"; then
 else
     # Linux Boot Manager 不存在，添加
     echo "Linux Boot Manager not exists, add it"
-    /usr/bin/sk-chos-boot-fix 2>/dev/null
+    /usr/bin/sk-chos-boot-fix || true
 fi
 
 # swap uuid
@@ -79,7 +79,7 @@ if [[ -n "${SWAP_PARTUUID}" ]]; then
     systemctl disable --now $MK_SWAPFILE_SERVICE
     systemctl disable --now $SWAP_FILE_SERVICE
 
-    rm -f /frzr_root/swap/swapfile 2>/dev/null
+    rm -f /frzr_root/swap/swapfile || true
 
 elif [[ -n "${RESUME_OFFSET}" ]]; then
     echo "RESUME_OFFSET 非空, 启动swap服务, 添加到内核参数"
