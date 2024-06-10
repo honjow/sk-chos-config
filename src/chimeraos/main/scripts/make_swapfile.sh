@@ -12,4 +12,4 @@ sk-mkswapfile
 # swapon
 swapon $swapfile_path
 
-sk-update-boot-entry
+sk-setup-kernel-options
