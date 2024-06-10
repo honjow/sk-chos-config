@@ -25,7 +25,7 @@ get_conf_value() {
     while IFS= read -r line || [[ -n $line ]]; do
         # Remove leading and trailing whitespace
         line=$(echo "$line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-        
+
         # Check if the line is a comment or empty
         if [[ $line == \#* ]] || [[ -z $line ]]; then
             continue
@@ -85,6 +85,15 @@ fi
 
 sudo frzr-unlock
 
+echo "update frzr-sk"
+/usr/bin/__frzr-sk-update
+
+echo "update device-quirks"
+/usr/bin/__device-quirks-update
+
+echo "update gamescope-session"
+/usr/bin/__gamescope-session-update
+
 if [ -x "$(command -v sk-unlock-pacman)" ]; then
     sudo sk-unlock-pacman
 fi
@@ -108,14 +117,5 @@ if [[ "$hhd_status" == "enabled" && "$update_hhd" != "false" ]]; then
     echo "update hhd"
     /usr/bin/__hhd-update
 fi
-
-echo "update frzr-sk"
-/usr/bin/__frzr-sk-update
-
-echo "update device-quirks"
-/usr/bin/__device-quirks-update
-
-echo "update gamescope-session"
-/usr/bin/__gamescope-session-update
 
 echo "All done!"
