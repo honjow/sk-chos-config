@@ -6,7 +6,7 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-set -euo pipefail
+set -eo pipefail
 
 # reboot flag
 if [[ "$1" == "--reboot" ]]; then
