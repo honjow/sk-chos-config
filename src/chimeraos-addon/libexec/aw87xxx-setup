@@ -11,7 +11,7 @@ PRODUCT=$(cat "/sys/class/dmi/id/product_name")
 
 AIR_1S_LIST="AIR 1S:AIR 1S Limited"
 
-AW87556_LIST="$AIR_1S_LIST"
+AW87559_LIST="$AIR_1S_LIST"
 
 sys_symbolic="/usr/lib/firmware/aw87xxx_acf.bin"
 user_symbolic="/etc/device-quirks/firmware/aw87xxx_acf.bin"
@@ -20,14 +20,15 @@ if [ ! -d "/etc/device-quirks/firmware/" ]; then
     mkdir -p "/etc/device-quirks/firmware/"
 fi
 
-if [[ ":$AW87556_LIST:" =~ ":$PRODUCT:" ]]; then
-    real_path="/usr/lib/firmware/aw87xxx/aw87556/awinic_smartk_acf.bin"
+aw87559_firmware="/usr/lib/firmware/aw87xxx/aw87559/awinic_smartk_acf.bin"
+if [[ ":$AW87559_LIST:" =~ ":$PRODUCT:" && -e "$aw87559_firmware" ]]; then
+    real_path="$aw87559_firmware"
 fi
 
 
-if [ -L "$user_symbolic" ]; then
+if [[ -L "$user_symbolic" && -n "$real_path" ]]; then
     current_real_path=$(readlink -f "$user_symbolic")
-    if [ "$current_real_path" != "$real_path" ]; then
+    if [[ "$current_real_path" != "$real_path" ]]; then
         echo "Remove old link $user_symbolic, and create new link to $real_path"
         rm -f "$user_symbolic"
         ln -sf "$real_path" "$user_symbolic"
