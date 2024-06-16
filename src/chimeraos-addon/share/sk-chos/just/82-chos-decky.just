@@ -4,7 +4,7 @@
 decky-install:
     #!/bin/bash
     echo "Installing Decky..."
-    curl -sLk https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/install_release.sh | sed \'s#prerelease == "false"#prerelease == "true"#\' | sh
+    curl -sLk https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/install_release.sh | sed 's#| select(.prerelease == "false")##' | sh
 
 # 使用国内镜像安装 Decky
 decky-install-cn:
