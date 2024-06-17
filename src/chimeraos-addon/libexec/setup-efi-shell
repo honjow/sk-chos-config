@@ -60,7 +60,7 @@ if [ -n "$boot_device" ]; then
     shell_boot=$(efibootmgr | grep "EFI Shell" | grep "Shell.efi" | awk '{print $1}'| sed 's/Boot//' | sed 's/\*//')
 
     # 调整启动项顺序 将 shell_boot 移动到最后
-    boot_order=$(efibootmgr | grep BootOrder | awk '{print $2}')
+    boot_order=$(efibootmgr | grep ^BootOrder | awk '{print $2}')
     new_order=$(echo $boot_order | sed "s/$shell_boot//" | sed 's/,,/,/' | sed 's/^,//' | sed 's/,$//')
     new_order="$new_order,$shell_boot"
     echo "Setting boot order to: $new_order"
