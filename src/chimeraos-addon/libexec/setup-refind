@@ -114,6 +114,9 @@ function setup_refind() {
 
     set_all_config $refind_dir $theme_conf_option
     set_boot_config $refind_dir $icon_option
+
+    efibootmgr -N
+
     echo "rEFInd setup complete."
 }
 
