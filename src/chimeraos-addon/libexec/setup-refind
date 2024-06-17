@@ -40,8 +40,8 @@ function install_refind() {
     if [ -f "/boot/refind_linux.conf" ]; then
         rm -f "/boot/refind_linux.conf"
     fi
-    if [ ! -f "$boot_mountpoint/refind.conf-sample" ]; then
-        cp /usr/share/refind/refind.conf-sample "$boot_mountpoint/refind.conf-sample"
+    if [ ! -f "$boot_mountpoint/EFI/refind/refind.conf-sample" ]; then
+        cp /usr/share/refind/refind.conf-sample "$boot_mountpoint/EFI/refind/refind.conf-sample"
     fi
 }
 
