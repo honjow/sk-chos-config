@@ -16,65 +16,65 @@ nix_path=/nix
 mount_path=/frzr_root
 nix_frzr_path=$mount_path/nix
 
-function check_mount() {
+# function check_mount() {
 
-    # check nix subvolume
-    if [ ! -d "$nix_frzr_path" ]; then
-        echo "nix subvolume not found, creating..."
-        sudo btrfs subvolume create $nix_frzr_path
-    else
-        # check if subvolume exists
-        if sudo btrfs subvolume show $nix_frzr_path; then
-            echo "nix subvolume found"
-        else
-            echo "$nix_frzr_path exists but is not a Btrfs subvolume."
-            sudo rm -rf $nix_frzr_path
-            sudo btrfs subvolume create $nix_frzr_path
-        fi
-    fi
+#     # check nix subvolume
+#     if [ ! -d "$nix_frzr_path" ]; then
+#         echo "nix subvolume not found, creating..."
+#         sudo btrfs subvolume create $nix_frzr_path
+#     else
+#         # check if subvolume exists
+#         if sudo btrfs subvolume show $nix_frzr_path; then
+#             echo "nix subvolume found"
+#         else
+#             echo "$nix_frzr_path exists but is not a Btrfs subvolume."
+#             sudo rm -rf $nix_frzr_path
+#             sudo btrfs subvolume create $nix_frzr_path
+#         fi
+#     fi
 
-    # check fstab
-    if grep -q $nix_path /etc/fstab; then
-        echo "fstab entry found"
-    else
-        echo "fstab entry not found, adding..."
-        echo "LABEL=frzr_root /nix       btrfs subvol=nix,rw,noatime,nodatacow,nofail 0 0" | sudo tee -a /etc/fstab
-    fi
+#     # check fstab
+#     if grep -q $nix_path /etc/fstab; then
+#         echo "fstab entry found"
+#     else
+#         echo "fstab entry not found, adding..."
+#         echo "LABEL=frzr_root /nix       btrfs subvol=nix,rw,noatime,nodatacow,nofail 0 0" | sudo tee -a /etc/fstab
+#     fi
 
-    # mount
-    if mount | grep -q $nix_path; then
-        echo "nix already mounted"
-    else
-        echo "nix not mounted, mounting..."
-        sudo mount -a
-    fi
-}
+#     # mount
+#     if mount | grep -q $nix_path; then
+#         echo "nix already mounted"
+#     else
+#         echo "nix not mounted, mounting..."
+#         sudo mount -a
+#     fi
+# }
 
-function restore_btrfs_subvol() {
-    # check nix subvolume
-    if [ ! -d "$nix_frzr_path" ]; then
-        echo "nix path not found, skip..."
-    else
-        # check if subvolume exists
-        if sudo btrfs subvolume show $nix_frzr_path; then
-            echo "nix subvolume found"
-            sudo btrfs subvolume delete $nix_frzr_path
-        else
-            echo "$nix_frzr_path exists but is not a Btrfs subvolume."
-            sudo rm -rf $nix_frzr_path
-        fi
-    fi
+# function restore_btrfs_subvol() {
+#     # check nix subvolume
+#     if [ ! -d "$nix_frzr_path" ]; then
+#         echo "nix path not found, skip..."
+#     else
+#         # check if subvolume exists
+#         if sudo btrfs subvolume show $nix_frzr_path; then
+#             echo "nix subvolume found"
+#             sudo btrfs subvolume delete $nix_frzr_path
+#         else
+#             echo "$nix_frzr_path exists but is not a Btrfs subvolume."
+#             sudo rm -rf $nix_frzr_path
+#         fi
+#     fi
 
-    sudo sed -i "/LABEL=frzr_root \/nix/d" /etc/fstab
+#     sudo sed -i "/LABEL=frzr_root \/nix/d" /etc/fstab
 
-    # check mount
-    if mount | grep -q $nix_path; then
-        echo "nix mounted, unmounting..."
-        sudo umount $nix_path
-    else
-        echo "nix not mounted, skip..."
-    fi
-}
+#     # check mount
+#     if mount | grep -q $nix_path; then
+#         echo "nix mounted, unmounting..."
+#         sudo umount $nix_path
+#     else
+#         echo "nix not mounted, skip..."
+#     fi
+# }
 
 function bind_mount() {
     sudo systemctl enable sk-bind-mount.service
@@ -100,7 +100,7 @@ function install_nix() {
     sudo mkdir -p $nix_path
 
     # check_mount
-    restore_btrfs_subvol
+    # restore_btrfs_subvol
 
     bind_mount
 
