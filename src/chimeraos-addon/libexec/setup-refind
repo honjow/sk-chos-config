@@ -1,0 +1,118 @@
+#!/bin/bash
+
+set -e
+
+ACTION=$1
+
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root or with sudo."
+    exit 1
+fi
+
+boot_mountpoint=""
+if mountpoint -q /efi; then
+    boot_mountpoint="/efi"
+elif mountpoint -q /boot; then
+    boot_mountpoint="/boot"
+elif mountpoint -q /frzr_root/boot; then
+    boot_mountpoint="/frzr_root/boot"
+else
+    echo "No boot partition found."
+    exit 1
+fi
+
+if [[ "$boot_mountpoint" == "/frzr_root/boot" ]]; then
+    device=$(findmnt -n -o SOURCE --target /frzr_root/boot)
+    mount $device /boot
+    boot_mountpoint="/boot"
+fi
+
+function install_refind() {
+    if [ -x "$(command -v refind-install)" ]; then
+        refind-install
+    else
+        echo "rEFInd is not installed."
+        exit 1
+    fi
+    if [ -f "$boot_mountpoint/refind_linux.conf" ]; then
+        rm -f "$boot_mountpoint/refind_linux.conf"
+    fi
+    if [ -f "/boot/refind_linux.conf" ]; then
+        rm -f "/boot/refind_linux.conf"
+    fi
+    if [ ! -f "$boot_mountpoint/refind.conf-sample" ]; then
+        cp /usr/share/refind/refind.conf-sample "$boot_mountpoint/refind.conf-sample"
+    fi
+}
+
+function uninstall_refind() {
+
+}
+
+function set_all_config() {
+    local theme_conf=$1
+    local theme_option=''
+    if [ -n "$theme_conf" ]; then
+        theme_option="include $theme_conf"
+    fi
+    if [ -f "$boot_mountpoint/refind.conf" ]; then
+        mv "$boot_mountpoint/refind.conf" "$boot_mountpoint/refind.conf.bak"
+    fi
+
+    cat >"$boot_mountpoint/refind.conf" <<-EOF
+timeout 5
+use_nvram false
+dont_scan_dirs ESP:/EFI/boot,EFI/systemd
+scan_all_linux_kernels false
+
+include sk-chimeraos.conf
+$theme_option
+EOF
+}
+
+function set_boot_config() {
+    icon=${1:-"EFI/refind/icons/os_arch.png"}
+    cat >"$boot_mountpoint/sk-chimeraos.conf" <<-EOF
+menuentry "ChimeraOS" {
+    icon     $icon
+    loader   EFI/systemd/systemd-bootx64.efi
+}
+EOF
+}
+
+function setup_refind() {
+    src_theme_path="/usr/local/share/sk-pre/refind/refind-theme-regular"
+    dst_theme_path="$boot_mountpoint/EFI/refind/themes/refind-theme-regular"
+    if [[ -f "$src_theme_path/theme.conf" && -d "$mountpoint/EFI/refind" ]]; then
+        mkdir -p $dst_theme_path
+        cp -r "$src_theme_path"/* "$dst_theme_path"
+    fi
+
+    # Set the theme
+    theme_conf_option=""
+    icon_option=""
+    if [ -f "$dst_theme_path/theme.conf" ]; then
+        theme_conf_option="themes/refind-theme-regular/theme.conf"
+        icon_option="EFI/refind/themes/refind-theme-regular/icons/128-48/os_steam.png"
+    fi
+
+    set_all_config $theme_conf_option
+    set_boot_config $icon_option
+}
+
+case $ACTION in
+install)
+    install_refind
+    setup_refind
+    ;;
+uninstall)
+    uninstall_refind
+    ;;
+setup)
+    setup_refind
+    ;;
+*)
+    echo "Invalid action. usage: $0 [install|uninstall|setup]"
+    exit 1
+    ;;
+esac
