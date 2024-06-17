@@ -76,6 +76,10 @@ function set_boot_config() {
     local refind_dir=$1
     local icon=${2:-"EFI/refind/icons/os_arch.png"}
 
+    if [ -f "$refind_dir/sk-chimeraos.conf" ]; then
+        mv "$refind_dir/sk-chimeraos.conf" "$refind_dir/sk-chimeraos.conf.bak"
+    fi
+
     cat >"$refind_dir/sk-chimeraos.conf" <<-EOF
 menuentry "ChimeraOS" {
     icon     $icon
@@ -88,6 +92,8 @@ function setup_refind() {
     src_theme_path="/usr/local/share/sk-pre/refind/refind-theme-regular"
     dst_theme_path="$boot_mountpoint/EFI/refind/themes/refind-theme-regular"
     if [[ -f "$src_theme_path/theme.conf" && -d "$mountpoint/EFI/refind" ]]; then
+        echo "Copying theme to $dst_theme_path"
+        mkdir -p "$boot_mountpoint/EFI/refind/themes"
         mkdir -p $dst_theme_path
         cp -r "$src_theme_path"/* "$dst_theme_path"
     fi
