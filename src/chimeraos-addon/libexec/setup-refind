@@ -72,7 +72,9 @@ function set_all_config() {
 timeout 5
 use_nvram false
 dont_scan_dirs ESP:/EFI/boot,EFI/systemd
+dont_scan_files DisplayEngine.efi,SetupBrowser.efi,UiApp.efi,umaf.efi
 scan_all_linux_kernels false
+write_systemd_vars true
 
 include sk-chimeraos.conf
 $theme_option
