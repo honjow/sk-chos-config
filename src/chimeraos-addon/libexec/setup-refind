@@ -89,14 +89,7 @@ EOF
 }
 
 function setup_refind() {
-    src_theme_path="/usr/local/share/sk-pre/refind/refind-theme-regular"
-    dst_theme_path="$boot_mountpoint/EFI/refind/themes/refind-theme-regular"
-    if [[ -f "$src_theme_path/theme.conf" && -d "$boot_mountpoint/EFI/refind" ]]; then
-        echo "Copying theme to $dst_theme_path"
-        mkdir -p "$boot_mountpoint/EFI/refind/themes"
-        mkdir -p $dst_theme_path
-        cp -r "$src_theme_path"/* "$dst_theme_path"
-    fi
+    copy_refind_theme_regular
 
     refind_dir="$boot_mountpoint/EFI/refind"
     if [ ! -d "$refind_dir" ]; then
@@ -107,14 +100,35 @@ function setup_refind() {
     # Set the theme
     theme_conf_option=""
     icon_option=""
-    if [ -f "$dst_theme_path/theme.conf" ]; then
-        theme_conf_option="themes/refind-theme-regular/theme.conf"
+    if [ -f "$dst_theme_path/theme_dark.conf" ]; then
+        theme_conf_option="themes/refind-theme-regular/theme_dark.conf"
         icon_option="EFI/refind/themes/refind-theme-regular/icons/128-48/os_steam.png"
     fi
 
     set_all_config $refind_dir $theme_conf_option
     set_boot_config $refind_dir $icon_option
     echo "rEFInd setup complete."
+}
+
+function copy_refind_theme_regular() {
+    src_theme_path="/usr/local/share/sk-pre/refind/refind-theme-regular"
+    dst_theme_path="$boot_mountpoint/EFI/refind/themes/refind-theme-regular"
+    if [[ -f "$src_theme_path/theme.conf" && -d "$boot_mountpoint/EFI/refind" ]]; then
+        echo "Copying theme to $dst_theme_path"
+        mkdir -p "$boot_mountpoint/EFI/refind/themes"
+        mkdir -p $dst_theme_path
+        cp -r "$src_theme_path"/* "$dst_theme_path"
+    fi
+
+    cat >"$dst_theme_path/theme_dark.conf" <<-EOF
+icons_dir themes/refind-theme-regular/icons/128-48
+big_icon_size 128
+banner themes/refind-theme-regular/icons/128-48/bg_dark.png
+selection_big themes/refind-theme-regular/icons/128-48/selection_dark-big.png
+selection_small themes/refind-theme-regular/icons/128-48/selection_dark-small.png
+font themes/refind-theme-regular/fonts/source-code-pro-extralight-14.png
+EOF
+
 }
 
 case $ACTION in
