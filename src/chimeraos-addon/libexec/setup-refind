@@ -91,7 +91,7 @@ EOF
 function setup_refind() {
     src_theme_path="/usr/local/share/sk-pre/refind/refind-theme-regular"
     dst_theme_path="$boot_mountpoint/EFI/refind/themes/refind-theme-regular"
-    if [[ -f "$src_theme_path/theme.conf" && -d "$mountpoint/EFI/refind" ]]; then
+    if [[ -f "$src_theme_path/theme.conf" && -d "$boot_mountpoint/EFI/refind" ]]; then
         echo "Copying theme to $dst_theme_path"
         mkdir -p "$boot_mountpoint/EFI/refind/themes"
         mkdir -p $dst_theme_path
@@ -114,6 +114,7 @@ function setup_refind() {
 
     set_all_config $refind_dir $theme_conf_option
     set_boot_config $refind_dir $icon_option
+    echo "rEFInd setup complete."
 }
 
 case $ACTION in
