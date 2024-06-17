@@ -16,9 +16,9 @@ setup-refind ACTION="":
     elif [ "$OPTION" == "" ]; then
       echo "${bold}rEFInd Setup${normal}"
       OPTION=$(Choose \
-        "安装并配置 rEFInd" \
-        "更新 rEFInd 配置" \
-        "卸载 rEFInd" \
+        "install - 安装并配置 rEFInd" \
+        "setup - 更新 rEFInd 配置" \
+        "uninstall - 卸载 rEFInd" \
         )
     fi
     if [[ "${OPTION,,}" =~ ^install ]]; then
