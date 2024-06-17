@@ -95,6 +95,6 @@ mkswapfile /frzr_root/swap/swapfile "$swapfile_size"GiB
 # 启用swapfile
 swapon /frzr_root/swap/swapfile || true
 
-if [ -x "$(command -v sk-update-boot-entry)" ]; then
-    sk-update-boot-entry
+if [ -x "$(command -v sk-setup-kernel-options)" ]; then
+    sk-setup-kernel-options
 fi

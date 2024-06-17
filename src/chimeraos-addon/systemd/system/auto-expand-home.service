@@ -1,6 +1,6 @@
 [Unit]
 Description=Home Partition Resize
-Before=frzr_swap-swap-swapfile.swap sk-update-boot-entry.service
+Before=frzr_swap-swap-swapfile.swap sk-setup-kernel-options.service
 
 [Service]
 #Type=oneshot
