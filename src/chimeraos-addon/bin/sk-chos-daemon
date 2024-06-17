@@ -46,8 +46,8 @@ fi
 
 # WAYDROID FIX
 if [[ -f "/var/lib/waydroid/lxc/waydroid/config" ]]; then
-  echo "Removing unneeded apparmor entry from Waydroid LXC"
-  sed -i '/lxc\.apparmor\.profile\s*=\s*unconfined/d' "/var/lib/waydroid/lxc/waydroid/config"
+    echo "Removing unneeded apparmor entry from Waydroid LXC"
+    sed -i '/lxc\.apparmor\.profile\s*=\s*unconfined/d' "/var/lib/waydroid/lxc/waydroid/config"
 fi
 
 # set hibernatemode
@@ -63,4 +63,15 @@ fi
 # setup aw87xxx
 if [ -x "/usr/libexec/aw87xxx-setup" ]; then
     /usr/libexec/aw87xxx-setup
+fi
+
+# fstab
+DEPLOYMENT=$(frzr-release)
+fstab_path="/frzr_root/etc/fstab"
+deplayment_fstab_path="/frzr_root/deployments/${DEPLOYMENT}/etc/fstab"
+# 如果内容相同 删除 fstab_path
+if [[ -f "$fstab_path" && -f "$deplayment_fstab_path" ]]; then
+    if "$(echo $(cat $deplayment_fstab_path 2>/dev/null))" == "$(echo $(cat $fstab_path 2>/dev/null))"; then
+        rm -f "$fstab_path"
+    fi
 fi
