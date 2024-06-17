@@ -71,7 +71,7 @@ fstab_path="/frzr_root/etc/fstab"
 deplayment_fstab_path="/frzr_root/deployments/${DEPLOYMENT}/etc/fstab"
 # 如果内容相同 删除 fstab_path
 if [[ -f "$fstab_path" && -f "$deplayment_fstab_path" ]]; then
-    if "$(echo $(cat $deplayment_fstab_path 2>/dev/null))" == "$(echo $(cat $fstab_path 2>/dev/null))"; then
+    if echo $(cat $deplayment_fstab_path 2>/dev/null) | grep -q "$(cat $fstab_path 2>/dev/null)"; then
         rm -f "$fstab_path"
     fi
 fi
