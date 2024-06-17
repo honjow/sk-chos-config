@@ -46,20 +46,22 @@ function install_refind() {
 }
 
 function uninstall_refind() {
-
+    :
 }
 
 function set_all_config() {
-    local theme_conf=$1
+    local refind_dir=$1
+    local theme_conf=$2
     local theme_option=''
     if [ -n "$theme_conf" ]; then
         theme_option="include $theme_conf"
     fi
-    if [ -f "$boot_mountpoint/refind.conf" ]; then
-        mv "$boot_mountpoint/refind.conf" "$boot_mountpoint/refind.conf.bak"
+
+    if [ -f "$refind_dir/refind.conf" ]; then
+        mv "$refind_dir/refind.conf" "$refind_dir/refind.conf.bak"
     fi
 
-    cat >"$boot_mountpoint/refind.conf" <<-EOF
+    cat >"$refind_dir/refind.conf" <<-EOF
 timeout 5
 use_nvram false
 dont_scan_dirs ESP:/EFI/boot,EFI/systemd
@@ -71,8 +73,10 @@ EOF
 }
 
 function set_boot_config() {
-    icon=${1:-"EFI/refind/icons/os_arch.png"}
-    cat >"$boot_mountpoint/sk-chimeraos.conf" <<-EOF
+    local refind_dir=$1
+    local icon=${2:-"EFI/refind/icons/os_arch.png"}
+
+    cat >"$refind_dir/sk-chimeraos.conf" <<-EOF
 menuentry "ChimeraOS" {
     icon     $icon
     loader   EFI/systemd/systemd-bootx64.efi
@@ -88,6 +92,12 @@ function setup_refind() {
         cp -r "$src_theme_path"/* "$dst_theme_path"
     fi
 
+    refind_dir="$boot_mountpoint/EFI/refind"
+    if [ ! -d "$refind_dir" ]; then
+        echo "rEFInd boot directory not found."
+        exit 1
+    fi
+
     # Set the theme
     theme_conf_option=""
     icon_option=""
@@ -96,8 +106,8 @@ function setup_refind() {
         icon_option="EFI/refind/themes/refind-theme-regular/icons/128-48/os_steam.png"
     fi
 
-    set_all_config $theme_conf_option
-    set_boot_config $icon_option
+    set_all_config $refind_dir $theme_conf_option
+    set_boot_config $refind_dir $icon_option
 }
 
 case $ACTION in
