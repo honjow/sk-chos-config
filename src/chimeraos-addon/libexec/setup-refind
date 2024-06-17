@@ -46,7 +46,14 @@ function install_refind() {
 }
 
 function uninstall_refind() {
-    :
+    boot=$(efibootmgr | grep "rEFInd Boot Manager" | grep -i "REFIND_X64.EFI" | awk '{print $1}'| sed 's/Boot//' | sed 's/\*//')
+    if [ -n "$boot" ]; then
+        efibootmgr -b $boot -B
+    fi
+    if [ -d "$boot_mountpoint/EFI/refind" ]; then
+        rm -rf "$boot_mountpoint/EFI/refind"
+    fi
+    echo "rEFInd uninstalled."
 }
 
 function set_all_config() {
