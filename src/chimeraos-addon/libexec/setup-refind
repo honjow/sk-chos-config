@@ -71,7 +71,7 @@ function set_all_config() {
     cat >"$refind_dir/refind.conf" <<-EOF
 timeout 5
 use_nvram false
-dont_scan_dirs frzr_efi:EFI/boot,EFI/systemd,EFI/UMAF,EFI/Shell
+dont_scan_dirs frzr_efi:EFI/boot,EFI/systemd,EFI/UMAF,EFI/Shell/
 dont_scan_files DisplayEngine.efi,SetupBrowser.efi,UiApp.efi,umaf.efi,modelist.efi
 scan_all_linux_kernels false
 write_systemd_vars true
@@ -97,8 +97,20 @@ menuentry "ChimeraOS" {
 EOF
 }
 
+function setup_refind_tool() {
+    refind_tool_dir="$boot_mountpoint/EFI/tools"
+    if [ ! -d "$refind_tool_dir" ]; then
+        mkdir -p "$refind_tool_dir"
+    fi
+
+    if [ -f $boot_mountpoint/EFI/Shell/*.efi ]; then
+        cp $boot_mountpoint/EFI/Shell/*.efi $refind_tool_dir
+    fi
+}
+
 function setup_refind() {
     copy_refind_theme_regular
+    setup_refind_tool
 
     refind_dir="$boot_mountpoint/EFI/refind"
     if [ ! -d "$refind_dir" ]; then
