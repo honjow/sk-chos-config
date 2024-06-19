@@ -73,26 +73,35 @@ quiet-boot-disable:
 # Disable swipe gestures for QAM and HOME / 禁用游戏模式的侧边滑动手势
 disable-swipe-gestures:
     #!/usr/bin/bash
-    echo "disabling swipe gestures for QAM and HOME"
+    echo "禁用游戏模式的侧边滑动手势"
     mkdir -p $HOME/.config/environment.d
     conf_file="$HOME/.config/environment.d/chos-disable-gamescope-gestures.conf"
-    echo "GAMESCOPE_DISABLE_TOUCH_GESTURES=1" > "$HOME/.config/environment.d/chos-disable-gamescope-gestures.conf"
-    echo "Done. Please restart Steam Game Mode to see changes"
+    if (gamescope --help 2>&1 | grep -e "--touch-gestures" > /dev/null); then
+        rm -f "$conf_file"
+        export GAMESCOPE_TOUCH_GESTURES=""
+    else
+        echo "GAMESCOPE_DISABLE_TOUCH_GESTURES=1" > "$conf_file"
+    fi
+    echo "操作完成，请重启 Steam 游戏模式以应用更改"
 
 # Enable swipe gestures for QAM and HOME / 启用游戏模式的侧边滑动手势
 enable-swipe-gestures:
     #!/usr/bin/bash
-    echo "enabling swipe gestures for QAM and HOME"
+    echo "启用游戏模式的侧边滑动手势"
     conf_file="$HOME/.config/environment.d/chos-disable-gamescope-gestures.conf"
-    if [ -f "$conf_file" ]; then
-        if grep -q "GAMESCOPE_DISABLE_TOUCH_GESTURES=1" "$conf_file"; then
-            echo "" > "$conf_file"
-            echo "Swipe gestures enabled"
-        else
-            echo "Swipe gestures already enabled"
+    if (gamescope --help 2>&1 | grep -e "--touch-gestures" > /dev/null); then
+        echo "GAMESCOPE_TOUCH_GESTURES=1" > "$conf_file"
+    else
+        if [ -f "$conf_file" ]; then
+            if grep -q "GAMESCOPE_DISABLE_TOUCH_GESTURES=1" "$conf_file"; then
+                echo "" > "$conf_file"
+                echo "Swipe gestures enabled"
+            else
+                echo "Swipe gestures already enabled"
+            fi
         fi
     fi
-    echo "Done. Please restart Steam Game Mode to see changes"
+    echo "操作完成，请重启 Steam 游戏模式以应用更改"
 
 # expand partition / 扩展分区
 expand-partition:
