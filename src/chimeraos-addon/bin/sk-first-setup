@@ -188,7 +188,8 @@ function install_decky_plugins() {
                 if [[ -f "${HOMEBREW_FOLDER}/plugins/$plugin/package.json" ]]; then
 
                     # check version, if new version larger than current version, update
-                    current_version=$(cat "${HOMEBREW_FOLDER}/plugins/$plugin/package.json" | jq -r '.version')
+                    # 只保留 - 之前的版本号
+                    current_version=$(cat "${HOMEBREW_FOLDER}/plugins/$plugin/package.json" | jq -r '.version' | awk -F '-' '{print $1}')
                     new_version=$(cat "$decky_plugin_path/$plugin/package.json" | jq -r '.version')
 
                     # compare version
