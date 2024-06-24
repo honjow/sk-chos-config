@@ -103,12 +103,19 @@ AOKZOE_MATCH_LIST=(
 
 ONEXPLAYER_MATCH_LIST=(
     "ONEXPLAYER Mini"
+    "ONEXPLAYER mini"
     "ONEXPLAYER F1"
     "ONEXPLAYER 2"
 )
 
 LOKI_MATCH_LIST=(
     "Loki Max"
+    "Loki MiniPro"
+    "Loki Zero"
+)
+
+ORANGEPI_MATCH_LIST=(
+    "NEO-01"
 )
 
 HHD_MATCH_LIST=(
@@ -119,6 +126,7 @@ HHD_MATCH_LIST=(
     "${AOKZOE_MATCH_LIST[@]}"
     "${ONEXPLAYER_MATCH_LIST[@]}"
     "${LOKI_MATCH_LIST[@]}"
+    "${ORANGEPI_MATCH_LIST[@]}"
 )
 
 function hhd_support() {
