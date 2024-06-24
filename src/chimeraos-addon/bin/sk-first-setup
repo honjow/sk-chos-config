@@ -31,13 +31,16 @@ cpu_keywords=(
     "1165G7"
     "1195G7"
 )
-CPU_MATCH=false
-for keyword in "${cpu_keywords[@]}"; do
-    if [[ $cpu_id == *"$keyword"* ]]; then
-        CPU_MATCH=true
-        break
-    fi
-done
+
+function power_control_support() {
+    for cpu in "${cpu_keywords[@]}"; do
+        if [[ "$cpu_id" =~ "$cpu" ]]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
 
 pre_path=/usr/local/share/sk-pre
 
@@ -55,26 +58,106 @@ THEME_FOLDER="${HOMEBREW_FOLDER}/themes"
 PRODUCT=$(cat /sys/devices/virtual/dmi/id/product_name)
 VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
 
-ROG_LIST="ROG Ally RC71L_RC71L:ROG Ally RC71L"
-LGO_LIST="83E1"
-GPD_LIST="G1618-04:G1617-01:G1619-04:G1619-05"
-
-AYA_2_LIST="AYANEO 2:AYANEO 2S:GEEK:GEEK 1S"
-AYA_AIR_LIST="AIR:AIR Pro:AIR Plus:AIR 1S:AIR 1S Limited:SLIDE"
-AYA_NEXT_LIST="NEXT Advance:NEXT Lite:NEXT Pro:NEXT"
-AYA_2021_LIST="AYA NEO FOUNDER:AYA NEO 2021:AYANEO 2021:AYANEO 2021 Pro:AYANEO 2021 Pro Retro Power"
-AYA_LIST="${AYA_2_LIST}:${AYA_AIR_LIST}:${AYA_NEXT_LIST}:${AYA_2021_LIST}"
-
-AOKZOE_LIST="AOKZOE A1 AR07:AOKZOE A1 Pro"
-ONEXPLAYER_LIST="ONEXPLAYER Mini Pro"
-LOKI_LIST="Loki Max"
-
-HHD_SUPPORT_LIST="${LGO_LIST}:${ROG_LIST}:${GPD_LIST}:${AYA_LIST}:${AOKZOE_LIST}:${ONEXPLAYER_LIST}:${LOKI_LIST}"
-
-LED_LIST="AIR Plus:AYANEO 2:AYANEO 2S:GEEK:GEEK 1S:AIR:AIR Pro:AIR 1S:AIR 1S Limited:SLIDE:G1618-04"
 LED_PATH="/sys/class/leds/multicolor:chassis/"
+LED_MATCH_LIST=(
+    "AYANEO 2"
+    "GEEK"
+    "AIR"
+    "SLIDE"
+    "ROG Ally RC71L"
+)
 
 LED_VENDOR_LIST="ONE-NETBOOK:ONE-NETBOOK TECHNOLOGY CO., LTD.:AOKZOE"
+
+AYA_MATCH_LIST=(
+    "AYA NEO FOUNDER"
+    "AYA NEO 2021"
+    "AYANEO 2021"
+    "NEXT"
+    "AYANEO 2"
+    "GEEK"
+    "AIR"
+    "SLIDE"
+    "FLIP"
+)
+
+LGO_MATCH_LIST=(
+    "83E1"
+)
+
+GPD_MATCH_LIST=(
+    "G1618-04"
+    "G1617-01"
+    "G1619-04"
+    "G1619-05"
+)
+
+ROG_MATCH_LIST=(
+    "ROG Ally RC71L"
+)
+
+AOKZOE_MATCH_LIST=(
+    "AOKZOE A1"
+    "AOKZOE A2"
+)
+
+ONEXPLAYER_MATCH_LIST=(
+    "ONEXPLAYER Mini"
+    "ONEXPLAYER F1"
+    "ONEXPLAYER 2"
+)
+
+LOKI_MATCH_LIST=(
+    "Loki Max"
+)
+
+HHD_MATCH_LIST=(
+    "${LGO_MATCH_LIST[@]}"
+    "${ROG_MATCH_LIST[@]}"
+    "${GPD_MATCH_LIST[@]}"
+    "${AYA_MATCH_LIST[@]}"
+    "${AOKZOE_MATCH_LIST[@]}"
+    "${ONEXPLAYER_MATCH_LIST[@]}"
+    "${LOKI_MATCH_LIST[@]}"
+)
+
+function hhd_support() {
+    for item in "${HHD_MATCH_LIST[@]}"; do
+        if [[ "$PRODUCT" =~ "$item" ]]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+function led_support() {
+    if [[ ":${LED_VENDOR_LIST}:" =~ ":${VENDOR}:" ]]; then
+        return 0
+    fi
+
+    if [[ -d "${LED_PATH}" ]]; then
+        return 0
+    fi
+
+    for item in "${LED_MATCH_LIST[@]}"; do
+        if [[ "$PRODUCT" =~ "$item" ]]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+function gpd_wincontrol_support() {
+    for item in "${GPD_MATCH_LIST[@]}"; do
+        if [[ "$PRODUCT" == "$item" ]]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
 
 function install_decky() {
     # install decky from local
@@ -149,22 +232,19 @@ function copy_plugin() {
 
     case $name in
     "PowerControl")
-        if [[ $CPU_MATCH == true ]]; then
+        if power_control_support 2>/dev/null; then
             echo "Copying PowerControl plugin..."
             cp -rf $decky_plugin_path/$name "${HOMEBREW_FOLDER}/plugins"
         fi
         ;;
     "HueSync")
-        if [[ ":${LED_LIST}:" =~ ":${PRODUCT}:" && "${PRODUCT}" != "G1618-04" ]] ||
-            [[ -d "${LED_PATH}" ]] ||
-            [[ "${PRODUCT}" =~ "ROG Ally RC71L" ]] ||
-            [[ ":${LED_VENDOR_LIST}:" =~ ":${VENDOR}:" ]]; then
+        if led_support 2>/dev/null; then
             echo "Copying HueSync plugin..."
             cp -rf $decky_plugin_path/$name "${HOMEBREW_FOLDER}/plugins"
         fi
         ;;
     "GPD-WinControl")
-        if [[ ":${GPD_LIST}:" =~ ":${PRODUCT}:" ]]; then
+        if gpd_wincontrol_support 2>/dev/null; then
             echo "Copying GPD-WinControl plugin..."
             cp -rf $decky_plugin_path/$name "${HOMEBREW_FOLDER}/plugins"
         fi
@@ -207,7 +287,7 @@ function install_decky_plugins() {
         done
     fi
 
-    if [[ ":${HHD_SUPPORT_LIST}:" =~ ":${PRODUCT}:" ]]; then
+    if hhd_support 2>/dev/null; then
         echo "disabling handycon/inputplumber and enabling hhd@${USER}..."
         sudo systemctl disable --now handycon || true
         sudo systemctl disable --now inputplumber || true
