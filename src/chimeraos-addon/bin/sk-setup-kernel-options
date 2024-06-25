@@ -37,6 +37,16 @@ get_fbcon() {
     fi
 }
 
+get_video() {
+    if [[ -f /etc/sk-chos/screen-rotate ]]; then
+        source /etc/sk-chos/screen-rotate
+    fi
+
+    if [[ -n "$VIDEO_PARA" ]]; then
+        echo "video=$VIDEO_PARA"
+    fi
+}
+
 # source /etc/sk-chos/sk-chos.conf
 if [ -d /tmp/frzr_root ]; then
     source ${MOUNT_PATH}/etc/sk-chos/sk-chos.conf
@@ -114,6 +124,9 @@ echo "RESUME_CMD=${RESUME_CMD}"
 FBCON=$(get_fbcon 2>/dev/null)
 echo "FBCON: ${FBCON}"
 
+VIDEO=$(get_video 2>/dev/null)
+echo "VIDEO: ${VIDEO}"
+
 # 遍历 /frzr_root/boot/loader/entries 路径下的所有 frzr*.conf 文件
 for conf in /frzr_root/boot/loader/entries/frzr*.conf; do
     if [ -f "$conf" ]; then
@@ -159,15 +172,38 @@ for conf in /frzr_root/boot/loader/entries/frzr*.conf; do
             # 如果现有的 fbcon= 行与 FBCON 不匹配，则进行替换
             if [ "${existing_fbcon}" != "${FBCON}" ]; then
 
-                sed -i "s/video=efifb //" "$conf"
-
                 echo "替换 $conf_base_name 中原有的 FBCON"
-                sed -i "s/${existing_fbcon}/video=efifb ${FBCON}/" "$conf"
+                sed -i "s/${existing_fbcon}/${FBCON}/" "$conf"
 
                 NEED_REBOOT=$((NEED_REBOOT + 1))
 
             else
-                echo "FBCON已存在并在 $conf_base_name 中, 并且匹配. 无需更新"
+                echo "FBCON 已存在 $conf_base_name 中, 并且匹配. 无需更新"
+            fi
+        fi
+
+        # 检查文件中是否已存在 video=，如果不存在，则添加
+        if ! grep -q "video=" "$conf"; then
+
+            if [[ -n "${FBCON}" ]]; then
+                echo "Add $VIDEO to $conf_base_name"
+                sed -i "s/ splash / splash ${VIDEO} /" "$conf"
+            fi
+
+        else
+            # 获取已存在的 video= 行的内容
+            existing_video=$(grep -o "video=[^[:space:]]*" "$conf")
+            echo "已存在的 video: ${existing_video}"
+
+            # 如果现有的 video= 行与 VIDEO 不匹配，则进行替换
+            if [ "${existing_video}" != "${VIDEO}" ]; then
+                echo "替换 $conf_base_name 中原有的 VIDEO"
+                sed -i "s/${existing_video}/${VIDEO}/" "$conf"
+
+                NEED_REBOOT=$((NEED_REBOOT + 1))
+
+            else
+                echo "VIDEO 已存在 $conf_base_name 中, 并且匹配. 无需更新"
             fi
         fi
     fi

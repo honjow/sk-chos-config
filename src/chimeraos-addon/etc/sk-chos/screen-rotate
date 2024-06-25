@@ -2,33 +2,87 @@
 
 # Device specific configs
 DEVICENAME=$(cat /sys/devices/virtual/dmi/id/product_name)
+VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
 SCREEN_MODEL_NAME=$(cat /sys/class/drm/card1-eDP-1/edid | parse-edid 2>/dev/null | grep "ModelName" | cut -d \" -f 2)
 
-# OXP
-OXP_LIST="ONE XPLAYER:ONEXPLAYER 1 T08:ONEXPLAYER 1S A08:ONEXPLAYER 1S T08:ONEXPLAYER mini A07:ONEXPLAYER mini GA72:ONEXPLAYER mini GT72:ONEXPLAYER Mini Pro:ONEXPLAYER GUNDAM GA72:ONEXPLAYER 2 ARP23:ONEXPLAYER 2 PRO ARP23P:ONEXPLAYER 2 PRO ARP23P EVA-01:ONEXPLAYER F1:ONEXPLAYER F1 EVA-01"
-# AOKZOE
-AOK_LIST="AOKZOE A1 AR07:AOKZOE A1 Pro"
-# AYANEO AIR
-AIR_LIST="AIR:AIR Pro:AIR 1S:AIR 1S Limited:AIR Plus:SLIDE"
-AYN_LIST="Loki Max:Loki Zero:Loki MiniPro"
-# Lenovo
-LENOVO_LIST="83E1"
+AYA_RIGHT_LIST=(
+    "AYA NEO FOUNDER"
+    "AYA NEO 2021"
+    "AYANEO 2021"
+    "NEXT"
+    "AYANEO 2"
+    "GEEK"
+)
 
-# AYANEO AYA
-AYA_LIST="NEXT:NEXT Pro:NEXT Advance:NEXT Lite:AYANEO NEXT:AYANEO NEXT Pro:AYANEO NEXT Advance:AYA NEO Fouder:AYA NEO 2021:AYANEO 2021:AYANEO 2021 Pro:AYANEO 2021 Pro:AYANEO 2021 Pro Retro Power:AYANEO 2:GEEK:AYANEO 2S:GEEK 1S"
-# GPD
-GPD_LIST="G1619-01:G1621-02:MicroPC:G1617-01"
+AYA_LEFT_LIST=(
+    "AIR"
+    "SLIDE"
+    "FLIP"
+)
 
-LEFT_LIST="${OXP_LIST}:${AIR_LIST}:${AOK_LIST}:${AYN_LIST}:${LENOVO_LIST}"
-RIGHT_LIST="${AYA_LIST}:${GPD_LIST}"
+LGO_LEFT_LIST=(
+    "83E1"
+)
+
+GPD_RIGHT_LIST=(
+    "G1617-01"
+    "G1621-02"
+    "G1619-01"
+    "MicroPC"
+)
+
+AOKZOE_LEFT_LIST=(
+    "AOKZOE A1"
+    "AOKZOE A2"
+)
+
+ONEXPLAYER_LEFT_LIST=(
+    "ONE XPLAYER"
+    "ONEXPLAYER 1"
+    "ONEXPLAYER GUNDAM"
+    "ONEXPLAYER Mini"
+    "ONEXPLAYER mini"
+    "ONEXPLAYER F1"
+    "ONEXPLAYER 2"
+)
+
+AYN_LEFT_LIST=(
+    "Loki Max"
+    "Loki MiniPro"
+    "Loki Zero"
+)
+
+# LEFT_LIST="${OXP_LIST}:${AIR_LIST}:${AOK_LIST}:${AYN_LIST}:${LENOVO_LIST}"
+# RIGHT_LIST="${AYA_LIST}:${GPD_LIST}"
+
+LEFT_LIST=(
+    "${AYA_LEFT_LIST[@]}"
+    "${LGO_LEFT_LIST[@]}"
+    "${AOKZOE_LEFT_LIST[@]}"
+    "${ONEXPLAYER_LEFT_LIST[@]}"
+    "${AYN_LEFT_LIST[@]}"
+)
+
+RIGHT_LIST=(
+    "${AYA_RIGHT_LIST[@]}"
+    "${GPD_RIGHT_LIST[@]}"
+)
 
 ROTATE_OFFSET="0"
 
-if [[ ":${LEFT_LIST}:" =~ ":${DEVICENAME}:" ]]; then
-    ROTATE_OFFSET="3"
-elif [[ ":${RIGHT_LIST}:" =~ ":${DEVICENAME}:" ]]; then
-    ROTATE_OFFSET="1"
-fi
+for vendor in "${LEFT_LIST[@]}"; do
+    if [[ "$DEVICENAME" =~ "$vendor" ]]; then
+        ROTATE_OFFSET="3"
+        break
+    fi
+done
+
+for vendor in "${RIGHT_LIST[@]}"; do
+    if [[ "$DEVICENAME" =~ "$vendor" ]]; then
+        ROTATE_OFFSET="1"
+        break
+    fi
+done
 
 # ROG Ally 和 win mini 2024 采用的屏幕
 if [[ "$SCREEN_MODEL_NAME" == "TL070FVXS01-0" ]]; then
@@ -38,5 +92,15 @@ fi
 if [[ "$ROTATE_OFFSET" != "0" ]]; then
     export FBCON_PARA="rotate:$ROTATE_OFFSET"
 fi
+
+video=""
+
+if [[ "$ROTATE_OFFSET" == "1" ]]; then
+    video="eDP-1:panel_orientation=right_side_up"
+elif [[ "$ROTATE_OFFSET" == "3" ]]; then
+    video="eDP-1:panel_orientation=left_side_up"
+fi
+
+VIDEO_PARA="$video"
 
 export ROTATE_OFFSET=$ROTATE_OFFSET
