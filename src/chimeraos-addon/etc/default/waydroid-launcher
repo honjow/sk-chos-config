@@ -6,30 +6,124 @@ WAYDROID_UNKNOWN_WIDTH=1920
 WAYDROID_UNKNOWN_HEIGHT=1080
 WAYDROID_GRALLOC=minigbm_gbm_mesa
 
+PRODUCT=$(cat /sys/devices/virtual/dmi/id/product_name)
+
 # Handle nested desktop resolution for known devices.
-case "$(cat /sys/devices/virtual/dmi/id/product_name)" in
-	"Jupiter" | "Galileo" | "GEEK" | "GEEK 1S" | "G1619-05")
+# case "$(cat /sys/devices/virtual/dmi/id/product_name)" in
+#     "Jupiter" | "Galileo" | "GEEK" | "GEEK 1S" | "G1619-05")
+#         WAYDROID_WIDTH=1280
+#         WAYDROID_HEIGHT=800
+#         WAYDROID_DENSITY=215 ;;
+#     "ROG Ally RC71L" | "ROG Ally RC71L_RC71L" | "G1618-04" | "G1617-01" | "Loki Max" | "AIR Plus")
+#         WAYDROID_WIDTH=1920
+#         WAYDROID_HEIGHT=1080 ;;
+#     "AYANEO 2" | "AYANEO 2S" | "AOKZOE A1 AR07" | "AOKZOE A1 Pro" | "G1619-04")
+#         WAYDROID_WIDTH=1920
+#         WAYDROID_HEIGHT=1200 ;;
+#     "83E1" | "ONEXPLAYER 2 ARP23" | "ONEXPLAYER 2 PRO ARP23H" | "ONEXPLAYER 2 PRO ARP23P" | "ONEXPLAYER 2 PRO ARP23P EVA-01")
+#         WAYDROID_WIDTH=2560
+#         WAYDROID_HEIGHT=1600
+#         WAYDROID_DENSITY=340 ;;
+#     "Win600")
+#         WAYDROID_WIDTH=1280
+#         WAYDROID_HEIGHT=720 ;;
+#     "V3")
+#         WAYDROID_WIDTH=2560
+#         WAYDROID_HEIGHT=1600
+#         WAYDROID_DENSITY=240 ;;
+#     *)
+#         WAYDROID_WIDTH=$WAYDROID_UNKNOWN_WIDTH
+#         WAYDROID_HEIGHT=$WAYDROID_UNKNOWN_HEIGHT ;;
+# esac
+
+LIST_800P_DEVICES=(
+	"Jupiter"
+	"Galileo"
+	"GEEK"
+	"G1619-05"
+)
+
+LIST_1080P_DEVICES=(
+	"ROG Ally RC71L"
+	"G1618-04"
+	"G1617-01"
+	"Loki Max"
+	"AIR"
+	"ONEXPLAYER F1"
+)
+
+LIST_1200P_DEVICES=(
+	"AYANEO 2"
+	"AOKZOE A1"
+	"NEO-01"
+)
+
+LIST_1600P_DEVICES=(
+	"83E1"
+	"ONEXPLAYER 2"
+)
+
+LIST_1600P_BIG_DEVICES=(
+	"V3"
+)
+
+LIST_720P_DEVICES=(
+	"Win600"
+	"G1618-03"
+)
+
+
+WAYDROID_WIDTH=$WAYDROID_UNKNOWN_WIDTH
+WAYDROID_HEIGHT=$WAYDROID_UNKNOWN_HEIGHT
+
+for device in "${LIST_800P_DEVICES[@]}"; do
+	if [ "$PRODUCT" =~ "$device" ]; then
 		WAYDROID_WIDTH=1280
 		WAYDROID_HEIGHT=800
-		WAYDROID_DENSITY=215 ;;
-	"ROG Ally RC71L" | "ROG Ally RC71L_RC71L" | "G1618-04" | "G1617-01" | "Loki Max" | "AIR Plus")
+		WAYDROID_DENSITY=215
+		break
+	fi
+done
+
+for device in "${LIST_1080P_DEVICES[@]}"; do
+	if [ "$PRODUCT" =~ "$device" ]; then
 		WAYDROID_WIDTH=1920
-		WAYDROID_HEIGHT=1080 ;;
-	"AYANEO 2" | "AYANEO 2S" | "AOKZOE A1 AR07" | "G1619-04")
+		WAYDROID_HEIGHT=1080
+		break
+	fi
+done
+
+for device in "${LIST_1200P_DEVICES[@]}"; do
+	if [ "$PRODUCT" =~ "$device" ]; then
 		WAYDROID_WIDTH=1920
-		WAYDROID_HEIGHT=1200 ;;
-	"83E1")
+		WAYDROID_HEIGHT=1200
+		break
+	fi
+done
+
+for device in "${LIST_1600P_DEVICES[@]}"; do
+	if [ "$PRODUCT" =~ "$device" ]; then
 		WAYDROID_WIDTH=2560
 		WAYDROID_HEIGHT=1600
-		WAYDROID_DENSITY=340 ;;
-	"Win600")
+		WAYDROID_DENSITY=340
+		break
+	fi
+done
+
+for device in "${LIST_1600P_BIG_DEVICES[@]}"; do
+	if [ "$PRODUCT" =~ "$device" ]; then
+		WAYDROID_WIDTH=2560
+		WAYDROID_HEIGHT=1600
+		WAYDROID_DENSITY=240
+		break
+	fi
+done
+
+for device in "${LIST_720P_DEVICES[@]}"; do
+	if [ "$PRODUCT" =~ "$device" ]; then
 		WAYDROID_WIDTH=1280
-		WAYDROID_HEIGHT=720 ;;
-	"V3")
-		WAYDROID_WIDTH=2560
-		WAYDROID_HEIGHT=1600
-		WAYDROID_DENSITY=240 ;;
-	*)
-		WAYDROID_WIDTH=$WAYDROID_UNKNOWN_WIDTH
-		WAYDROID_HEIGHT=$WAYDROID_UNKNOWN_HEIGHT ;;
-esac
+		WAYDROID_HEIGHT=720
+		WAYDROID_DENSITY=215
+		break
+	fi
+done
