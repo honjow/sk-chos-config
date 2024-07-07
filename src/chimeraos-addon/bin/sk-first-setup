@@ -298,7 +298,10 @@ function install_decky_plugins() {
     if hhd_support 2>/dev/null; then
         echo "disabling handycon/inputplumber and enabling hhd@${USER}..."
         sudo systemctl disable --now handycon || true
+        sudo systemctl mask handycon || true
         sudo systemctl disable --now inputplumber || true
+        sudo systemctl mask inputplumber || true
+
         sudo systemctl enable --now hhd@${USER}
     fi
 }
