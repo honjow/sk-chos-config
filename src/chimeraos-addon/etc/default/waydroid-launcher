@@ -45,6 +45,7 @@ LIST_800P_DEVICES=(
 
 LIST_1080P_DEVICES=(
     "ROG Ally RC71L"
+    "ROG Ally X"
     "G1618-04"
     "G1617-01"
     "Loki Max"

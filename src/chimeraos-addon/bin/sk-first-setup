@@ -65,6 +65,7 @@ LED_MATCH_LIST=(
     "AIR"
     "SLIDE"
     "ROG Ally RC71L"
+    "ROG Ally X"
 )
 
 LED_VENDOR_LIST="ONE-NETBOOK:ONE-NETBOOK TECHNOLOGY CO., LTD.:AOKZOE"
@@ -94,6 +95,7 @@ GPD_MATCH_LIST=(
 
 ROG_MATCH_LIST=(
     "ROG Ally RC71L"
+    "ROG Ally X"
 )
 
 AOKZOE_MATCH_LIST=(
@@ -324,7 +326,7 @@ function install_css_theme() {
             cp -rf $css_hhd_path/*Legion-Go* "${THEME_FOLDER}"
         else
             cp -rf $css_hhd_path/*PS5-to* "${THEME_FOLDER}"
-            if [[ "$PRODUCT" =~ "ROG Ally RC71L" ]]; then
+            if [[ "$PRODUCT" =~ "ROG Ally" ]]; then
                 set_ps5_theme_default "ROG Ally"
             elif [[ "$PRODUCT" == "G1617-01" ]]; then
                 # GPD Win Mini
