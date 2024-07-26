@@ -3,7 +3,7 @@
 # Device specific configs
 DEVICENAME=$(cat /sys/devices/virtual/dmi/id/product_name)
 VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
-SCREEN_MODEL_NAME=$(cat /sys/class/drm/card1-eDP-1/edid | parse-edid 2>/dev/null | grep "ModelName" | cut -d \" -f 2 | sed 's/[^a-zA-Z0-9_-]//g')
+SCREEN_MODEL_NAME=$(cat /sys/class/drm/card*-eDP-1/edid | parse-edid 2>/dev/null | grep "ModelName" | cut -d \" -f 2 | sed 's/[^a-zA-Z0-9_-]//g')
 
 AYA_RIGHT_LIST=(
     "AYA NEO FOUNDER"
