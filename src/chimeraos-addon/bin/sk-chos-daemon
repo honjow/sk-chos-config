@@ -12,18 +12,25 @@ if [ -x "$(command -v sk-unlock-pacman)" ]; then
     sk-unlock-pacman
 fi
 
+ENABLE_MCU_POWERSAVE=""
 # 禁用 mcu powersave。 启用会导致 ROG Ally 睡眠唤醒后 N-Key 丢失
 if [[ "$PRODUCT" =~ "ROG Ally RC71L" ]]; then
+    ENABLE_MCU_POWERSAVE="0"
+elif [[ "$PRODUCT" =~ "ROG Ally X RC72L" ]]; then
+    ENABLE_MCU_POWERSAVE="1"
+fi
+
+if [ -n "$ENABLE_MCU_POWERSAVE" ]; then
     if [ -f /sys/devices/platform/*/mcu_powersave ]; then
         for i in /sys/devices/platform/*/mcu_powersave; do
             if [ "$(cat $i)" == "1" ]; then
-                echo 0 >$i
+                echo "$ENABLE_MCU_POWERSAVE" >$i
             fi
         done
     fi
     if [ -f /sys/class/firmware-attributes/asus-armoury/attributes/mcu_powersave/current_value ]; then
         if [ "$(cat /sys/class/firmware-attributes/asus-armoury/attributes/mcu_powersave/current_value)" == "1" ]; then
-            echo 0 >/sys/class/firmware-attributes/asus-armoury/attributes/mcu_powersave/current_value
+            echo "$ENABLE_MCU_POWERSAVE" >/sys/class/firmware-attributes/asus-armoury/attributes/mcu_powersave/current_value
         fi
     fi
 fi
