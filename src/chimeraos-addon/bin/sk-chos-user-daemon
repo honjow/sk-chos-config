@@ -125,3 +125,22 @@ gamescope_gestures_conf="$HOME/.config/environment.d/chos-disable-gamescope-gest
 if [ ! -f $gamescope_gestures_conf ]; then
     /usr/bin/cjust disable-swipe-gestures || true
 fi
+
+# Audio Fix
+# These handhelds use a custom DSP which requires the base speaker volume to be 100%
+wp_audio_sinks() {
+    wpctl status |
+        awk 'BEGIN { A=0; S=0; }
+            /^Audio/ { A=1; }
+            /Sinks/ { S=1; }
+            /Sources/ { S=0; }
+            /Sink endpoints/ { S=0; }
+            /^Video/ { A=0; }
+            { if (A==1 && S==1 && / [[:digit:]]*\./) 
+                 { print; } }' |
+        sed 's/^.* \([[:digit:]]*\)\. \(.*\) \[.*$/\1\t\2/'   
+}
+
+if [[ ":83E1:ROG Ally RC71L:G1617-01:" =~ ":$VENDOR:" ]]; then
+  wpctl set-volume $(wp_audio_sinks | grep "17h/19h" | sed 's@^[^0-9]*\([0-9]\+\).*@\1@') 100% || true
+fi
