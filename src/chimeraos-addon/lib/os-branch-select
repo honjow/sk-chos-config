@@ -1,0 +1,58 @@
+#!/bin/bash
+set -e
+
+BRANCH_PATH="/frzr_root/source"
+REPO="3003n/chimeraos"
+
+VALID_BRANCHES=(
+  "stable"
+  "unstable"
+  "testing"
+  "plasma"
+  "plasma-pre"
+  "plasma-dev"
+)
+
+VALID_NV_BRANCHES=(
+  "gnome_nvidia"
+  "gnome_nvidia-pre"
+  "gnome_nvidia-dev"
+  "plasma_nvidia"
+  "plasma_nvidia-pre"
+  "plasma_nvidia-dev"
+)
+
+VALID_BRANCHES+=("${VALID_NV_BRANCHES[@]}")
+
+if [[ $# -eq 1 ]]; then
+  case "$1" in
+  "-c")
+    branch=$(cat "$BRANCH_PATH" 2>/dev/null | sed -n 's/^\(honjow\|3003n\)\/chimeraos://p')
+    if [[ " ${VALID_BRANCHES[*]} " =~ "$branch" ]]; then
+      echo "$branch"
+      exit 0
+    else
+      echo >&2 "Warning: Unrecognized currently selected branch name '$branch', updates may not succeed."
+      echo "$branch"
+      exit 0
+    fi
+    ;;
+  "-l")
+    for b in "${VALID_BRANCHES[@]}"; do
+      echo "$b"
+    done
+    exit 0
+    ;;
+  *)
+    if [[ " ${VALID_BRANCHES[*]} " =~ "$1" ]]; then
+      echo "Setting branch to $1"
+      echo "$REPO:$1" >"$BRANCH_PATH"
+      exit 0
+    fi
+    ;;
+  esac
+fi
+
+IFS="|"
+echo "Usage: steamos-select-branch <-${VALID_BRANCHES[*]}>" 1>&2
+IFS=" "
