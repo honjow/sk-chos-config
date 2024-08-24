@@ -10,4 +10,4 @@ decky-install:
 decky-install-cn:
     #!/bin/bash
     echo "Installing Decky..."
-    curl -sLk curl -L http://dl.ohmydeck.net | sh
+    curl -L http://dl.ohmydeck.net | sh
