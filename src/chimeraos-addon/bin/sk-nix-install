@@ -4,6 +4,7 @@
 ACTION=$1
 
 set -e
+set -o pipefail
 
 nix_bash_backup=/etc/bashrc.backup-before-nix
 nix_bash_backup2=/etc/bash.bashrc.backup-before-nix
@@ -136,7 +137,17 @@ function install_nix() {
         sudo groupdel nixbld
     fi
 
+    set +e
     curl -L https://mirrors.tuna.tsinghua.edu.cn/nix/latest/install | sudo sh -s -- --daemon --no-channel-add
+
+    USE_MIRRORS="1"
+    echo " result: $?"
+    if [ $? -ne 0 ]; then
+        echo "nix installation failed, retrying..."
+        USE_MIRRORS="0"
+        curl -L https://nixos.org/nix/install | sudo sh -s -- --daemon --no-channel-add
+    fi
+    set -e
 
     if [ -f "$nix_profile" ]; then
         source $nix_profile
@@ -147,11 +158,20 @@ function install_nix() {
     # add trusted user
     echo "add trusted user...."
     sudo echo "trusted-users = root $USER" | sudo tee /etc/nix/nix.conf && \
-    echo 'substituters = https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store https://cache.nixos.org/' | sudo tee -a /etc/nix/nix.conf
+
+    if [ "$USE_MIRRORS" == "1" ]; then
+        echo 'substituters = https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store https://cache.nixos.org/' | sudo tee -a /etc/nix/nix.conf
     
-    echo "add nixpkgs-unstable channel...."
-    sudo nix-channel --add https://mirrors.tuna.tsinghua.edu.cn/nix-channels/nixpkgs-unstable nixpkgs
-    sudo nix-channel --update
+        echo "add nixpkgs-unstable channel...."
+        nix-channel --add https://mirrors.tuna.tsinghua.edu.cn/nix-channels/nixpkgs-unstable nixpkgsfi
+    else
+        echo 'substituters = https://cache.nixos.org/' | sudo tee -a /etc/nix/nix.conf
+
+        echo "add nixpkgs-unstable channel...."
+        nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs
+    fi
+    
+    nix-channel --update
 
     echo "enable nix service...."
     sudo systemctl enable --now nix-daemon.service
