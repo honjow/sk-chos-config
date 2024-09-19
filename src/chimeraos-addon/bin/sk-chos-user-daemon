@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -o pipefail
+
 VENDOR=$(cat "/sys/devices/virtual/dmi/id/sys_vendor")
 
 echo "Auto set shell"
@@ -43,12 +46,21 @@ if [[ -d $pre_zsh_dir ]]; then
     fi
 fi
 
+zshrc_path="${HOME}/.zshrc"
 if [[ -f $pre_zshrc ]]; then
-    if [[ ! -f "${HOME}/.zshrc" ]]; then
-        echo "Installing .zshrc..."
+    if [[ ! -f "$zshrc_path" ]]; then
+        echo ">> Installing .zshrc..."
         cp $pre_zshrc "${HOME}/.zshrc"
     else
-        cp $pre_zshrc "${HOME}/.zshrc.new"
+        # 获取 $zshrc_path 行数
+        zshrc_line=$(wc -l $zshrc_path | awk '{print $1}')
+        # 如果行数小于 20 行, 则覆盖
+        if [[ $zshrc_line -lt 20 ]]; then
+            echo ">>> Installing .zshrc..."
+            cp $pre_zshrc "${HOME}/.zshrc"
+        else
+            cp $pre_zshrc "${HOME}/.zshrc.new"
+        fi
     fi
 fi
 
