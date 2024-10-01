@@ -11,8 +11,8 @@ ACTION=$1
 overlay_dir="/var/chos/overlay"
 
 low_dir_1="/usr/share/backgrounds"
-up_dir_1="${overlay_dir}/overlay/backgrounds"
-work_dir_1="${overlay_dir}/overlay/.fonts"
+up_dir_1="${overlay_dir}/backgrounds"
+work_dir_1="${overlay_dir}/.backgrounds"
 
 low_dir_2="/usr/share/gnome-background-properties"
 up_dir_2="${overlay_dir}/gnome-background-properties"
