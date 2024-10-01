@@ -11,7 +11,7 @@ nix-manager-uninstall:
 
 # Nix search / Nix 搜索
 nix-search name:
-    nix-env -qaP --attr-path --show-trace '.*{{name}}.*' | cat
+    nix-env -qaP --attr-path --show-trace '.*{{name}}.*' | cat | grep -E -v '^evaluation warning:.*'
 
 # Nix uptate / Nix 更新
 nix-update:

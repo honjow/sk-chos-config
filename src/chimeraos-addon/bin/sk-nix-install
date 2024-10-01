@@ -157,7 +157,7 @@ function install_nix() {
 
     # add trusted user
     echo "add trusted user...."
-    sudo echo "trusted-users = root $USER" | sudo tee /etc/nix/nix.conf && \
+    sudo echo "trusted-users = root $USER" | sudo tee /etc/nix/nix.conf
 
     if [ "$USE_MIRRORS" == "1" ]; then
         echo 'substituters = https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store https://cache.nixos.org/' | sudo tee -a /etc/nix/nix.conf
