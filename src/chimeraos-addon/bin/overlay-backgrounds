@@ -1,0 +1,56 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root or with sudo."
+    exit 1
+fi
+
+# action is mount or umount
+ACTION=$1
+
+overlay_dir="/var/chos/overlay"
+
+low_dir_1="/usr/share/backgrounds"
+up_dir_1="${overlay_dir}/overlay/backgrounds"
+work_dir_1="${overlay_dir}/overlay/.fonts"
+
+low_dir_2="/usr/share/gnome-background-properties"
+up_dir_2="${overlay_dir}/gnome-background-properties"
+work_dir_2="${overlay_dir}/.gnome-background-properties"
+
+function mount_overlay() {
+    mkdir -p "$overlay_dir"
+    mkdir -p "$up_dir_1"
+    mkdir -p "$up_dir_2"
+    mkdir -p "$work_dir_1"
+    mkdir -p "$work_dir_2"
+
+    # mount the overlay
+    echo "Mounting the overlay..."
+    mount -t overlay overlay -o lowerdir=$low_dir_1,upperdir=$up_dir_1,workdir=$work_dir_1,index=off $low_dir_1
+    mount -t overlay overlay -o lowerdir=$low_dir_2,upperdir=$up_dir_2,workdir=$work_dir_2,index=off $low_dir_2
+
+    echo "Overlay mounted."
+}
+
+function umount_overlay() {
+    # unmount the overlay
+    echo "Unmounting the overlay..."
+    umount $low_dir_1
+    umount $low_dir_2
+
+    echo "Overlay unmounted."
+}
+
+# case statement to determine action
+case "$ACTION" in
+    mount)
+        mount_overlay
+        ;;
+    umount)
+        umount_overlay
+        ;;
+    *)
+        echo "Usage: $0 {mount|umount}"
+        exit 1
+esac

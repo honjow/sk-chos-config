@@ -1,0 +1,10 @@
+[Unit]
+Description=Mount Overlay File System for Backgrounds
+After=systemd-remount-fs.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/overlay-backgrounds mount
+
+[Install]
+WantedBy=multi-user.target
