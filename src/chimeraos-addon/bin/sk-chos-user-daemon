@@ -1,9 +1,58 @@
 #!/bin/bash
 
-set -e
 set -o pipefail
 
 VENDOR=$(cat "/sys/devices/virtual/dmi/id/sys_vendor")
+USER_DIR=$HOME
+HOMEBREW_FOLDER="${USER_DIR}/homebrew"
+
+function compare_version() {
+    local current_version=$1
+    local new_version=$2
+    local current_version_arr=(${current_version//./ })
+    local new_version_arr=(${new_version//./ })
+
+    for i in {0..2}; do
+        if [[ ${new_version_arr[$i]} -gt ${current_version_arr[$i]} ]]; then
+            echo "1"
+            return
+        elif [[ ${new_version_arr[$i]} -lt ${current_version_arr[$i]} ]]; then
+            echo "-1"
+            return
+        fi
+    done
+    echo "0"
+}
+
+update_decky() {
+    echo "Check Decky update"
+    set -e
+    version_file="${HOMEBREW_FOLDER}/services/.loader.version"
+    if [[ -f "${version_file}" ]]; then
+        # 去掉开头的v
+        current_version=$(cat "${version_file}" 2>/dev/null | sed 's/^v//')
+        latest_version=$(curl -s https://api.github.com/repos/SteamDeckHomebrew/decky-loader/releases/latest | grep tag_name | cut -d '"' -f 4 | sed 's/^v//')
+
+        compare_result=$(compare_version $current_version $latest_version)
+        if [[ $compare_result -lt 0 ]]; then
+            echo "Decky is outdated, update to latest version"
+            set +e
+            curl -L http://dl.ohmydeck.net | sh
+            if [[ $? -eq 0 ]]; then
+                echo "Decky updated successfully"
+            else
+                echo "Decky update failed, try official script"
+                curl -sLk https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/install_release.sh | sed 's,#!/bin/sh,#!/bin/sh\nset -e,' | sed 's#| select(.prerelease == "false")##' | sh
+            fi
+            set -e
+        else
+            echo "Decky is up to date"
+        fi
+    else
+        echo "Decky is not installed, skip update"
+        return
+    fi
+}
 
 echo "Auto set shell"
 if [[ -f /usr/bin/sk-auto-set-shell ]]; then
@@ -156,3 +205,6 @@ wp_audio_sinks() {
 if [[ ":83E1:ROG Ally RC71L:G1617-01:" =~ ":$VENDOR:" ]]; then
   wpctl set-volume $(wp_audio_sinks | grep "17h/19h" | sed 's@^[^0-9]*\([0-9]\+\).*@\1@') 100% || true
 fi
+
+# Decky update
+update_decky &
