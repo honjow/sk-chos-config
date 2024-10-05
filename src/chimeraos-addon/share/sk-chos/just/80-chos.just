@@ -138,3 +138,19 @@ set-tdp tdp_num:
     else
         echo "ryzenadj not found"
     fi
+
+# toggle use mirrors to update / 切换使用镜像地址更新
+toggle-mirrors:
+    #!/bin/bash
+    conf_file="/etc/frzr-sk.conf"
+    if [ -f "$conf_file" ]; then
+        # 如果包含 fallback_url = xxxx, 获取 xxxx
+        fallback_url=$(grep -oP 'fallback_url\s*=\s*\K.*' "$conf_file")
+        if [ "$fallback_url" = "false" ]; then
+            sudo sed -i 's/fallback_url\s*=\s*false/fallback_url = true/' "$conf_file"
+        else
+            sudo sed -i 's/fallback_url\s*=\s*true/fallback_url = false/' "$conf_file"
+        fi
+    else
+        echo "fallback_url = false" | sudo tee "$conf_file"
+    fi
