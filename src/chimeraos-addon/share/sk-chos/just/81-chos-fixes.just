@@ -19,3 +19,20 @@ fix-steam-download-speed:
 #     chmod +x /tmp/patch-gmod/GModCEFCodecFix-Linux
 #     /tmp/patch-gmod/GModCEFCodecFix-Linux
 #     rm -rf /tmp/patch-gmod
+
+alias fix-rdr2 := fix-rdr2-black-screen
+
+# Red Dead Redemption 2 Black Screen Fix / 荒野大镖客 2 黑屏修复
+fix-rdr2-black-screen:
+    #!/usr/bin/bash
+    compatdata_path="$HOME/.steam/steam/steamapps/compatdata"
+    id="1174180"
+    system_xml="$compatdata_path/$id/pfx/drive_c/users/steamuser/Documents/Rockstar Games/Red Dead Redemption 2/Settings/system.xml"
+    if [ -f "$system_xml" ]; then
+        # set adapterIndex to 1
+        sed -i 's/<adapterIndex value="[0-9]"\/>/<adapterIndex value="1"\/>/' "$system_xml"
+        echo "Red Dead Redemption 2 black screen fix applied."
+    else
+        echo "Red Dead Redemption 2 system.xml not found."
+        exit 1
+    fi
