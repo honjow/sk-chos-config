@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo "Fixing games..."
+
+echo "Red Dead Redemption 2 Black Screen Fix"
+cjust fix-rdr2 || true

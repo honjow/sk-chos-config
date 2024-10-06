@@ -6,6 +6,12 @@ VENDOR=$(cat "/sys/devices/virtual/dmi/id/sys_vendor")
 USER_DIR=$HOME
 HOMEBREW_FOLDER="${USER_DIR}/homebrew"
 
+function fix_games() {
+    if [ $(command -v sk-fix-games) ]; then
+        sk-fix-games
+    fi
+}
+
 function compare_version() {
     local current_version=$1
     local new_version=$2
@@ -205,6 +211,8 @@ wp_audio_sinks() {
 if [[ ":83E1:ROG Ally RC71L:G1617-01:" =~ ":$VENDOR:" ]]; then
   wpctl set-volume $(wp_audio_sinks | grep "17h/19h" | sed 's@^[^0-9]*\([0-9]\+\).*@\1@') 100% || true
 fi
+
+fix_games &
 
 # Decky update
 update_decky &
