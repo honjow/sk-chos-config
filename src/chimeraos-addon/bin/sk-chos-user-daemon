@@ -97,7 +97,7 @@ pre_zshrc=$pre_path/zsh/.zshrc
 if [[ -d $pre_zsh_dir ]]; then
     if [[ ! -d "${HOME}/.oh-my-zsh" ]]; then
         echo "Installing oh-my-zsh..."
-        cp -r $pre_zsh_dir "${HOME}/.oh-my-zsh"
+        rsync -av "${pre_zsh_dir}/" "${HOME}/.oh-my-zsh/"
     fi
 fi
 
@@ -109,10 +109,11 @@ if [[ -f $pre_zshrc ]]; then
     else
         # 获取 $zshrc_path 行数
         zshrc_line=$(wc -l $zshrc_path | awk '{print $1}')
-        # 如果行数小于 20 行, 则覆盖
-        if [[ $zshrc_line -lt 20 ]]; then
+        # 如果行数小于 xx 行, 则覆盖
+        if [[ $zshrc_line -lt 110 ]]; then
             echo ">>> Installing .zshrc..."
             cp $pre_zshrc "${HOME}/.zshrc"
+            rsync -av "${pre_zsh_dir}/" "${HOME}/.oh-my-zsh/"
         else
             cp $pre_zshrc "${HOME}/.zshrc.new"
         fi
