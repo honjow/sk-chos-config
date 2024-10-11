@@ -19,6 +19,7 @@ setup-waydroid ACTION="":
       echo "  Use 'integration' to toggle desktop window integration for Waydroid / 切换 Waydroid 的桌面窗口集成"
       echo "  Use 'reset' to select Configure Waydroid / 重置 Waydroid"
       echo "  Use 'add-to-steam' to add Waydroid to Steam / 添加 Waydroid 到 Steam"
+      echo "  Use 'exit' to exit / 退出"
       exit 0
     elif [ "$OPTION" == "" ]; then
       echo "${bold}Waydroid Setup${normal}"
@@ -29,9 +30,12 @@ setup-waydroid ACTION="":
         "Toggle Desktop Window Integration / 切换桌面窗口集成" \
         "Reset Waydroid / 重置 Waydroid" \
         "Add Waydroid to Steam / 添加 Waydroid 到 Steam (会重启 Steam)" \
+        "Exit / 退出" \
         )
     fi
-    if [[ "${OPTION,,}" =~ ^init ]]; then
+    if [[ "${OPTION,,}" =~ ^exit ]]; then
+      exit 0
+    elif [[ "${OPTION,,}" =~ ^init ]]; then
       sudo waydroid init -c 'https://ota.waydro.id/system' -v 'https://ota.waydro.id/vendor'
       sudo waydroid-extras install libhoudini
       echo "Waydroid has been initialized, please run waydroid once before you Configure Waydroid"
@@ -54,23 +58,35 @@ setup-waydroid ACTION="":
       echo "Waydroid has been reset"
     elif [[ "${OPTION,,}" =~ ^add ]]; then
       name="Waydroid"
-      exe="\"/usr/bin/waydroid-launcher\""
+      exe='"/usr/bin/waydroid-launcher"'
+
+      function steam_shortcuts_setimg() {
+        # 设置封面图片 并重启 Steam
+        local name="$1"
+        local exe="$2"
+        local exec_when_done="${3:-pkill -HUP steam}"
+        steam_shortcuts -t setimg -n "$name" -e "$exe" \
+          --icon "/usr/share/applications/Waydroid/icon.png" \
+          --cover "/usr/share/applications/Waydroid/capsule.png" \
+          --banner "/usr/share/applications/Waydroid/store-capsule.png" \
+          --background "/usr/share/applications/Waydroid/hero.png" \
+          --logo "/usr/share/applications/Waydroid/logo.png" && \
+          eval "$exec_when_done"
+      }
 
       # 检查是否已经添加到 Steam
       if steam_shortcuts -t isexisted -n "$name" -e "$exe"; then
         echo "Waydroid is already added to Steam"
       else
         /usr/bin/steamos-add-to-steam /usr/share/applications/Waydroid.desktop
-        echo "Waydroid has been added to Steam"
+        echo "Waydroid added to Steam done"
+        sleep 2
+        steam_shortcuts_setimg "$name" "$exe"
+        exit 0
       fi
 
-      # 设置封面图片 并重启 Steam
+      # 设置封面图片
       if steam_shortcuts -t isexisted -n "$name" -e "$exe"; then
-        steam_shortcuts -t setimg -n "$name" -e "$exe" \
-          --icon "/usr/share/applications/Waydroid/icon.png" \
-          --cover "/usr/share/applications/Waydroid/capsule.png" \
-          --banner "/usr/share/applications/Waydroid/store-capsule.png" \
-          --background "/usr/share/applications/Waydroid/hero.png" \
-          --logo "/usr/share/applications/Waydroid/logo.png" && pkill -HUP steam
+        steam_shortcuts_setimg "$name" "$exe" "echo 'Waydroid added to Steam done'"
       fi
     fi
