@@ -13,9 +13,14 @@ if [ -x "$(command -v sk-unlock-pacman)" ]; then
 fi
 
 ENABLE_MCU_POWERSAVE=""
-# 禁用 mcu powersave。 启用会导致 ROG Ally 睡眠唤醒后 N-Key 丢失
+# 默认禁用 mcu powersave。 启用会导致 ROG Ally 睡眠唤醒后 N-Key 丢失
 if [[ "$PRODUCT" =~ "ROG Ally RC71L" ]]; then
     ENABLE_MCU_POWERSAVE="0"
+
+    # 如果内核名称包含 -skX-chimeraos-X ，启用 mcu powersave
+    if [[ "$(uname -r)" =~ "-sk[1-9]-chimeraos-[1-9]" ]]; then
+        ENABLE_MCU_POWERSAVE="1"
+    fi
 elif [[ "$PRODUCT" =~ "ROG Ally X RC72L" ]]; then
     ENABLE_MCU_POWERSAVE="1"
 fi
