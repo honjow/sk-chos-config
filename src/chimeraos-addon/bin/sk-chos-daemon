@@ -18,23 +18,24 @@ if [[ "$PRODUCT" =~ "ROG Ally RC71L" ]]; then
     ENABLE_MCU_POWERSAVE="0"
 
     # 如果内核名称包含 -skX-chimeraos-X ，启用 mcu powersave
-    if [[ "$(uname -r)" =~ "-sk[1-9]-chimeraos-[1-9]" ]]; then
+    if [[ "$(uname -r)" =~ -sk[1-9]-chimeraos-[1-9] ]]; then
         ENABLE_MCU_POWERSAVE="1"
     fi
 elif [[ "$PRODUCT" =~ "ROG Ally X RC72L" ]]; then
     ENABLE_MCU_POWERSAVE="1"
 fi
 
+echo "Enable MCU powersave: $ENABLE_MCU_POWERSAVE"
 if [ -n "$ENABLE_MCU_POWERSAVE" ]; then
     if [ -f /sys/devices/platform/*/mcu_powersave ]; then
         for i in /sys/devices/platform/*/mcu_powersave; do
-            if [ "$(cat $i)" == "1" ]; then
+            if [ "$(cat $i)" != "$ENABLE_MCU_POWERSAVE" ]; then
                 echo "$ENABLE_MCU_POWERSAVE" >$i
             fi
         done
     fi
     if [ -f /sys/class/firmware-attributes/asus-armoury/attributes/mcu_powersave/current_value ]; then
-        if [ "$(cat /sys/class/firmware-attributes/asus-armoury/attributes/mcu_powersave/current_value)" == "1" ]; then
+        if [ "$(cat /sys/class/firmware-attributes/asus-armoury/attributes/mcu_powersave/current_value)" != "$ENABLE_MCU_POWERSAVE" ]; then
             echo "$ENABLE_MCU_POWERSAVE" >/sys/class/firmware-attributes/asus-armoury/attributes/mcu_powersave/current_value
         fi
     fi
