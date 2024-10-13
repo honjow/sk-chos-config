@@ -13,16 +13,28 @@ function fix_games() {
 }
 
 function compare_version() {
-    local current_version=$1
-    local new_version=$2
-    local current_version_arr=(${current_version//./ })
-    local new_version_arr=(${new_version//./ })
+    local version_a=$1
+    local version_b=$2
+    local version_a_arr=(${version_a//./ })
+    local version_b_arr=(${version_b//./ })
 
-    for i in {0..2}; do
-        if [[ ${new_version_arr[$i]} -gt ${current_version_arr[$i]} ]]; then
+    # 
+    echo ">>> Compare version: ${version_a} and ${version_b}" >&2
+
+    for i in {0..3}; do
+        if [[ ${version_b_arr[$i]} == "" ]]; then
+            version_b_arr[$i]=0
+        fi
+        if [[ ${version_a_arr[$i]} == "" ]]; then
+            version_a_arr[$i]=0
+        fi
+        echo ">>> ${i} ${version_a_arr[$i]} ${version_b_arr[$i]}" >&2
+        if [[ ${version_a_arr[$i]} -gt ${version_b_arr[$i]} ]]; then
+            # echo ">> ${version_a_arr[$i]} > ${version_b_arr[$i]}" >&2
             echo "1"
             return
-        elif [[ ${new_version_arr[$i]} -lt ${current_version_arr[$i]} ]]; then
+        elif [[ ${version_a_arr[$i]} -lt ${version_b_arr[$i]} ]]; then
+            # echo ">> ${version_a_arr[$i]} < ${version_b_arr[$i]}" >&2
             echo "-1"
             return
         fi
@@ -36,10 +48,17 @@ update_decky() {
     version_file="${HOMEBREW_FOLDER}/services/.loader.version"
     if [[ -f "${version_file}" ]]; then
         # 去掉开头的v
-        current_version=$(cat "${version_file}" 2>/dev/null | sed 's/^v//')
-        latest_version=$(curl -s https://api.github.com/repos/SteamDeckHomebrew/decky-loader/releases/latest | grep tag_name | cut -d '"' -f 4 | sed 's/^v//')
+        version_a=$(cat "${version_file}" 2>/dev/null | sed 's/^v//' | sed 's/-pre/./')
+        temp_file=$(mktemp)
+        curl -s 'https://api.github.com/repos/SteamDeckHomebrew/decky-loader/releases' > $temp_file
+        release_version=$(cat $temp_file | jq -r "first(.[] | select(.prerelease == "false"))" | jq -r '.tag_name' | sed 's/^v//')
+        latest_version=$(cat $temp_file | jq -r "first(.[])" | jq -r '.tag_name' | sed 's/^v//' | sed 's/-pre/./')
 
-        compare_result=$(compare_version $current_version $latest_version)
+        echo "Current version: $version_a"
+        echo "Latest release version: $release_version"
+        echo "Latest version: $latest_version"
+
+        compare_result=$(compare_version $version_a $release_version)
         if [[ $compare_result -lt 0 ]]; then
             echo "Decky is outdated, update to latest version"
             set +e
