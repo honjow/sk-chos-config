@@ -216,16 +216,28 @@ EOM
 }
 
 function compare_version() {
-    local current_version=$1
-    local new_version=$2
-    local current_version_arr=(${current_version//./ })
-    local new_version_arr=(${new_version//./ })
+    local version_a=$1
+    local version_b=$2
+    local version_a_arr=(${version_a//./ })
+    local version_b_arr=(${version_b//./ })
+
+    # 
+    echo ">>> Compare version: ${version_a} and ${version_b}" >&2
 
     for i in {0..2}; do
-        if [[ ${new_version_arr[$i]} -gt ${current_version_arr[$i]} ]]; then
+        if [[ ${version_b_arr[$i]} == "" ]]; then
+            version_b_arr[$i]=0
+        fi
+        if [[ ${version_a_arr[$i]} == "" ]]; then
+            version_a_arr[$i]=0
+        fi
+        echo ">>> ${i} ${version_a_arr[$i]} ${version_b_arr[$i]}" >&2
+        if [[ ${version_a_arr[$i]} -gt ${version_b_arr[$i]} ]]; then
+            # echo ">> ${version_a_arr[$i]} > ${version_b_arr[$i]}" >&2
             echo "1"
             return
-        elif [[ ${new_version_arr[$i]} -lt ${current_version_arr[$i]} ]]; then
+        elif [[ ${version_a_arr[$i]} -lt ${version_b_arr[$i]} ]]; then
+            # echo ">> ${version_a_arr[$i]} < ${version_b_arr[$i]}" >&2
             echo "-1"
             return
         fi
@@ -284,7 +296,7 @@ function install_decky_plugins() {
 
                     # compare version
                     compare_result=$(compare_version $current_version $new_version)
-                    if [[ "$compare_result" == "1" ]]; then
+                    if [[ "$compare_result" == "-1" ]]; then
                         echo "Updating $plugin plugin, current version: $current_version, new version: $new_version"
                         copy_plugin $plugin
                     fi
