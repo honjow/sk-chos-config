@@ -46,19 +46,44 @@ update_decky() {
     echo "Check Decky update"
     set -e
     version_file="${HOMEBREW_FOLDER}/services/.loader.version"
+    boot_flag_file="/tmp/.decky-update-booted"
+
+    if [[ ! -f "${boot_flag_file}" ]]; then
+        echo "Decky update on boot, sleep 120s"
+        sleep 120
+        touch "${boot_flag_file}"
+    fi
+
     if [[ -f "${version_file}" ]]; then
-        # 去掉开头的v
-        version_a=$(cat "${version_file}" 2>/dev/null | sed 's/^v//' | sed 's/-pre/./')
+        raw_version_current=$(cat "${version_file}" 2>/dev/null)
+        version_current=$(echo $raw_version_current | sed 's/^v//' | sed 's/-pre/./')
+        echo "Current version: ${raw_version_current}"
+
         temp_file=$(mktemp)
         curl -s 'https://api.github.com/repos/SteamDeckHomebrew/decky-loader/releases' > $temp_file
-        release_version=$(cat $temp_file | jq -r "first(.[] | select(.prerelease == "false"))" | jq -r '.tag_name' | sed 's/^v//')
-        latest_version=$(cat $temp_file | jq -r "first(.[])" | jq -r '.tag_name' | sed 's/^v//' | sed 's/-pre/./')
 
-        echo "Current version: $version_a"
-        echo "Latest release version: $release_version"
-        echo "Latest version: $latest_version"
+        # 删除空格、换行符和其他空白字符
+        cleaned_content=$(cat $temp_file | tr -d '[:space:]')
+        first_char=${cleaned_content:0:1}
+        last_char=${cleaned_content: -1}
+        echo "first character: $first_char, last character: $last_char"
 
-        compare_result=$(compare_version $version_a $release_version)
+        if [[ "$first_char" != "[" ]] || [[ "$last_char" != "]" ]]; then
+            echo "Failed to get latest release version, first character: $first_char, last character: $last_char"
+            return
+        fi
+
+        raw_release_version=$(cat $temp_file | jq -r "first(.[] | select(.prerelease == false))" | jq -r '.tag_name')
+        # release_version=$(cat $temp_file | jq -r "first(.[] | select(.prerelease == "false"))" | jq -r '.tag_name' | sed 's/^v//')
+        release_version=$(echo $raw_release_version | sed 's/^v//' | sed 's/-pre/./')
+        echo "Latest release version: $raw_release_version"
+
+        raw_latest_version=$(cat $temp_file | jq -r "first(.[])" | jq -r '.tag_name')
+        # latest_version=$(cat $temp_file | jq -r "first(.[])" | jq -r '.tag_name' | sed 's/^v//' | sed 's/-pre/./')
+        latest_version=$(echo $raw_latest_version | sed 's/^v//' | sed 's/-pre/./')
+        echo "Latest version: $raw_latest_version"
+
+        compare_result=$(compare_version $version_current $release_version)
         if [[ $compare_result -lt 0 ]]; then
             echo "Decky is outdated, update to latest version"
             set +e
