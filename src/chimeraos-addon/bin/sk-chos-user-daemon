@@ -12,6 +12,18 @@ function fix_games() {
     fi
 }
 
+function get_compare_desc() {
+    # 数字转为中文描述，0 -> 相等, 正数 -> 大于, 负数 -> 小于
+    local compare_result=$1
+    if [[ $compare_result -eq 0 ]]; then
+        echo "相等"
+    elif [[ $compare_result -gt 0 ]]; then
+        echo "大于"
+    else
+        echo "小于"
+    fi
+}
+
 function compare_version() {
     local version_a=$1
     local version_b=$2
@@ -21,14 +33,21 @@ function compare_version() {
     # 
     echo ">>> Compare version: ${version_a} and ${version_b}" >&2
 
-    for i in {0..3}; do
+    # 取两个版本号的最大长度
+    local max_len=${#version_a_arr[@]}
+    if [[ ${#version_b_arr[@]} -gt $max_len ]]; then
+        max_len=${#version_b_arr[@]}
+    fi
+
+
+    for i in $(seq 0 $max_len); do
         if [[ ${version_b_arr[$i]} == "" ]]; then
             version_b_arr[$i]=0
         fi
         if [[ ${version_a_arr[$i]} == "" ]]; then
             version_a_arr[$i]=0
         fi
-        echo ">>> ${i} ${version_a_arr[$i]} ${version_b_arr[$i]}" >&2
+        echo ">>> idx: ${i}, ${version_a_arr[$i]}, ${version_b_arr[$i]}" >&2
         if [[ ${version_a_arr[$i]} -gt ${version_b_arr[$i]} ]]; then
             # echo ">> ${version_a_arr[$i]} > ${version_b_arr[$i]}" >&2
             echo "1"
@@ -83,15 +102,26 @@ update_decky() {
         latest_version=$(echo $raw_latest_version | sed 's/^v//' | sed 's/-pre/./')
         echo "Latest version: $raw_latest_version"
 
-        compare_result=$(compare_version $version_current $release_version)
-        if [[ $compare_result -lt 0 ]]; then
-            echo "Decky is outdated, update to latest version"
+        cmp_latest_result=$(compare_version $version_current $latest_version)
+        cmp_release_result=$(compare_version $version_current $release_version)
+
+        cmp_latest_desc=$(get_compare_desc ${cmp_latest_result})
+        cmp_release_desc=$(get_compare_desc ${cmp_release_result})
+
+        echo "版本比较结果, 对比最新版本(含预发布): ${cmp_latest_desc}, 对比最新发布版本: ${cmp_release_desc}"
+
+        # 如果当前版本号包含 -pre, 优先通过 github 地址更新
+        if [[ $cmp_latest_result -lt 0 ]] && [[ $raw_version_current =~ "-pre" ]]; then
+            echo "Decky 版本过低, 通过 github 地址更新"
+            curl -sLk https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/install_release.sh | sed 's,#!/bin/sh,#!/bin/sh\nset -e,' | sed 's#| select(.prerelease == "false")##' | sh
+        elif [[ $cmp_release_result -lt 0 ]]; then
+            echo "Decky 版本过低, 更新"
             set +e
             curl -L http://dl.ohmydeck.net | sh
             if [[ $? -eq 0 ]]; then
-                echo "Decky updated successfully"
+                echo "Decky 更新成功"
             else
-                echo "Decky update failed, try official script"
+                echo "Decky 更新失败, 通过 github 地址更新"
                 curl -sLk https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/install_release.sh | sed 's,#!/bin/sh,#!/bin/sh\nset -e,' | sed 's#| select(.prerelease == "false")##' | sh
             fi
             set -e
@@ -100,8 +130,8 @@ update_decky() {
         fi
     else
         echo "Decky is not installed, skip update"
-        return
     fi
+    exit 0
 }
 
 echo "Auto set shell"
