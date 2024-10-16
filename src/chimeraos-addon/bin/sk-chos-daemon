@@ -54,7 +54,7 @@ if [ -n "$FORCE_ENABLE_INPUTPLUMBER" ]; then
 
     # check inputplumber is masked
     is_masked=$(systemctl is-enabled inputplumber)
-    if [ "$is_masked" == "masked" ]; then
+    if [[ "$is_masked" == "masked" ]]; then
         systemctl unmask inputplumber
     fi
     systemctl enable --now inputplumber
