@@ -12,6 +12,8 @@ if [ -x "$(command -v sk-unlock-pacman)" ]; then
     sk-unlock-pacman
 fi
 
+FORCE_ENABLE_INPUTPLUMBER=""
+
 ENABLE_MCU_POWERSAVE=""
 # 默认禁用 mcu powersave。 启用会导致 ROG Ally 睡眠唤醒后 N-Key 丢失
 if [[ "$PRODUCT" =~ "ROG Ally RC71L" ]]; then
@@ -23,6 +25,11 @@ if [[ "$PRODUCT" =~ "ROG Ally RC71L" ]]; then
     fi
 elif [[ "$PRODUCT" =~ "ROG Ally X RC72L" ]]; then
     ENABLE_MCU_POWERSAVE="1"
+    # 如果内核名称包含 -skX-chimeraos-X ，启用 InputPlumber, 禁用 hhd
+    if [[ "$(uname -r)" =~ -sk[1-9]-chimeraos-[1-9] ]]; then
+        ENABLE_MCU_POWERSAVE="1"
+        FORCE_ENABLE_INPUTPLUMBER="1"
+    fi
 fi
 
 echo "Enable MCU powersave: $ENABLE_MCU_POWERSAVE"
@@ -40,6 +47,20 @@ if [ -n "$ENABLE_MCU_POWERSAVE" ]; then
         fi
     fi
 fi
+
+
+if [ -n "$FORCE_ENABLE_INPUTPLUMBER" ]; then
+    systemctl disable --now hhd@gamer || true
+
+    # check inputplumber is masked
+    is_masked=$(systemctl is-enabled inputplumber)
+    if [ "$is_masked" == "masked" ]; then
+        systemctl unmask inputplumber
+    fi
+    systemctl enable --now inputplumber
+    echo "Force enable inputplumber and disable hhd for ROG Ally X RC72L"
+fi
+
 
 # 为 atd 创建目录
 mkdir -p /var/spool/atd
