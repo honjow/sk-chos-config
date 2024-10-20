@@ -283,9 +283,14 @@ wp_audio_sinks() {
         sed 's/^.* \([[:digit:]]*\)\. \(.*\) \[.*$/\1\t\2/'   
 }
 
-if [[ ":83E1:ROG Ally RC71L:G1617-01:" =~ ":$VENDOR:" ]]; then
-  wpctl set-volume $(wp_audio_sinks | grep "17h/19h" | sed 's@^[^0-9]*\([0-9]\+\).*@\1@') 100% || true
-fi
+function set_volume() {
+    sleep 20
+    if [[ ":83E1:ROG Ally RC71L:G1617-01:" =~ ":$VENDOR:" ]]; then
+        wpctl set-volume $(wp_audio_sinks | grep "17h/19h" | sed 's@^[^0-9]*\([0-9]\+\).*@\1@') 100% || true
+    fi
+}
+
+set_volume &
 
 fix_games &
 
