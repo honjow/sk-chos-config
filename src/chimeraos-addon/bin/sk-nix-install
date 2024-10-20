@@ -105,6 +105,8 @@ function install_nix() {
 
     bind_mount
 
+    sudo sed -i "s/Defaults secure_path=/# Defaults secure_path=/g" /etc/sudoers
+
     if [ -f "$nix_bash_backup" ]; then
         sudo mv $nix_bash_backup /etc/bashrc
     fi
