@@ -2,7 +2,8 @@
 
 set -o pipefail
 
-VENDOR=$(cat "/sys/devices/virtual/dmi/id/sys_vendor")
+VENDOR=$(cat "/sys/class/dmi/id/sys_vendor")
+PRODUCT=$(cat "/sys/class/dmi/id/product_name")
 USER_DIR=$HOME
 HOMEBREW_FOLDER="${USER_DIR}/homebrew"
 
@@ -285,7 +286,7 @@ wp_audio_sinks() {
 
 function set_volume() {
     sleep 20
-    if [[ ":83E1:ROG Ally RC71L:G1617-01:" =~ ":$VENDOR:" ]]; then
+    if [[ ":83E1:G1617-01:" =~ ":${PRODUCT}:" || "${PRODUCT}" =~ "ROG Ally RC71L" ]]; then
         wpctl set-volume $(wp_audio_sinks | grep "17h/19h" | sed 's@^[^0-9]*\([0-9]\+\).*@\1@') 100% || true
     fi
 }
