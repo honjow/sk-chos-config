@@ -27,7 +27,6 @@ elif [[ "$PRODUCT" =~ "ROG Ally X RC72L" ]]; then
     ENABLE_MCU_POWERSAVE="1"
     # 如果内核名称包含 -skX-chimeraos-X ，启用 InputPlumber, 禁用 hhd
     if [[ "$(uname -r)" =~ -sk[1-9]-chimeraos-[1-9] ]]; then
-        ENABLE_MCU_POWERSAVE="1"
         FORCE_ENABLE_INPUTPLUMBER="1"
     fi
 fi
