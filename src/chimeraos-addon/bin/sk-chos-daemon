@@ -6,7 +6,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 PRODUCT=$(cat /sys/class/dmi/id/product_name)
-SYS_VENDOR=$(cat /sys/class/dmi/id/sys_vendor)
+VENDOR=$(cat /sys/class/dmi/id/sys_vendor)
 
 if [ -x "$(command -v sk-unlock-pacman)" ]; then
     sk-unlock-pacman
@@ -72,7 +72,7 @@ fi
 # asusctl
 shortcut_path="/usr/share/applications/rog-control-center.desktop"
 no_display="false"
-if [[ "$SYS_VENDOR" != "ASUSTeK COMPUTER INC." ]]; then
+if [[ "$VENDOR" != "ASUSTeK COMPUTER INC." ]]; then
     no_display="true"
 fi
 

@@ -132,6 +132,11 @@ HHD_MATCH_LIST=(
 )
 
 function hhd_support() {
+    if [[ "$PRODUCT" =~ "ROG Ally X RC72L" ]] && [[ "$(uname -r)" =~ -sk[1-9]-chimeraos-[1-9] ]]; then
+        # 如果内核名称包含 -skX-chimeraos-X ，启用 InputPlumber, 禁用 hhd
+        return 1
+    fi
+
     for item in "${HHD_MATCH_LIST[@]}"; do
         if [[ "$PRODUCT" =~ "$item" ]]; then
             return 0
