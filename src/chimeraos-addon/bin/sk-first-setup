@@ -349,6 +349,8 @@ function install_css_theme() {
             elif [[ "$PRODUCT" == "G1618-03" ]]; then
                 # GPD Win3
                 set_ps5_theme_default "GPD Win3"
+            elif [[ "$PRODUCT" == "83E1" ]]; then
+                set_ps5_theme_default "Legion Go"
             elif [[ ":$AYANEO_AIR_LIST:" =~ ":$PRODUCT:" ]]; then
                 set_ps5_theme_default "AYANEO AIR"
             elif [[ "$VENDOR" == "AYANEO" ]]; then
