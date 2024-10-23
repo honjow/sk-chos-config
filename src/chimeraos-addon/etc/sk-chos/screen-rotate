@@ -89,9 +89,11 @@ if [[ "$SCREEN_MODEL_NAME" == "TL070FVXS01-0" ]]; then
     ROTATE_OFFSET="0"
 fi
 
-if [[ "$ROTATE_OFFSET" != "0" ]]; then
-    export FBCON_PARA="rotate:$ROTATE_OFFSET"
-fi
+# if [[ "$ROTATE_OFFSET" != "0" ]]; then
+#     export FBCON_PARA="rotate:$ROTATE_OFFSET"
+# fi
+
+export FBCON_PARA="rotate:$ROTATE_OFFSET"
 
 video=""
 
