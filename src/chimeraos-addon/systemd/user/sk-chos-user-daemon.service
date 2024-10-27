@@ -1,6 +1,6 @@
 [Unit]
 Description=Sk-Chimeraos user daemon
-After=network.target
+After=graphical.target
 
 [Service]
 Type=simple
