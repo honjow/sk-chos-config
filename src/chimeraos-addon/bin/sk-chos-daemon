@@ -12,10 +12,10 @@ if [ -x "$(command -v sk-unlock-pacman)" ]; then
     sk-unlock-pacman
 fi
 
-BLACKLIST_HID=""
+# 启用内核模块黑名单
+BLACKLIST_HID_ALLY=""
 
-FORCE_ENABLE_INPUTPLUMBER=""
-
+# 新版本内核处理标志
 NEW_KERNEL_PROC_FLAG=""
 
 ENABLE_MCU_POWERSAVE=""
@@ -66,7 +66,7 @@ function enable_hhd_for_rog_ally_x_rc72l() {
 blacklist_file="/etc/modprobe.d/hid-asus-rog-ally.conf"
 modename="hid_asus_ally"
 
-if [[ "$BLACKLIST_HID" == "Y" && -n "$NEW_KERNEL_PROC_FLAG" ]]; then
+if [[ "$BLACKLIST_HID_ALLY" == "Y" && -n "$NEW_KERNEL_PROC_FLAG" ]]; then
     if [ ! -f "$blacklist_file" ]; then
         echo "blacklist $modename" >$blacklist_file
         depmod -a
