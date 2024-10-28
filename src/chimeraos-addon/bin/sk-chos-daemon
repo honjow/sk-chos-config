@@ -16,9 +16,10 @@ fi
 BLACKLIST_HID_ALLY=""
 
 # 新版本内核处理标志
-NEW_KERNEL_PROC_FLAG=""
+ALLY_NEW_KERNEL_PROC_FLAG=""
 
 ENABLE_MCU_POWERSAVE=""
+
 # 默认禁用 mcu powersave。 启用会导致 ROG Ally 睡眠唤醒后 N-Key 丢失
 if [[ "$PRODUCT" =~ "ROG Ally RC71L" ]]; then
     ENABLE_MCU_POWERSAVE="0"
@@ -31,7 +32,7 @@ elif [[ "$PRODUCT" =~ "ROG Ally X RC72L" ]]; then
     ENABLE_MCU_POWERSAVE="1"
     # 如果内核名称包含 -skX-chimeraos-X ，hid-asus-rog-ally 加入黑名单
     if [[ "$(uname -r)" =~ -sk[1-9]-chimeraos-[1-9] ]]; then
-        NEW_KERNEL_PROC_FLAG="1"
+        ALLY_NEW_KERNEL_PROC_FLAG="1"
     fi
 fi
 
@@ -51,7 +52,7 @@ if [ -n "$ENABLE_MCU_POWERSAVE" ]; then
     fi
 fi
 
-function enable_hhd_for_rog_ally_x_rc72l() {
+function enable_hhd() {
     systemctl disable --now inputplumber || true
 
     # check hhd@gamer is masked
@@ -60,46 +61,66 @@ function enable_hhd_for_rog_ally_x_rc72l() {
         systemctl unmask hhd@gamer
     fi
     systemctl enable --now hhd@gamer
-    echo "Enable hhd for ROG Ally X RC72L"
+    echo "Enable hhd"
+}
+
+function enable_inputplumber() {
+    systemctl disable --now hhd@gamer || true
+
+    # check inputplumber is masked
+    is_masked=$(systemctl is-enabled inputplumber)
+    if [[ "$is_masked" == "masked" ]]; then
+        systemctl unmask inputplumber
+    fi
+    systemctl enable --now inputplumber
+    echo "Enable inputplumber"
 }
 
 blacklist_file="/etc/modprobe.d/hid-asus-rog-ally.conf"
-modename="hid_asus_ally"
+mod_name="hid_asus_ally"
 
-if [[ "$BLACKLIST_HID_ALLY" == "Y" && -n "$NEW_KERNEL_PROC_FLAG" ]]; then
-    if [ ! -f "$blacklist_file" ]; then
-        echo "blacklist $modename" >$blacklist_file
-        depmod -a
-        modprobe -r $modename
-        enable_hhd_for_rog_ally_x_rc72l
-    else
-        check=$(cat $blacklist_file | grep "blacklist ${modename}")
-        if [ -z "$check" ]; then
-            echo "blacklist $modename" >$blacklist_file
+if [[ "$PRODUCT" =~ "ROG Ally X RC72L" ]]; then
+    if [[ "$BLACKLIST_HID_ALLY" == "Y" && -n "$ALLY_NEW_KERNEL_PROC_FLAG" ]]; then
+        echo "Force blacklist $mod_name"
+        if [ ! -f "$blacklist_file" ]; then
+            echo "blacklist $mod_name" >$blacklist_file
             depmod -a
-            modprobe -r modename
-            enable_hhd_for_rog_ally_x_rc72l
+            modprobe -r $mod_name
+            enable_hhd
+        else
+            check=$(cat $blacklist_file | grep "blacklist ${mod_name}")
+            if [ -z "$check" ]; then
+                echo "blacklist $mod_name" >$blacklist_file
+                depmod -a
+                modprobe -r mod_name
+                enable_hhd
+            fi
+        fi
+    else
+        if [ -f "$blacklist_file" ]; then
+            echo "Remove blacklist $mod_name"
+            rm -f "$blacklist_file"
+            depmod -a
+            modprobe -r $mod_name
+        fi
+
+        if [ -n "$ALLY_NEW_KERNEL_PROC_FLAG" ]; then
+            echo "Start Enable inputplumber"
+            enable_inputplumber
+        else
+            echo "Start Enable hhd"
+            # hhd flag file
+            hhd_flag_file="/etc/.hhd_flag"
+            kernel_version=$(uname -r)
+            if [[ ! -f "$hhd_flag_file" || "$(cat $hhd_flag_file)" != "$kernel_version" ]]; then
+                echo "Flag file not found or kernel version changed"
+                enable_hhd
+                echo "$kernel_version" >$hhd_flag_file
+            else
+                echo "Flag file found and kernel version not changed, skip enable hhd"
+            fi
         fi
     fi
-else
-    if [ -f "$blacklist_file" ]; then
-        rm -f "$blacklist_file"
-        depmod -a
-        modprobe -r $modename
-    fi
-
-    if [ -n "$NEW_KERNEL_PROC_FLAG" ]; then
-        systemctl disable --now hhd@gamer || true
-
-        # check inputplumber is masked
-        is_masked=$(systemctl is-enabled inputplumber)
-        if [[ "$is_masked" == "masked" ]]; then
-            systemctl unmask inputplumber
-        fi
-        systemctl enable --now inputplumber
-        echo "Force enable inputplumber and disable hhd for ROG Ally X RC72L"
-    fi
-
 fi
 
 # 为 atd 创建目录

@@ -236,7 +236,6 @@ function compare_version() {
     local version_a_arr=(${version_a//./ })
     local version_b_arr=(${version_b//./ })
 
-    # 
     echo ">>> Compare version: ${version_a} and ${version_b}" >&2
 
     for i in {0..2}; do
