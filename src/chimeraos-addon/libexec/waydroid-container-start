@@ -15,7 +15,11 @@ if ! grep -q "persist.waydroid.uevent=true" "/var/lib/waydroid/waydroid_base.pro
 fi
 
 if [[ ! -z "$WAYDROID_DENSITY" ]]; then
-  sudo sed -i "s/ro.sf.lcd_density=.*/ro.sf.lcd_density=${WAYDROID_DENSITY}/g" /var/lib/waydroid/waydroid_base.prop
+  if ! grep -q "ro.sf.lcd_density=" "/var/lib/waydroid/waydroid_base.prop"; then
+    echo "ro.sf.lcd_density=${WAYDROID_DENSITY}" | sudo tee -a /var/lib/waydroid/waydroid_base.prop
+  else
+    sudo sed -i "s/ro.sf.lcd_density=.*/ro.sf.lcd_density=${WAYDROID_DENSITY}/g" /var/lib/waydroid/waydroid_base.prop
+  fi
 fi
 sudo sed -i "s/ro.hardware.gralloc=.*/ro.hardware.gralloc=${WAYDROID_GRALLOC:-minigbm_gbm_mesa}/g" /var/lib/waydroid/waydroid_base.prop
 
