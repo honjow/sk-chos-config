@@ -50,6 +50,7 @@ decky_version_file=$decky_path/.loader.version
 decky_plugin_path=$pre_path/decky-plugins
 css_path=$pre_path/css
 css_hhd_path=$pre_path/css-hhd
+rime_config_path=$pre_path/rime_config
 
 USER_DIR=$HOME
 HOMEBREW_FOLDER="${USER_DIR}/homebrew"
@@ -423,6 +424,20 @@ function user_setup_after_update() {
     done
 }
 
+function copy_rime_config() {
+    if [[ -d $rime_config_path ]]; then
+        ibus_config_path="${USER_DIR}/.config/ibus"
+        dst_dir="${ibus_config_path}/rime"
+        mkdir -p $ibus_config_path
+        mkdir -p $dst_dir
+        if [[ ! -d "${dst_dir}/.git" ]]; then
+            echo "Copying rime config..."
+            rsync -a "$rime_config_path/" "${USER_DIR}/.config/ibus/rime/"
+        fi
+        chown -R ${USER}:${USER} $dst_dir
+    fi
+}
+
 case $ACTION in
 "--update")
     install_decky
@@ -431,6 +446,7 @@ case $ACTION in
     restart_plugin_loader
     device_quirks
     user_setup_after_update
+    copy_rime_config
     ;;
 *)
     install_decky
@@ -439,6 +455,7 @@ case $ACTION in
     restart_plugin_loader
     device_quirks
     user_setup_after_update
+    copy_rime_config
     flatpak_auto_repo
     ;;
 esac
