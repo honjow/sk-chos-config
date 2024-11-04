@@ -101,7 +101,7 @@ for device in "${LIST_720P_DEVICES[@]}"; do
 done
 
 
-if [ -x $(command -v edid-decode) ]; then
+if [ -x $(command -v edid-decode) ] && [[ -z "$WAYDROID_DENSITY" || -z "$WAYDROID_WIDTH" || -z "$WAYDROID_HEIGHT" ]]; then
     connected=$(grep -H . /sys/class/drm/card*-*/status | grep :connected | cut -d: -f1 | head -n1 | sed 's/\/status//')
     if [ -n "$connected" ]; then
         EDID=$(cat $connected/edid | edid-decode)
@@ -110,7 +110,7 @@ if [ -x $(command -v edid-decode) ]; then
         resolution=$(echo "$EDID" | grep 'DTD 1: ' | awk '{print $3}')
         resolution_width=$(echo "$resolution" | cut -d'x' -f1)
         resolution_height=$(echo "$resolution" | cut -d'x' -f2)
-        if [ -n "$size_width" ] && [ -n "$size_height" ]; then
+        if [ -n "$resolution_width" ] && [ -n "$resolution_height" ] && [ -z "$WAYDROID_WIDTH" ] && [ -z "$WAYDROID_HEIGHT" ]; then
             # 长边为 width 短边为 height
             if [ $resolution_width -gt $resolution_height ]; then
                 WAYDROID_WIDTH=$resolution_width
@@ -120,19 +120,24 @@ if [ -x $(command -v edid-decode) ]; then
                 WAYDROID_HEIGHT=$resolution_width
             fi
         fi
-        # 计算像素密度
-        ppi=$(echo "scale=1; sqrt($resolution_width^2 + $resolution_height^2) / (sqrt($size_width^2 + $size_height^2) / 2.54)" | bc -l)
-        
-        # 根据像素密度设置 WAYDROID_DENSITY 最接近的整 10 数
-        WAYDROID_DENSITY=$(echo "scale=0; ($ppi + 5) / 10 * 10" | bc -l)
-        
-        # 根据像素密度设置 WAYDROID_DENSITY 最接近的整数
-        # DENSITY_LIST=(160 240 320 480 640)
-        # for density in "${DENSITY_LIST[@]}"; do
-        #     if [ $ppi -lt $density ]; then
-        #         WAYDROID_DENSITY=$density
-        #         break
-        #     fi
-        # done
+
+
+        if [[ -z "$WAYDROID_DENSITY" ]]; then
+            # 计算像素密度
+            ppi=$(echo "scale=4; sqrt($resolution_width^2 + $resolution_height^2) / (sqrt($size_width^2 + $size_height^2) / 2.54)" | bc -l)
+            ppi=${echo "scale=0; $ppi / 1" | bc -l}
+
+            # 根据像素密度设置 WAYDROID_DENSITY 最接近的整 10 数
+            WAYDROID_DENSITY=$(echo "scale=0; ($ppi + 5) / 10 * 10" | bc -l)
+
+            # 根据像素密度设置 WAYDROID_DENSITY 最接近的整数
+            # DENSITY_LIST=(160 240 320 480 640)
+            # for density in "${DENSITY_LIST[@]}"; do
+            #     if [ $ppi -lt $density ]; then
+            #         WAYDROID_DENSITY=$density
+            #         break
+            #     fi
+            # done
+        fi
     fi 
 fi

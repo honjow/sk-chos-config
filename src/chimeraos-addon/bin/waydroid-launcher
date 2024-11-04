@@ -18,14 +18,14 @@ function is_steam_gamepad_running {
     return 1
 }
 
-for i in "${HOME}"/.config/environment.d/*.conf; do
-    [[ -f "${i}" ]] && . "${i}"
-done
-
 # Import defaults if WIDTH/HEIGHT is not defined by an external script
 if [ -z "${WAYDROID_WIDTH:-}" ] || [ -z "${WAYDROID_HEIGHT:-}" ]; then
     source /etc/default/waydroid-launcher
 fi
+
+for i in "${HOME}"/.config/environment.d/*.conf; do
+    [[ -f "${i}" ]] && . "${i}"
+done
 
 # for backwards compatibility, default to show-full-ui
 if (($# == 0)); then
