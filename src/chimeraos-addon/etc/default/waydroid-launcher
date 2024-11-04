@@ -8,34 +8,6 @@ WAYDROID_GRALLOC=minigbm_gbm_mesa
 
 PRODUCT=$(cat /sys/devices/virtual/dmi/id/product_name)
 
-# Handle nested desktop resolution for known devices.
-# case "$(cat /sys/devices/virtual/dmi/id/product_name)" in
-#     "Jupiter" | "Galileo" | "GEEK" | "GEEK 1S" | "G1619-05")
-#         WAYDROID_WIDTH=1280
-#         WAYDROID_HEIGHT=800
-#         WAYDROID_DENSITY=215 ;;
-#     "ROG Ally RC71L" | "ROG Ally RC71L_RC71L" | "G1618-04" | "G1617-01" | "Loki Max" | "AIR Plus")
-#         WAYDROID_WIDTH=1920
-#         WAYDROID_HEIGHT=1080 ;;
-#     "AYANEO 2" | "AYANEO 2S" | "AOKZOE A1 AR07" | "AOKZOE A1 Pro" | "G1619-04")
-#         WAYDROID_WIDTH=1920
-#         WAYDROID_HEIGHT=1200 ;;
-#     "83E1" | "ONEXPLAYER 2 ARP23" | "ONEXPLAYER 2 PRO ARP23H" | "ONEXPLAYER 2 PRO ARP23P" | "ONEXPLAYER 2 PRO ARP23P EVA-01")
-#         WAYDROID_WIDTH=2560
-#         WAYDROID_HEIGHT=1600
-#         WAYDROID_DENSITY=340 ;;
-#     "Win600")
-#         WAYDROID_WIDTH=1280
-#         WAYDROID_HEIGHT=720 ;;
-#     "V3")
-#         WAYDROID_WIDTH=2560
-#         WAYDROID_HEIGHT=1600
-#         WAYDROID_DENSITY=240 ;;
-#     *)
-#         WAYDROID_WIDTH=$WAYDROID_UNKNOWN_WIDTH
-#         WAYDROID_HEIGHT=$WAYDROID_UNKNOWN_HEIGHT ;;
-# esac
-
 LIST_800P_DEVICES=(
     "Jupiter"
     "Galileo"
@@ -127,3 +99,40 @@ for device in "${LIST_720P_DEVICES[@]}"; do
         break
     fi
 done
+
+
+if [ -x $(command -v edid-decode) ]; then
+    connected=$(grep -H . /sys/class/drm/card*-*/status | grep :connected | cut -d: -f1 | head -n1 | sed 's/\/status//')
+    if [ -n "$connected" ]; then
+        EDID=$(cat $connected/edid | edid-decode)
+        size_width=$(echo "$EDID" | grep 'Maximum image size' | awk '{print $4}')
+        size_height=$(echo "$EDID" | grep 'Maximum image size' | awk '{print $7}')
+        resolution=$(echo "$EDID" | grep 'DTD 1: ' | awk '{print $3}')
+        resolution_width=$(echo "$resolution" | cut -d'x' -f1)
+        resolution_height=$(echo "$resolution" | cut -d'x' -f2)
+        if [ -n "$size_width" ] && [ -n "$size_height" ]; then
+            # 长边为 width 短边为 height
+            if [ $resolution_width -gt $resolution_height ]; then
+                WAYDROID_WIDTH=$resolution_width
+                WAYDROID_HEIGHT=$resolution_height
+            else
+                WAYDROID_WIDTH=$resolution_height
+                WAYDROID_HEIGHT=$resolution_width
+            fi
+        fi
+        # 计算像素密度
+        ppi=$(echo "scale=1; sqrt($resolution_width^2 + $resolution_height^2) / (sqrt($size_width^2 + $size_height^2) / 2.54)" | bc -l)
+        
+        # 根据像素密度设置 WAYDROID_DENSITY 最接近的整 10 数
+        WAYDROID_DENSITY=$(echo "scale=0; ($ppi + 5) / 10 * 10" | bc -l)
+        
+        # 根据像素密度设置 WAYDROID_DENSITY 最接近的整数
+        # DENSITY_LIST=(160 240 320 480 640)
+        # for density in "${DENSITY_LIST[@]}"; do
+        #     if [ $ppi -lt $density ]; then
+        #         WAYDROID_DENSITY=$density
+        #         break
+        #     fi
+        # done
+    fi 
+fi
