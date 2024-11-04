@@ -101,6 +101,11 @@ for device in "${LIST_720P_DEVICES[@]}"; do
     fi
 done
 
+original_user=$(ps -o user= -p $PPID)
+original_home=$(getent passwd $original_user | cut -d: -f6)
+for i in "${original_home}"/.config/environment.d/*.conf; do
+    [[ -f "${i}" ]] && . "${i}"
+done
 
 if [ -x $(command -v edid-decode) ] && [[ -z "$WAYDROID_DENSITY" || -z "$WAYDROID_WIDTH" || -z "$WAYDROID_HEIGHT" ]]; then
     connected=$(grep -H . /sys/class/drm/card*-*/status | grep :connected | cut -d: -f1 | head -n1 | sed 's/\/status//')

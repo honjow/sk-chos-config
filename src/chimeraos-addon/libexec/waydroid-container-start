@@ -6,6 +6,12 @@ if [ -z "${WAYDROID_WIDTH:-}" ] || [ -z "${WAYDROID_HEIGHT:-}" ]; then
     source /etc/default/waydroid-launcher
 fi
 
+original_user=$(ps -o user= -p $PPID)
+original_home=$(getent passwd $original_user | cut -d: -f6)
+for i in "${original_home}"/.config/environment.d/*.conf; do
+    [[ -f "${i}" ]] && . "${i}"
+done
+
 # Ensure needed props are present
 if ! grep -q "persist.waydroid.udev=true" "/var/lib/waydroid/waydroid_base.prop"; then
   sudo sh -c 'echo -e "persist.waydroid.udev=true" >> /var/lib/waydroid/waydroid_base.prop'
