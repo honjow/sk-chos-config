@@ -27,6 +27,8 @@ for i in "${HOME}"/.config/environment.d/*.conf; do
     [[ -f "${i}" ]] && . "${i}"
 done
 
+echo "WAYDROID_WIDTH: ${WAYDROID_WIDTH}, WAYDROID_HEIGHT: ${WAYDROID_HEIGHT}, WAYDROID_DENSITY: ${WAYDROID_DENSITY}"
+
 # for backwards compatibility, default to show-full-ui
 if (($# == 0)); then
 	set -- show-full-ui

@@ -47,6 +47,7 @@ LIST_720P_DEVICES=(
 
 WAYDROID_WIDTH=$WAYDROID_UNKNOWN_WIDTH
 WAYDROID_HEIGHT=$WAYDROID_UNKNOWN_HEIGHT
+WAYDROID_DENSITY=""
 
 for device in "${LIST_800P_DEVICES[@]}"; do
     if [[ "$PRODUCT" =~ $device ]]; then
@@ -125,7 +126,7 @@ if [ -x $(command -v edid-decode) ] && [[ -z "$WAYDROID_DENSITY" || -z "$WAYDROI
         if [[ -z "$WAYDROID_DENSITY" ]]; then
             # 计算像素密度
             ppi=$(echo "scale=4; sqrt($resolution_width^2 + $resolution_height^2) / (sqrt($size_width^2 + $size_height^2) / 2.54)" | bc -l)
-            ppi=${echo "scale=0; $ppi / 1" | bc -l}
+            ppi=${ppi%.*}
 
             # 根据像素密度设置 WAYDROID_DENSITY 最接近的整 10 数
             WAYDROID_DENSITY=$(echo "scale=0; ($ppi + 5) / 10 * 10" | bc -l)
