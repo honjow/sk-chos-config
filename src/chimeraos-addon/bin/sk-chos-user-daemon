@@ -276,10 +276,12 @@ wp_audio_sinks() {
         awk 'BEGIN { A=0; S=0; }
             /^Audio/ { A=1; }
             /Sinks/ { S=1; }
+            /Filters/ { S=1; }
             /Sources/ { S=0; }
+            /Streams/ { S=0; }
             /Sink endpoints/ { S=0; }
             /^Video/ { A=0; }
-            { if (A==1 && S==1 && / [[:digit:]]*\./) 
+            { if (A==1 && S==1 && / [[:digit:]]*\./ && !/\[Stream\/Output\/Audio\]/) 
                  { print; } }' |
         sed 's/^.* \([[:digit:]]*\)\. \(.*\) \[.*$/\1\t\2/'   
 }

@@ -148,8 +148,12 @@ fi
 
 # WAYDROID FIX
 if [[ -f "/var/lib/waydroid/lxc/waydroid/config" ]]; then
-    echo "Removing unneeded apparmor entry from Waydroid LXC"
-    sed -i '/lxc\.apparmor\.profile\s*=\s*unconfined/d' "/var/lib/waydroid/lxc/waydroid/config"
+    # echo "Removing unneeded apparmor entry from Waydroid LXC"
+    # sed -i '/lxc\.apparmor\.profile\s*=\s*unconfined/d' "/var/lib/waydroid/lxc/waydroid/config"
+    if grep -q "lxc.apparmor.profile" "/var/lib/waydroid/lxc/waydroid/config"; then
+        echo "Removing unneeded apparmor entry from Waydroid LXC"
+        sed -i '/lxc\.apparmor\.profile\s*=\s*unconfined/d' "/var/lib/waydroid/lxc/waydroid/config"
+    fi
 fi
 
 # set hibernatemode
