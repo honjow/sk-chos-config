@@ -16,6 +16,35 @@ def __get_steam_user_dirs(steam_dir):
     return user_dirs
 
 
+def __get_current_steam_user():
+    loginusers_vdf = os.path.join(STEAM_DIR, "config/loginusers.vdf")
+    if not os.path.exists(loginusers_vdf):
+        return None
+    with open(loginusers_vdf, "r") as f:
+        text = f.read()
+        # print(text)
+        data = vdf.loads(text)
+        for id in data["users"]:
+            steamID64 = id
+            steamID3 = int(steamID64) - 76561197960265728
+            userInfo = data["users"][steamID64]
+            # print(f"SteamID64: {steamID64}, Info: {userInfo}")
+            if "MostRecent" in userInfo and userInfo["MostRecent"] == "1":
+                userInfo["SteamID64"] = steamID64
+                userInfo["SteamID3"] = steamID3
+                return userInfo
+    return None
+
+
+def get_current_steam_user():
+    user = __get_current_steam_user()
+    if user is None:
+        sys.stderr.write("错误: 无法获取当前 Steam 用户\n")
+        sys.exit(1)
+    print(user)
+    sys.exit(0)
+
+
 DATA_HOME = os.path.expanduser("~/.local/share")
 STEAM_DIR = os.path.join(DATA_HOME, "Steam")
 STEAM_USER_DIRS = __get_steam_user_dirs(STEAM_DIR)
@@ -125,7 +154,7 @@ def remove_all_images(dst, dstext):
             os.remove(f)
 
 
-def create_image(
+def create_image_(
     img_path,
     compat_id,
     img_type_dst=None,
@@ -183,7 +212,12 @@ def create_image_from_exe(exe, name, img_path, img_type_dst=None):
 
 
 def check_shortcut_exists(name, exe):
+    user = __get_current_steam_user()
+    steamID3 = user["SteamID3"]
     for user_dir in STEAM_USER_DIRS:
+        if steamID3 and os.path.basename(user_dir) != steamID3:
+            continue
+
         steam_shortcuts_file = SteamShortcutsFile(os.path.basename(user_dir))
         shortcuts_map = steam_shortcuts_file.get_current_data()
         for key in shortcuts_map:
@@ -226,7 +260,7 @@ def main():
         "--type",
         type=str,
         default="setimg",
-        choices=["setimg", "isexisted"],
+        choices=["setimg", "isexisted", "getuser"],
         help="操作类型, 默认为 setimg",
     )
     parser.add_argument(
@@ -282,6 +316,9 @@ def main():
                 sys.exit(0)
             else:
                 sys.exit(1)
+
+    if args.type == "getuser":
+        get_current_steam_user()
 
 
 if __name__ == "__main__":
