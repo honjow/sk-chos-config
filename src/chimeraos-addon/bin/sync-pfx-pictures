@@ -1,0 +1,102 @@
+#!/bin/bash
+
+set -e
+
+# This script is used to sync the pictures from the Steam Proton PFX to the local machine
+
+ACTION=$1
+
+# Set the PFX path
+PFX_PATH="$HOME/.steam/steam/steamapps/compatdata/*/pfx/drive_c/users/steamuser/Pictures"
+
+# Set the local path
+LOCAL_PATH="$HOME/Pictures/SteamProtonPictures"
+
+mkdir -p "$LOCAL_PATH"
+
+function sync_pic {
+    local pfx_dir=$1
+    local appid=$2
+
+    user_dir="$LOCAL_PATH"
+
+    if [ -d "$pfx_dir" ]; then
+        echo "Syncing pictures for $appid"
+        rsync -av --delete "${pfx_dir}/" "${user_dir}/"
+    fi
+}
+
+function create_symlink {
+    local pfx_dir=$1
+    local appid=$2
+
+    user_dir="$LOCAL_PATH"
+
+    if [ -L "$pfx_dir" ]; then
+        real_dir=$(readlink -f "$pfx_dir")
+        if [[ "$real_dir" == "$user_dir" ]]; then
+            echo "Symlink already exists for $appid"
+            return
+        fi
+
+        if [ -d "$real_dir" ]; then
+            echo "Copying files from $real_dir to $user_dir"
+            rsync -av "${real_dir}/" "${user_dir}/"
+        fi
+
+        # remove the symlink
+        rm -rf "$pfx_dir"
+
+        # create the symlink
+        echo "Creating symlink for $appid"
+        ln -sf "$user_dir" "$pfx_dir"
+    fi
+
+    # if pfx_dir is a directory, and is not empty, copy the files to the local path
+    if [ -d "$pfx_dir" ] && [ ! -L "$pfx_dir" ]; then
+        if [ "$(ls -A $pfx_dir)" ]; then
+            echo "Copying files from $pfx_dir to $user_dir"
+            rsync -av "${pfx_dir}/" "${user_dir}/"
+        fi
+
+        # remove the directory
+        rm -rf "$pfx_dir"
+
+        # create the symlink
+        echo "Creating symlink for $appid"
+        ln -sf "$user_dir" "$pfx_dir"
+    fi
+}
+
+function sync_all {
+    for pfx_dir in $PFX_PATH; do
+        appid=$(echo $pfx_dir | grep -oP 'compatdata/\K\d+')
+        local_dir="$LOCAL_PATH/$appid"
+
+        # sync the pictures
+        sync_pic "$pfx_dir" "$appid"
+    done
+}
+
+function symlink_all {
+    for pfx_dir in $PFX_PATH; do
+        appid=$(echo $pfx_dir | grep -oP 'compatdata/\K\d+')
+        local_dir="$LOCAL_PATH/$appid"
+
+        # create the symlink
+        create_symlink "$pfx_dir" "$appid"
+    done
+}
+
+case $ACTION in
+sync)
+    sync_all
+    ;;
+symlink)
+    symlink_all
+    ;;
+*)
+    echo "Usage: $0 {sync|symlink}"
+    exit 1
+    ;;
+esac
