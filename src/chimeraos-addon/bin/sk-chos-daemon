@@ -131,6 +131,11 @@ if [ -x "$(command -v frzr-unlock)" ]; then
     frzr-unlock
 fi
 
+# /var/lib/boltd/version
+if [[ -z "$(cat /var/lib/boltd/version 2>/dev/null)" ]]; then
+    echo "1" >/var/lib/boltd/version
+fi
+
 # asusctl
 shortcut_path="/usr/share/applications/rog-control-center.desktop"
 no_display="false"
