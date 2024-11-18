@@ -187,7 +187,6 @@ if [[ -f "$fstab_path" && -f "$deplayment_fstab_path" ]]; then
     fi
 fi
 
-
 function device_quirks() {
     PYTHON_SITE_PACKAGES_PATH=$(python3 -c "import site; print(site.getsitepackages()[0])")
     HHD_PATH="${PYTHON_SITE_PACKAGES_PATH}/hhd"
@@ -199,6 +198,12 @@ function device_quirks() {
             echo "Appay HHD patch for OrangePi NEO"
             curl -sSL $PATCH_URL | patch -d $HHD_PATH -p1
             echo "Patch applied"
+
+            status=$(systemctl is-enabled hhd@gamer 2>/dev/null)
+            if [[ "$status" == "enabled" ]]; then
+                echo "Restart hhd@gamer"
+                systemctl restart hhd@gamer
+            fi
         fi
     fi
 
