@@ -427,16 +427,33 @@ function user_setup_after_update() {
 }
 
 function copy_rime_config() {
-    if [[ -d $rime_config_path ]]; then
+    if [[ -d "${rime_config_path}" ]]; then
         ibus_config_path="${USER_DIR}/.config/ibus"
         dst_dir="${ibus_config_path}/rime"
-        mkdir -p $ibus_config_path
-        mkdir -p $dst_dir
+        
+        if ! mkdir -p "${ibus_config_path}"; then
+            echo "Error: Failed to create ibus config directory"
+            return 1
+        fi
+        chown "${USER}:${USER}" "${ibus_config_path}"
+        
+        if ! mkdir -p "${dst_dir}"; then
+            echo "Error: Failed to create rime config directory"
+            return 1
+        fi
+        chown "${USER}:${USER}" "${dst_dir}"
+        
         if [[ ! -d "${dst_dir}/.git" ]]; then
             echo "Copying rime config..."
-            rsync -a "$rime_config_path/" "${USER_DIR}/.config/ibus/rime/"
+            if ! rsync -a "${rime_config_path}/" "${dst_dir}/"; then
+                echo "Error: Failed to copy rime config"
+                return 1
+            fi
+            chown -R "${USER}:${USER}" "${dst_dir}"
         fi
-        chown -R ${USER}:${USER} $dst_dir
+    else
+        echo "Warning: Rime config source directory not found at ${rime_config_path}"
+        return 0
     fi
 }
 

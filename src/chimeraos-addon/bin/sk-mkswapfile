@@ -2,8 +2,37 @@
 
 set -e
 
+# 定义常用路径
+FRZR_ROOT="/frzr_root"
+SWAP_DIR="${FRZR_ROOT}/swap"
+SWAP_FILE="${SWAP_DIR}/swapfile"
+SUSPEND_SERVICE="/etc/systemd/system/systemd-suspend.service"
+
+# 简单的错误处理
+trap 'echo "在第 $LINENO 行发生错误"; exit 1' ERR
+
+# 恢复备份函数
+restore_backup() {
+    local backup_path="$1"
+    if [ -n "$backup_path" ] && [ -f "$backup_path" ]; then
+        echo "正在恢复备份..."
+        rm -f "$SWAP_FILE"
+        mv "$backup_path" "$SWAP_FILE"
+        if swapon "$SWAP_FILE"; then
+            echo "备份恢复成功"
+            return 0
+        else
+            echo "备份恢复失败"
+            return 1
+        fi
+    else
+        echo "没有可用的备份文件"
+        return 1
+    fi
+}
+
 if [ "$EUID" -ne 0 ]; then
-    echo "This script must be run as root or with sudo."
+    echo "此脚本必须以 root 权限或通过 sudo 运行"
     exit 1
 fi
 
@@ -12,89 +41,88 @@ SIZE=$1
 source /etc/sk-chos/sk-chos.conf
 swapfile_size=${4:-$SWAP_FILE_SIZE}
 
-# 使用dmidecode查找RAM信息，然后使用grep和awk提取RAM大小
+# 检查并获取RAM信息
 ram_info=$(sudo dmidecode -t 17 | tr -d '\t' | grep "^Size: [0-9]* [MG]B" | awk '{print $2}')
 ram_size_num=$(echo "$ram_info" | awk '{sum += $1} END {print sum}')
 
-suspend_service_path="/etc/systemd/system/systemd-suspend.service"
-if [ -f $suspend_service_path ]; then
-    if cat $suspend_service_path | grep -q "systemd-sleep hibernate"; then
-        # 创建和内存大小相同的swapfile
-        swapfile_size=$ram_size_num
-    fi
-    if cat $suspend_service_path | grep -q "systemd-sleep suspend-then-hibernate"; then
-        # 创建和内存大小相同的swapfile
+if [ -f "$SUSPEND_SERVICE" ]; then
+    if cat "$SUSPEND_SERVICE" | grep -q "systemd-sleep hibernate" || \
+       cat "$SUSPEND_SERVICE" | grep -q "systemd-sleep suspend-then-hibernate"; then
         swapfile_size=$ram_size_num
     fi
 fi
 
-# 如果用户提供了参数，则使用用户提供的参数
+# 使用用户提供的参数或默认值
 swapfile_size=${SIZE:-$swapfile_size}
 
-echo "swapfile大小: $swapfile_size GiB"
+echo "交换文件大小: $swapfile_size GiB"
 
-# 检查 swapfile 格式
-if ! [[ "$swapfile_size" =~ ^[0-9]+$ ]]; then
-    echo "swapfile大小必须是一个整数 (单位: GiB)"
+# 验证swap大小
+if ! [[ "$swapfile_size" =~ ^[0-9]+$ ]] || [ "$swapfile_size" -lt 1 ]; then
+    echo "错误: 交换文件大小必须是大于等于1的正整数 (GiB)"
     exit 1
 fi
 
-# 检查 swapfile 大小
-if [ "$swapfile_size" -lt 1 ]; then
-    echo "swapfile大小必须大于等于1"
+# 检查可用空间
+available_space=$(df -BG "$FRZR_ROOT" | awk 'NR==2 {print $4}' | tr -d 'G')
+if [ "$available_space" -lt "$swapfile_size" ]; then
+    echo "错误: 空间不足。需要: ${swapfile_size}G, 可用: ${available_space}G"
     exit 1
 fi
 
-# 检查路径是否存在
-if [ ! -d "/frzr_root/swap" ]; then
-    echo "/frzr_root/swap路径不存在, 将创建子卷"
+# 检查并创建BTRFS子卷
+if [ ! -d "$SWAP_DIR" ]; then
+    echo "正在创建 BTRFS 子卷 $SWAP_DIR..."
+    btrfs subvolume create "$SWAP_DIR" || { echo "创建子卷失败"; exit 1; }
+else
+    if ! btrfs subvolume show "$SWAP_DIR" &>/dev/null; then
+        echo "正在重新创建 BTRFS 子卷..."
+        rm -rf "$SWAP_DIR"
+        btrfs subvolume create "$SWAP_DIR" || { echo "创建子卷失败"; exit 1; }
+    fi
+fi
 
-    # 创建子卷
-    btrfs subvolume create /frzr_root/swap
+chattr +C "$SWAP_DIR"
 
-    if [ $? -eq 0 ]; then
-        echo "子卷创建成功"
+backup_name=""
+
+# 处理现有的swapfile
+if [ -f "$SWAP_FILE" ]; then
+    echo "发现已存在的交换文件"
+    
+    # 创建备份（如果有足够空间）
+    if [ "$available_space" -gt "$((swapfile_size * 2))" ]; then
+        backup_name="${SWAP_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
+        echo "正在创建备份: $backup_name"
+        cp "$SWAP_FILE" "$backup_name" || echo "警告: 备份失败，继续执行"
+    fi
+
+    echo "正在禁用现有交换文件..."
+    swapoff "$SWAP_FILE" || true
+    rm -f "$SWAP_FILE"
+fi
+
+# 创建和启用新的swapfile
+echo "正在创建新的交换文件..."
+if mkswapfile "$SWAP_FILE" "$swapfile_size"GiB; then
+    echo "正在启用交换文件..."
+    if swapon "$SWAP_FILE"; then
+        # 如果创建和启用都成功了，删除备份
+        if [ -n "$backup_name" ] && [ -f "$backup_name" ]; then
+            echo "创建成功，删除备份文件..."
+            rm -f "$backup_name"
+        fi
     else
-        echo "子卷创建失败"
-        exit 1
+        echo "启用交换文件失败，尝试恢复备份..."
+        restore_backup "$backup_name" || exit 1
     fi
 else
-    # 检查路径是否是Btrfs子卷
-    if btrfs subvolume show "/frzr_root/swap" &>/dev/null; then
-        echo "/frzr_root/swap是Btrfs子卷"
-    else
-        echo "/frzr_root/swap存在但不是Btrfs子卷, 将删除路径并创建子卷"
-        rm -rf /frzr_root/swap
-        btrfs subvolume create /frzr_root/swap
-        echo "子卷创建成功"
-    fi
+    echo "创建交换文件失败，尝试恢复备份..."
+    restore_backup "$backup_name" || exit 1
 fi
-
-chattr +C /frzr_root/swap
-
-# 检查swapfile是否存在
-if [ -f "/frzr_root/swap/swapfile" ]; then
-    echo "swapfile已存在, 将删除swapfile"
-
-    swapoff /frzr_root/swap/swapfile || true
-
-    # 删除swapfile
-    rm -f /frzr_root/swap/swapfile
-
-    if [ $? -eq 0 ]; then
-        echo "swapfile删除成功"
-    else
-        echo "swapfile删除失败"
-        exit 1
-    fi
-fi
-
-# 创建swapfile
-mkswapfile /frzr_root/swap/swapfile "$swapfile_size"GiB
-
-# 启用swapfile
-swapon /frzr_root/swap/swapfile || true
 
 if [ -x "$(command -v sk-setup-kernel-options)" ]; then
     sk-setup-kernel-options
 fi
+
+echo "交换文件设置完成"
