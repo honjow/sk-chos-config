@@ -11,9 +11,6 @@ VALID_BRANCHES=(
   "plasma"
   "plasma-pre"
   "plasma-dev"
-  "hyprland"
-  "hyprland-pre"
-  "hyprland-dev"
 )
 
 VALID_NV_BRANCHES=(
