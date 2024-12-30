@@ -16,7 +16,7 @@ if [ -z "$1" ]; then
 fi
 
 SCRIPT_URL="$1"
-CACHE_DIR="/etc/sk-chos/update-scripts"
+CACHE_DIR="${HOME}/.config/sk-chos-tool/update-scripts"
 SCRIPT_NAME=$(basename "$SCRIPT_URL")
 CACHED_SCRIPT="$CACHE_DIR/$SCRIPT_NAME"
 
