@@ -2,10 +2,5 @@
 
 set -e
 
-# cant run this script as root
-if [ "$EUID" -eq 0 ]; then
-    echo "Please run this script as a normal user, not root."
-    exit 1
-fi
-
-curl -L "https://gitee.com/honjow/sk-chos-scripts/raw/master/install/install-sk-chos-tool.sh" | sh
+SCRIPT_URL="https://gitee.com/honjow/sk-chos-scripts/raw/master/install/install-sk-chos-tool.sh"
+exec "$(dirname "$0")/__sk-update-executor" "$SCRIPT_URL"

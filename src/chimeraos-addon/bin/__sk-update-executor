@@ -1,0 +1,52 @@
+#!/bin/bash
+
+set -e
+
+# Check if running as root
+if [ "$EUID" -eq 0 ]; then
+    echo "Please run this script as a normal user, not root."
+    exit 1
+fi
+
+# Check if URL parameter is provided
+if [ -z "$1" ]; then
+    echo "Error: URL parameter is required"
+    echo "Usage: $0 <script_url>"
+    exit 1
+fi
+
+SCRIPT_URL="$1"
+CACHE_DIR="/etc/sk-chos/update-scripts"
+SCRIPT_NAME=$(basename "$SCRIPT_URL")
+CACHED_SCRIPT="$CACHE_DIR/$SCRIPT_NAME"
+
+# Create cache directory if it doesn't exist
+mkdir -p "$CACHE_DIR"
+
+# Function to download and cache script
+download_and_cache() {
+    echo "Downloading script from $SCRIPT_URL"
+    if curl -L -f "$SCRIPT_URL" -o "$CACHED_SCRIPT.tmp"; then
+        mv "$CACHED_SCRIPT.tmp" "$CACHED_SCRIPT"
+        chmod +x "$CACHED_SCRIPT"
+        return 0
+    else
+        rm -f "$CACHED_SCRIPT.tmp"
+        return 1
+    fi
+}
+
+# Try to download and execute the script
+if download_and_cache; then
+    echo "Successfully downloaded and cached the script"
+    exec "$CACHED_SCRIPT"
+else
+    echo "Failed to download the script"
+    if [ -f "$CACHED_SCRIPT" ]; then
+        echo "Using cached version from $CACHED_SCRIPT"
+        exec "$CACHED_SCRIPT"
+    else
+        echo "No cached version available"
+        exit 1
+    fi
+fi
