@@ -10,8 +10,7 @@ RequiresMountsFor=/frzr_root
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecCondition=/usr/bin/sk-check-swapfile
-ExecStart=/usr/bin/sk-mkswapfile
+ExecStart=/bin/sh -c '/usr/bin/sk-check-swapfile || /usr/bin/sk-mkswapfile'
 
 [Install]
 WantedBy=swap.target
