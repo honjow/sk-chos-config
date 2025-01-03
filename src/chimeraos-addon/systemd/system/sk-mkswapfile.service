@@ -4,7 +4,8 @@ DefaultDependencies=no
 Before=shutdown.target frzr_swap-swap-swapfile.swap
 Conflicts=shutdown.target
 ConditionFileIsExecutable=/usr/bin/sk-mkswapfile
-ConditionPathExists=!/frzr_root/swap/swapfile
+ConditionFileIsExecutable=/usr/bin/sk-check-swapfile
+ExecCondition=!/usr/bin/sk-check-swapfile
 RequiresMountsFor=/frzr_root
 
 [Service]
@@ -14,4 +15,3 @@ ExecStart=/usr/bin/sk-mkswapfile
 
 [Install]
 WantedBy=swap.target
-

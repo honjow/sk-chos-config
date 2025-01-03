@@ -1,0 +1,57 @@
+#!/bin/bash
+
+set -e
+
+SWAP_FILE="/frzr_root/swap/swapfile"
+SWAP_DIR="/frzr_root/swap"
+
+# 检查目录是否存在且是 BTRFS 子卷
+if [[ ! -d "$SWAP_DIR" ]]; then
+    echo "swap 目录不存在"
+    exit 1
+fi
+
+if ! btrfs subvolume show "$SWAP_DIR" &>/dev/null; then
+    echo "swap 目录不是 BTRFS 子卷"
+    exit 1
+fi
+
+# 检查文件是否存在
+if [[ ! -f "$SWAP_FILE" ]]; then
+    echo "swapfile 不存在"
+    exit 1
+fi
+
+# 检查文件大小
+file_size=$(stat -f %z "$SWAP_FILE")
+if [[ $file_size -lt 1073741824 ]]; then  # 1GB in bytes
+    echo "swapfile 大小异常"
+    exit 1
+fi
+
+# 检查文件类型
+file_type=$(file -b "$SWAP_FILE")
+if ! echo "$file_type" | grep -q "swap file"; then
+    echo "文件不是有效的 swap 文件格式"
+    exit 1
+fi
+
+# 检查是否有 NOCOW 属性
+if ! lsattr "$SWAP_FILE" | grep -q "^-C"; then
+    echo "swapfile 缺少 NOCOW 属性"
+    exit 1
+fi
+
+# 尝试激活 swap 文件
+echo "尝试测试激活 swap 文件..."
+if ! swapon "$SWAP_FILE" &>/dev/null; then
+    echo "swap 文件激活测试失败"
+    exit 1
+fi
+
+# 立即停用 swap 文件
+echo "测试成功，停用 swap 文件..."
+swapoff "$SWAP_FILE" &>/dev/null || true
+
+# 所有检查都通过
+exit 0
