@@ -23,7 +23,7 @@ if [[ ! -f "$SWAP_FILE" ]]; then
 fi
 
 # 检查文件大小
-file_size=$(stat -f %z "$SWAP_FILE")
+file_size=$(stat -c %s "$SWAP_FILE")
 if [[ $file_size -lt 1073741824 ]]; then  # 1GB in bytes
     echo "swapfile 大小异常"
     exit 1
@@ -36,9 +36,10 @@ if ! echo "$file_type" | grep -q "swap file"; then
     exit 1
 fi
 
-# 检查是否有 NOCOW 属性
-if ! lsattr "$SWAP_FILE" | grep -q "^-C"; then
-    echo "swapfile 缺少 NOCOW 属性"
+# 检查 NOCOW 属性
+attrs=$(lsattr "$SWAP_FILE" | cut -d' ' -f1)
+if ! echo "$attrs" | grep -q "C"; then
+    echo "swapfile 可能未正确设置 NOCOW 属性"
     exit 1
 fi
 
