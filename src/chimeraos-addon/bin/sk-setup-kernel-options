@@ -1,12 +1,28 @@
 #!/bin/bash
 
+# 启用严格模式和错误处理
+set -eo pipefail
+trap 'echo "Error on line $LINENO"' ERR
+
+# 初始化变量
+REBOOT=false
+FORCE=false
+NEED_REBOOT=0
+MOUNT_PATH=${MOUNT_PATH:-"/"}
+flag_file="/etc/.first-reboot-required"
+
 # Check if the script is running with root or sudo privileges
-if [ "$EUID" -ne 0 ]; then
+if [[ "$EUID" -ne 0 ]]; then
     echo "This script must be run as root or with sudo."
     exit 1
 fi
 
-set -eo pipefail
+# 处理命令行参数
+[[ "$1" == "--reboot" ]] && REBOOT=true
+[[ "$1" == "--force" ]] && FORCE=true
+
+# 检查首次启动标志
+[[ -f "$flag_file" ]] && REBOOT=true
 
 # reboot flag
 if [[ "$1" == "--reboot" ]]; then
@@ -22,198 +38,194 @@ if [[ "$1" == "--force" ]]; then
     FORCE=true
 fi
 
-NEED_REBOOT="0"
-
-# echo "start frzr-unlock"
-# frzr-unlock
-
 get_fbcon() {
-    if [[ -f /etc/sk-chos/screen-rotate ]]; then
-        source /etc/sk-chos/screen-rotate
+    local fbcon_file="/etc/sk-chos/screen-rotate"
+    if [[ -f "$fbcon_file" ]]; then
+        source "$fbcon_file"
+        if [[ -n "${FBCON_PARA:-}" ]]; then
+            echo "fbcon=${FBCON_PARA}"
+        fi
     fi
-
-    if [[ -n "$FBCON_PARA" ]]; then
-        echo "fbcon=$FBCON_PARA"
-    fi
+    return 0
 }
 
 get_video() {
-    if [[ -f /etc/sk-chos/screen-rotate ]]; then
-        source /etc/sk-chos/screen-rotate
+    local video_file="/etc/sk-chos/screen-rotate"
+    if [[ -f "$video_file" ]]; then
+        source "$video_file"
+        if [[ -n "${VIDEO_PARA:-}" ]]; then
+            echo "video=${VIDEO_PARA}"
+        fi
     fi
-
-    if [[ -n "$VIDEO_PARA" ]]; then
-        echo "video=$VIDEO_PARA"
-    fi
+    return 0
 }
 
-# source /etc/sk-chos/sk-chos.conf
-if [ -d /tmp/frzr_root ]; then
-    source ${MOUNT_PATH}/etc/sk-chos/sk-chos.conf
+# 检查并加载配置文件
+if [[ ! -f "/etc/sk-chos/sk-chos.conf" ]]; then
+    echo "警告: 配置文件 /etc/sk-chos/sk-chos.conf 不存在"
+fi
+
+if [[ -d "/tmp/frzr_root" ]]; then
+    if [[ ! -f "${MOUNT_PATH}/etc/sk-chos/sk-chos.conf" ]]; then
+        echo "错误: 配置文件 ${MOUNT_PATH}/etc/sk-chos/sk-chos.conf 不存在"
+        exit 1
+    fi
+    source "${MOUNT_PATH}/etc/sk-chos/sk-chos.conf"
 else
-    source /etc/sk-chos/sk-chos.conf
+    source "/etc/sk-chos/sk-chos.conf"
 fi
 
 # systemd-bootx64.efi 忽略大小写
-if efibootmgr | grep "Linux Boot Manager" | grep -iq "systemd-bootx64.efi"; then
-    # Linux Boot Manager 已存在，不需要再次添加
+if efibootmgr | grep -i "Linux Boot Manager" | grep -iq "systemd-bootx64.efi"; then
     echo "Linux Boot Manager exists, no need to add it"
 else
-    # Linux Boot Manager 不存在，添加
     echo "Linux Boot Manager not exists, add it"
-    /usr/bin/sk-chos-boot-fix || true
+    /usr/bin/sk-chos-boot-fix || echo "警告: sk-chos-boot-fix 执行失败"
 fi
 
-# swap uuid
+# 获取 swap 设备信息
 swap_dev=$(awk '$2 == "partition" && $1 ~ "^/dev/[^z]" {print $1}' /proc/swaps)
+SWAP_PARTUUID=""
 if [[ -n "$swap_dev" ]]; then
     SWAP_PARTUUID=$(lsblk -no PARTUUID -f "$swap_dev")
 fi
 echo "SWAP_PARTUUID=$SWAP_PARTUUID"
 
-# swap conf
-root_partuuid=$(lsblk -no PARTUUID $(mount | grep ' / ' | cut -d' ' -f1))
+# 获取根分区 UUID
+root_partuuid=$(lsblk -no PARTUUID "$(mount | grep ' / ' | cut -d' ' -f1)")
 
-if [ -f "/frzr_root/swap/swapfile" ]; then
-    RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /frzr_root/swap/swapfile)
+# 处理 swapfile
+RESUME_OFFSET=""
+if [[ -f "/frzr_root/swap/swapfile" ]]; then
+    RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r "/frzr_root/swap/swapfile") || echo "警告: 获取 swapfile offset 失败"
 fi
 
 MK_SWAPFILE_SERVICE="sk-mkswapfile.service"
 SWAP_FILE_SERVICE="frzr_root-swap-swapfile.swap"
 
+# 设置 resume 命令
 RESUME_CMD=""
 if [[ -n "${SWAP_PARTUUID}" ]]; then
     echo "SWAP_PARTUUID 非空，添加到内核参数"
     RESUME_CMD="resume=PARTUUID=${SWAP_PARTUUID}"
 
-    systemctl disable --now $MK_SWAPFILE_SERVICE
-    systemctl disable --now $SWAP_FILE_SERVICE
+    systemctl disable --now "$MK_SWAPFILE_SERVICE" || echo "警告: 禁用 $MK_SWAPFILE_SERVICE 失败"
+    systemctl disable --now "$SWAP_FILE_SERVICE" || echo "警告: 禁用 $SWAP_FILE_SERVICE 失败"
 
-    rm -f /frzr_root/swap/swapfile || true
+    rm -f "/frzr_root/swap/swapfile" || echo "警告: 删除 swapfile 失败"
 
 elif [[ -n "${RESUME_OFFSET}" ]]; then
     echo "RESUME_OFFSET 非空, 启动swap服务, 添加到内核参数"
 
-    systemctl enable --now $MK_SWAPFILE_SERVICE && systemctl enable --now $SWAP_FILE_SERVICE
+    if ! systemctl enable --now "$MK_SWAPFILE_SERVICE"; then
+        echo "错误: 启用 $MK_SWAPFILE_SERVICE 失败"
+    elif ! systemctl enable --now "$SWAP_FILE_SERVICE"; then
+        echo "错误: 启用 $SWAP_FILE_SERVICE 失败"
+    fi
 
-    is_enabled=$(systemctl is-enabled $SWAP_FILE_SERVICE)
-    is_active=$(systemctl is-active $SWAP_FILE_SERVICE)
+    is_enabled=$(systemctl is-enabled "$SWAP_FILE_SERVICE")
+    is_active=$(systemctl is-active "$SWAP_FILE_SERVICE")
+
     if [[ "${is_enabled}" == "enabled" && "${is_active}" == "active" ]]; then
         echo "$SWAP_FILE_SERVICE is enabled"
     else
         echo "启动swap服务失败, 重新创建swap文件"
-        /usr/bin/sk-mkswapfile
-        RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /frzr_root/swap/swapfile)
+        if ! /usr/bin/sk-mkswapfile; then
+            echo "错误: 创建 swapfile 失败"
+        else
+            RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r "/frzr_root/swap/swapfile") || echo "警告: 获取 swapfile offset 失败"
+        fi
     fi
 
     RESUME_CMD="resume=PARTUUID=${root_partuuid} resume_offset=${RESUME_OFFSET}"
 
-elif [[ "${CREAT_SWAP_FILE}" == "1" ]]; then
+elif [[ "${CREATE_SWAP_FILE:-0}" == "1" ]]; then
     echo "新创建 swapfile"
-    /usr/bin/sk-mkswapfile
-
-    RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r /frzr_root/swap/swapfile)
-    systemctl enable --now $MK_SWAPFILE_SERVICE
-    systemctl enable --now $SWAP_FILE_SERVICE
-
-    RESUME_CMD="resume=PARTUUID=${root_partuuid} resume_offset=${RESUME_OFFSET}"
+    if ! /usr/bin/sk-mkswapfile; then
+        echo "错误: 创建 swapfile 失败"
+    else
+        RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r "/frzr_root/swap/swapfile") || echo "警告: 获取 swapfile offset 失败"
+        systemctl enable --now "$MK_SWAPFILE_SERVICE" || echo "警告: 启用 $MK_SWAPFILE_SERVICE 失败"
+        systemctl enable --now "$SWAP_FILE_SERVICE" || echo "警告: 启用 $SWAP_FILE_SERVICE 失败"
+        RESUME_CMD="resume=PARTUUID=${root_partuuid} resume_offset=${RESUME_OFFSET}"
+    fi
 fi
 
 echo "RESUME_CMD=${RESUME_CMD}"
 
+# 获取显示相关参数
 FBCON=$(get_fbcon 2>/dev/null)
 echo "FBCON: ${FBCON}"
 
 VIDEO=$(get_video 2>/dev/null)
 echo "VIDEO: ${VIDEO}"
 
-# 遍历 /frzr_root/boot/loader/entries 路径下的所有 frzr*.conf 文件
-for conf in /frzr_root/boot/loader/entries/frzr*.conf; do
-    if [ -f "$conf" ]; then
-        conf_base_name=$(basename "$conf")
-        curr_sys=$(grep -o "title [^[:space:]]*" "$conf" | sed "s/title //")
+update_kernel_param() {
+    local conf="$1"
+    local param_name="$2"
+    local param_value="$3"
+    local conf_base_name
+    conf_base_name=$(basename "$conf")
 
-        # 检查文件中是否已存在 resume=，如果不存在，则添加
-        if ! grep -q "resume=" "$conf"; then
+    if [[ ! -f "$conf" ]]; then
+        echo "警告: 配置文件 $conf_base_name 不存在"
+        return 1
+    fi
 
-            echo "Add RESUME_CMD to $conf_base_name"
-            sed -i "s/ splash / splash ${RESUME_CMD} /" "$conf"
-
-        else
-            # 获取已存在的 resume= 行的内容
-            existing_resume=$(grep -o "resume=[^[:space:]]*\(\s*resume_offset=[^[:space:]]*\)\?" "$conf")
-            echo "已存在的 resume: ${existing_resume}"
-
-            # 如果现有的 resume= 行与 RESUME_CMD 不匹配，则进行替换
-            if [ "${existing_resume}" != "${RESUME_CMD}" ]; then
-
-                echo "替换 $conf_base_name 中原有的 RESUME_CMD"
-                sed -i "s/${existing_resume}/${RESUME_CMD}/" "$conf"
-
-                NEED_REBOOT=$((NEED_REBOOT + 1))
-            else
-                echo "RESUME_CMD已存在并在$file中, 并且匹配. 无需更新"
-            fi
+    if ! grep -q "${param_name}=" "$conf"; then
+        if [[ -n "$param_value" ]]; then
+            echo "添加 $param_value 到 $conf_base_name"
+            sed -i "s/ splash / splash ${param_value} /" "$conf"
+            return 0
         fi
+    else
+        local existing_param
+        existing_param=$(grep -o "${param_name}=[^[:space:]]*\(\s*${param_name}_offset=[^[:space:]]*\)\?" "$conf")
+        echo "已存在的 ${param_name}: ${existing_param}"
 
-        # 检查文件中是否已存在 fbcon=，如果不存在，则添加
-        if ! grep -q "fbcon=" "$conf"; then
-
-            if [[ -n "${FBCON}" ]]; then
-                echo "Add $FBCON to $conf_base_name"
-                sed -i "s/ splash / splash ${FBCON} /" "$conf"
-            fi
-
+        if [[ "${existing_param}" != "${param_value}" ]]; then
+            echo "替换 $conf_base_name 中原有的 ${param_name}"
+            sed -i "s/${existing_param}/${param_value}/" "$conf"
+            NEED_REBOOT=$((NEED_REBOOT + 1))
+            return 0
         else
-            # 获取已存在的 fbcon= 行的内容
-            existing_fbcon=$(grep -o "fbcon=[^[:space:]]*" "$conf")
-            echo "已存在的 fbcon: ${existing_fbcon}"
-
-            # 如果现有的 fbcon= 行与 FBCON 不匹配，则进行替换
-            if [ "${existing_fbcon}" != "${FBCON}" ]; then
-
-                echo "替换 $conf_base_name 中原有的 FBCON"
-                sed -i "s/${existing_fbcon}/${FBCON}/" "$conf"
-
-                NEED_REBOOT=$((NEED_REBOOT + 1))
-
-            else
-                echo "FBCON 已存在 $conf_base_name 中, 并且匹配. 无需更新"
-            fi
-        fi
-
-        # 检查文件中是否已存在 video=，如果不存在，则添加
-        if ! grep -q "video=" "$conf"; then
-
-            if [[ -n "${FBCON}" ]]; then
-                echo "Add $VIDEO to $conf_base_name"
-                sed -i "s/ splash / splash ${VIDEO} /" "$conf"
-            fi
-
-        else
-            # 获取已存在的 video= 行的内容
-            existing_video=$(grep -o "video=[^[:space:]]*" "$conf")
-            echo "已存在的 video: ${existing_video}"
-
-            # 如果现有的 video= 行与 VIDEO 不匹配，则进行替换
-            if [ "${existing_video}" != "${VIDEO}" ]; then
-                echo "替换 $conf_base_name 中原有的 VIDEO"
-                sed -i "s/${existing_video}/${VIDEO}/" "$conf"
-
-                NEED_REBOOT=$((NEED_REBOOT + 1))
-
-            else
-                echo "VIDEO 已存在 $conf_base_name 中, 并且匹配. 无需更新"
-            fi
+            echo "${param_name} 已存在 $conf_base_name 中, 并且匹配. 无需更新"
+            return 0
         fi
     fi
-done
+}
 
-# if (NEED_REBOOT > 1 and REBOOT) or FORCE:
+# 遍历并更新内核参数
+while IFS= read -r -d '' conf; do
+    if [[ -f "$conf" ]]; then
+        echo "处理配置文件: $conf"
+
+        # 更新 resume 参数
+        if [[ -n "$RESUME_CMD" ]]; then
+            update_kernel_param "$conf" "resume" "$RESUME_CMD"
+        fi
+
+        # 更新 fbcon 参数
+        if [[ -n "$FBCON" ]]; then
+            update_kernel_param "$conf" "fbcon" "$FBCON"
+        fi
+
+        # 更新 video 参数
+        if [[ -n "$VIDEO" ]]; then
+            update_kernel_param "$conf" "video" "$VIDEO"
+        fi
+    fi
+done < <(find "/frzr_root/boot/loader/entries" -name "frzr*.conf" -print0)
+
+# 处理重启
 if [[ $NEED_REBOOT -gt 1 && $REBOOT == true ]] || [[ $FORCE == true ]]; then
     echo "重启系统"
     if [[ -f "$flag_file" ]]; then
-        rm -f "$flag_file"
+        rm -f "$flag_file" || echo "警告: 删除标志文件失败"
     fi
-    sk-set-next-boot-entry && reboot
+    if ! sk-set-next-boot-entry; then
+        echo "错误: 设置下次启动项失败"
+        exit 1
+    fi
+    reboot
 fi
