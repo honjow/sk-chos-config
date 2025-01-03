@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 启用严格模式和错误处理
-set -eo pipefail
+set -euo pipefail
 trap 'echo "Error on line $LINENO"' ERR
 
 # 初始化变量
@@ -18,14 +18,17 @@ if [[ "$EUID" -ne 0 ]]; then
 fi
 
 # 处理命令行参数
-[[ "$1" == "--reboot" ]] && REBOOT=true
-[[ "$1" == "--force" ]] && FORCE=true
+if [[ "${1:-}" == "--reboot" ]]; then
+    REBOOT=true
+elif [[ "${1:-}" == "--force" ]]; then
+    FORCE=true
+fi
 
 # 检查首次启动标志
 [[ -f "$flag_file" ]] && REBOOT=true
 
 # reboot flag
-if [[ "$1" == "--reboot" ]]; then
+if [[ "${1:-}" == "--reboot" ]]; then
     REBOOT=true
 fi
 
@@ -34,7 +37,7 @@ if [[ -f "$flag_file" ]]; then
     REBOOT=true
 fi
 
-if [[ "$1" == "--force" ]]; then
+if [[ "${1:-}" == "--force" ]]; then
     FORCE=true
 fi
 
@@ -223,7 +226,7 @@ if [[ $NEED_REBOOT -gt 1 && $REBOOT == true ]] || [[ $FORCE == true ]]; then
     if [[ -f "$flag_file" ]]; then
         rm -f "$flag_file" || echo "警告: 删除标志文件失败"
     fi
-    if ! sk-set-next-boot-entry; then
+    if ! sk-setup-next-boot; then
         echo "错误: 设置下次启动项失败"
         exit 1
     fi
