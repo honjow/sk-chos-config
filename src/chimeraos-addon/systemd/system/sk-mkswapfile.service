@@ -5,12 +5,12 @@ Before=shutdown.target frzr_swap-swap-swapfile.swap
 Conflicts=shutdown.target
 ConditionFileIsExecutable=/usr/bin/sk-mkswapfile
 ConditionFileIsExecutable=/usr/bin/sk-check-swapfile
-ExecCondition=!/usr/bin/sk-check-swapfile
 RequiresMountsFor=/frzr_root
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
+ExecCondition=!/usr/bin/sk-check-swapfile
 ExecStart=/usr/bin/sk-mkswapfile
 
 [Install]
