@@ -31,7 +31,7 @@ function compare_version() {
     local version_a_arr=(${version_a//./ })
     local version_b_arr=(${version_b//./ })
 
-    # 
+    #
     echo ">>> Compare version: ${version_a} and ${version_b}" >&2
 
     # 取两个版本号的最大长度
@@ -39,7 +39,6 @@ function compare_version() {
     if [[ ${#version_b_arr[@]} -gt $max_len ]]; then
         max_len=${#version_b_arr[@]}
     fi
-
 
     for i in $(seq 0 $max_len); do
         if [[ ${version_b_arr[$i]} == "" ]]; then
@@ -80,7 +79,7 @@ update_decky() {
         echo "Current version: ${raw_version_current}"
 
         temp_file=$(mktemp)
-        curl -s 'https://api.github.com/repos/SteamDeckHomebrew/decky-loader/releases' > $temp_file
+        curl -s 'https://api.github.com/repos/SteamDeckHomebrew/decky-loader/releases' >$temp_file
 
         # 删除空格、换行符和其他空白字符
         cleaned_content=$(cat $temp_file | tr -d '[:space:]')
@@ -283,12 +282,12 @@ wp_audio_sinks() {
             /^Video/ { A=0; }
             { if (A==1 && S==1 && / [[:digit:]]*\./ && !/\[Stream\/Output\/Audio\]/) 
                  { print; } }' |
-        sed 's/^.* \([[:digit:]]*\)\. \(.*\) \[.*$/\1\t\2/'   
+        sed 's/^.* \([[:digit:]]*\)\. \(.*\) \[.*$/\1\t\2/'
 }
 
 function set_volume() {
-    if [[ ":83E1:G1617-01:" =~ ":${PRODUCT}:" || "${PRODUCT}" =~ "ROG Ally RC71L" ]]; then
-    # if [[ ":83E1:G1617-01:" =~ ":${PRODUCT}:" ]]; then
+    if [[ ":83E1:G1617-01:" =~ ":${PRODUCT}:" || "${PRODUCT}" =~ "ROG Ally RC71L" || "${PRODUCT}" =~ "ROG Ally X RC72L" ]]; then
+        # if [[ ":83E1:G1617-01:" =~ ":${PRODUCT}:" ]]; then
         echo "Setting volume to 100%"
         wpctl set-volume $(wp_audio_sinks | grep "17h/19h" | sed 's@^[^0-9]*\([0-9]\+\).*@\1@') 100% || true
     fi
