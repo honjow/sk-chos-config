@@ -1,0 +1,39 @@
+#!/bin/bash
+
+set -e
+
+PRODUCT=$(cat /sys/class/dmi/id/product_name)
+
+WIN_MINI_LIST="G1617-01"
+
+# These handhelds use a custom DSP which requires the base speaker volume to be 100%
+wp_audio_sinks() {
+    wpctl status |
+        awk 'BEGIN { A=0; S=0; }
+            /^Audio/ { A=1; }
+            /Sinks/ { S=1; }
+            /Filters/ { S=1; }
+            /Sources/ { S=0; }
+            /Streams/ { S=0; }
+            /Sink endpoints/ { S=0; }
+            /^Video/ { A=0; }
+            { if (A==1 && S==1 && / [[:digit:]]*\./ && !/\[Stream\/Output\/Audio\]/) 
+                 { print; } }' |
+        sed 's/^.* \([[:digit:]]*\)\. \(.*\) \[.*$/\1\t\2/'
+}
+
+function set_volume() {
+    if [[ ":83E1:G1617-01:" =~ ":${PRODUCT}:" || "${PRODUCT}" =~ "ROG Ally RC71L" || "${PRODUCT}" =~ "ROG Ally X RC72L" ]]; then
+        echo "Setting volume to 100%"
+        wpctl set-volume $(wp_audio_sinks | grep "17h/19h" | sed 's@^[^0-9]*\([0-9]\+\).*@\1@') 100% || true
+    fi
+}
+
+function alsactl_init() {
+    if [[ ":$WIN_MINI_LIST:" =~ ":$PRODUCT:" ]]; then
+        alsactl init
+    fi
+}
+
+alsactl_init
+set_volume
