@@ -1,0 +1,14 @@
+[Unit]
+Description=Setup Audio Configuration
+After=graphical-session.target
+PartOf=graphical-session.target
+AssertPathExists=/usr/bin/sk-audio-setup
+
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/sleep 5
+ExecStart=/usr/bin/sk-audio-setup
+RemainAfterExit=yes
+
+[Install]
+WantedBy=graphical-session.target
