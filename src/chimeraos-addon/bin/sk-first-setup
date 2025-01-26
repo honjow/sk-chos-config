@@ -32,6 +32,9 @@ cpu_keywords=(
     "1135G7"
     "1165G7"
     "1195G7"
+    "Ultra 7 2"
+    "Ultra 5 2"
+    "Ultra 9 2"
 )
 
 function power_control_support() {
