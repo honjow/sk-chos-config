@@ -90,13 +90,16 @@ AYA_MATCH_LIST=(
 
 LGO_MATCH_LIST=(
     "83E1"
+    "83L3"
+    "83N6"
+    "83Q2"
+    "83Q3"
 )
 
 GPD_MATCH_LIST=(
-    "G1618-04"
-    "G1617-01"
-    "G1619-04"
-    "G1619-05"
+    "G1618-"
+    "G1617-"
+    "G1619-"
 )
 
 ROG_MATCH_LIST=(
@@ -124,6 +127,12 @@ LOKI_MATCH_LIST=(
 
 ORANGEPI_MATCH_LIST=(
     "NEO-01"
+    "G1621-02"
+)
+
+MSI_MATCH_LIST=(
+    "Claw A1M"
+    "Claw 8"
 )
 
 HHD_MATCH_LIST=(
@@ -135,6 +144,7 @@ HHD_MATCH_LIST=(
     "${ONEXPLAYER_MATCH_LIST[@]}"
     "${LOKI_MATCH_LIST[@]}"
     "${ORANGEPI_MATCH_LIST[@]}"
+    "${MSI_MATCH_LIST[@]}"
 )
 
 function hhd_support() {
@@ -341,6 +351,7 @@ function install_decky_plugins() {
         sudo systemctl mask handycon || true
         sudo systemctl disable --now inputplumber || true
         sudo systemctl mask inputplumber || true
+        sudo systemctl disable --now steam-powerbuttond || true
 
         sudo systemctl enable --now hhd@${USER}
     fi
