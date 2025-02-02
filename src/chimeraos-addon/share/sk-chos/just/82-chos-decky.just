@@ -23,7 +23,15 @@ decky-framegen:
     plugin_dir="${HOME}/homebrew/plugins/${package}"
     mkdir -p $plugin_dir
     RELEASE=$(curl -s "$github_api_url")
+    if [ -z "$RELEASE" ]; then
+        echo "Failed to get release info from $github_api_url"
+        exit 1
+    fi
     MESSAGE=$(echo "$RELEASE" | jq -r '.message')
+    if [[ "$MESSAGE" =~ "API rate limit" ]]; then
+        echo "API rate limit exceeded"
+        exit 1
+    fi
     RELEASE_VERSION=$(echo "$RELEASE" | jq -r '.tag_name')
     RELEASE_URL=$(echo "$RELEASE" | jq -r '.assets[0].browser_download_url')
     temp_file="${temp}/${package}.zip"
