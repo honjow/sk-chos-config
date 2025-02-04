@@ -192,7 +192,7 @@ if [ -x $(command -v sk-quirks) ]; then
     sk-quirks
 fi
 
-# setcap manhohud
-if [ -x $(command -v manhohud) ]; then
-    setcap cap_perfmon=+ep $(command -v manhohud)
+# setcap mangohud
+if [ -x $(command -v mangohud) ]; then
+    setcap cap_perfmon=+ep $(command -v mangohud)
 fi
