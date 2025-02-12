@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -e
+
+echo "copy wireplumber config"
+
+WIREPLUMBER_SRC="/etc/wireplumber/wireplumber.conf.d"
+USER_WIREPLUMBER="${HOME}/.config/wireplumber/wireplumber.conf.d"
+mkdir -p ${USER_WIREPLUMBER}
+
+ori_conf_list=$(find $USER_WIREPLUMBER -name "*.conf")
+
+# 删除 USER_WIREPLUMBER 中的 *-current.conf 文件
+find ${USER_WIREPLUMBER} -name "*-current.conf" -exec rm {} \;
+# 检查 WIREPLUMBER_SRC 中的文件，名字为 *.conf 的文件，重命名为 *-current.conf
+SRC_CONF_LIST=$(find $WIREPLUMBER_SRC -name "*.conf")
+for conf in $SRC_CONF_LIST; do
+    base=$(basename "$conf" .conf)
+    cp "$conf" "${USER_WIREPLUMBER}/${base}-current.conf"
+done
+
+if [ -z "$ori_conf_list" ]; then
+    echo "restart wireplumber"
+    systemctl --user restart wireplumber
+fi
