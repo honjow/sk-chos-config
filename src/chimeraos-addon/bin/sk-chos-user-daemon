@@ -273,6 +273,11 @@ if [ -x "$(command -v sk-audio-setup)" ]; then
     sk-audio-setup
 fi
 
+# copy wireplumber config
+if [ -x "/usr/libexec/user-wireplumber" ]; then
+    /usr/libexec/user-wireplumber
+fi
+
 fix_games &
 
 # Decky update
