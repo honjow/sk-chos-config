@@ -29,6 +29,7 @@ LIST_1200P_DEVICES=(
     "AYANEO 2"
     "AOKZOE A1"
     "NEO-01"
+    "Claw 8 AI+ A2VM"
 )
 
 LIST_1600P_DEVICES=(
