@@ -345,6 +345,9 @@ function install_decky_plugins() {
         done
     fi
 
+}
+
+function setup_gamepad() {
     if hhd_support 2>/dev/null; then
         echo "disabling handycon/inputplumber and enabling hhd@${USER}..."
         sudo systemctl disable --now handycon || true
@@ -353,6 +356,7 @@ function install_decky_plugins() {
         sudo systemctl mask inputplumber || true
         sudo systemctl disable --now steam-powerbuttond || true
 
+        sudo systemctl unmask hhd@${USER} || true
         sudo systemctl enable --now hhd@${USER}
     fi
 }
@@ -444,19 +448,19 @@ function copy_rime_config() {
     if [[ -d "${rime_config_path}" ]]; then
         ibus_config_path="${USER_DIR}/.config/ibus"
         dst_dir="${ibus_config_path}/rime"
-        
+
         if ! mkdir -p "${ibus_config_path}"; then
             echo "Error: Failed to create ibus config directory"
             return 1
         fi
         chown "${USER}:${USER}" "${ibus_config_path}"
-        
+
         if ! mkdir -p "${dst_dir}"; then
             echo "Error: Failed to create rime config directory"
             return 1
         fi
         chown "${USER}:${USER}" "${dst_dir}"
-        
+
         if [[ ! -d "${dst_dir}/.git" ]]; then
             echo "Copying rime config..."
             if ! rsync -a "${rime_config_path}/" "${dst_dir}/"; then
@@ -484,6 +488,7 @@ case $ACTION in
 *)
     install_decky
     install_decky_plugins
+    setup_gamepad
     install_css_theme
     restart_plugin_loader
     device_quirks
