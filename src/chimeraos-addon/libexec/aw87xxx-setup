@@ -10,8 +10,9 @@ fi
 PRODUCT=$(cat "/sys/class/dmi/id/product_name")
 
 AIR_1S_LIST="AIR 1S:AIR 1S Limited"
+AIR_PLUS_LIST="AIR Plus"
 
-AW87559_LIST="$AIR_1S_LIST"
+AW87559_LIST="$AIR_1S_LIST:$AIR_PLUS_LIST"
 
 sys_symbolic="/usr/lib/firmware/aw87xxx_acf.bin"
 user_symbolic="/etc/device-quirks/firmware/aw87xxx_acf.bin"
