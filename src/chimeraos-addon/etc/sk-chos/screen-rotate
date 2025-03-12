@@ -68,6 +68,12 @@ RIGHT_LIST=(
     "${GPD_RIGHT_LIST[@]}"
 )
 
+NORMAL_MODEL_LIST=(
+    "TL070FVXS01"
+    "TL070FVXS02"
+    "TL070FDXS01"
+)
+
 ROTATE_OFFSET="0"
 
 for vendor in "${LEFT_LIST[@]}"; do
@@ -84,10 +90,13 @@ for vendor in "${RIGHT_LIST[@]}"; do
     fi
 done
 
-# ROG Ally 和 win mini 2024 采用的屏幕
-if [[ "$SCREEN_MODEL_NAME" == "TL070FVXS01-0" ]]; then
-    ROTATE_OFFSET="0"
-fi
+# 不进行旋转的屏幕
+for model in "${NORMAL_MODEL_LIST[@]}"; do
+    if [[ "$SCREEN_MODEL_NAME" =~ "$model" ]]; then
+        ROTATE_OFFSET="0"
+        break
+    fi
+done
 
 # if [[ "$ROTATE_OFFSET" != "0" ]]; then
 #     export FBCON_PARA="rotate:$ROTATE_OFFSET"
