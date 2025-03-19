@@ -15,8 +15,11 @@ fi
 # 启用内核模块黑名单
 BLACKLIST_HID_ALLY=""
 
-# 新版本内核处理标志
-ALLY_NEW_KERNEL_PROC_FLAG=""
+blacklist_file="/etc/modprobe.d/hid-asus-rog-ally.conf"
+mod_name="hid_asus_ally"
+
+# 是否启用 hid-asus-ally
+IS_ENABLE_HID_ASUS_ALLY=$(lsmod | grep -q "$mod_name" && echo "1" || echo "")
 
 ENABLE_MCU_POWERSAVE=""
 
@@ -30,10 +33,6 @@ if [[ "$PRODUCT" =~ "ROG Ally RC71L" ]]; then
     fi
 elif [[ "$PRODUCT" =~ "ROG Ally X RC72L" ]]; then
     ENABLE_MCU_POWERSAVE="1"
-    # 如果内核名称包含 -sk -chimeraos ,hid-asus-rog-ally 加入黑名单
-    if [[ "$(uname -r)" =~ -sk.*-chimeraos ]]; then
-        ALLY_NEW_KERNEL_PROC_FLAG="1"
-    fi
 fi
 
 echo "Enable MCU powersave: $ENABLE_MCU_POWERSAVE"
@@ -53,7 +52,9 @@ if [ -n "$ENABLE_MCU_POWERSAVE" ]; then
 fi
 
 function enable_hhd() {
+    echo "enable hhd, and disable inputplumber"
     systemctl disable --now inputplumber || true
+    systemctl disable --now steam-powerbuttond || true
 
     # check hhd@gamer is masked
     is_masked=$(systemctl is-enabled hhd@gamer)
@@ -61,10 +62,12 @@ function enable_hhd() {
         systemctl unmask hhd@gamer
     fi
     systemctl enable --now hhd@gamer
-    echo "Enable hhd"
+    echo "Enable hhd finished"
 }
 
 function enable_inputplumber() {
+    echo "enable inputplumber, and disable hhd"
+
     systemctl disable --now hhd@gamer || true
 
     # check inputplumber is masked
@@ -73,14 +76,12 @@ function enable_inputplumber() {
         systemctl unmask inputplumber
     fi
     systemctl enable --now inputplumber
-    echo "Enable inputplumber"
+    systemctl enable --now steam-powerbuttond || true
+    echo "Enable inputplumber finished"
 }
 
-blacklist_file="/etc/modprobe.d/hid-asus-rog-ally.conf"
-mod_name="hid_asus_ally"
-
 if [[ "$PRODUCT" =~ "ROG Ally X RC72L" ]]; then
-    if [[ "$BLACKLIST_HID_ALLY" == "Y" && -n "$ALLY_NEW_KERNEL_PROC_FLAG" ]]; then
+    if [[ "$BLACKLIST_HID_ALLY" == "Y" && -n "$IS_ENABLE_HID_ASUS_ALLY" ]]; then
         echo "Force blacklist $mod_name"
         if [ ! -f "$blacklist_file" ]; then
             echo "blacklist $mod_name" >$blacklist_file
@@ -104,7 +105,7 @@ if [[ "$PRODUCT" =~ "ROG Ally X RC72L" ]]; then
             modprobe -r $mod_name
         fi
 
-        if [ -n "$ALLY_NEW_KERNEL_PROC_FLAG" ]; then
+        if [ -n "$IS_ENABLE_HID_ASUS_ALLY" ]; then
             echo "Start Enable inputplumber"
             enable_inputplumber
         else
