@@ -1,7 +1,22 @@
 image = Image("steamos.png");
 # Earlier kernel versions, lack the panel rotation quirk
 #rotated_image = image.Rotate( Math.Pi / 2.0 );
-rotated_image = image;
+
+# Calculate scaling factors for width and height
+scale_x = Window.GetWidth() / image.GetWidth();
+scale_y = Window.GetHeight() / image.GetHeight();
+# Use the smaller scale factor to maintain aspect ratio
+scale_factor = Math.Min(scale_x, scale_y);
+
+# Apply scaling if the image is larger than the screen
+if (scale_factor < 1.0) {
+    # Scale the image to fit the screen
+    scaled_image = image.Scale(image.GetWidth() * scale_factor, image.GetHeight() * scale_factor);
+    rotated_image = scaled_image;
+} else {
+    # No scaling needed, use original image
+    rotated_image = image;
+}
 
 sprite = Sprite( rotated_image );
 sprite.SetX( Window.GetWidth() / 2 - rotated_image.GetWidth() / 2 );
