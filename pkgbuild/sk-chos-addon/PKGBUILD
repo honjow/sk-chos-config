@@ -3,13 +3,13 @@ pkgname=sk-chos-addon
 _basename=sk-chos-tool
 _reponame=sk-chos-config
 _pkgname=${pkgname}
-pkgver=1.17.3
+pkgver=1.36.0
 pkgrel=1
 pkgdesc="Addon for sk-chimeros"
 arch=('any')
 url="https://github.com/honjow/sk-holoiso-config.git"
 license=('MIT')
-makedepends=('git')
+makedepends=('git' 'plymouth')
 depends=(
     amdgpu-test-scripts-common-git
     amd-s2idle-analysis-script-git
@@ -28,6 +28,9 @@ depends=(
     refind
     wlr-randr
     zram-generator
+)
+optdepends=(
+    plymouth
 )
 provides=(sk-chos-addon)
 conflicts=(sk-chos-addon-git)
@@ -100,6 +103,10 @@ package() {
     install -dm755 "${pkgdir}/etc/profile.d"
     install -m644 -t "${pkgdir}/etc/profile.d" "${source_dir}/etc/profile.d"/*
 
+    # plymouthd.conf
+    install -dm755 "${pkgdir}/etc/plymouth"
+    install -m644 -t "${pkgdir}/etc/plymouth" "${source_dir}/etc/plymouth"/*
+
     # /usr/share/sk-chos/just/*
     install -dm755 "${pkgdir}/usr/share/sk-chos/just"
     install -m644 -t "${pkgdir}/usr/share/sk-chos/just" "${source_dir}/share/sk-chos/just"/*.*
@@ -141,9 +148,9 @@ package() {
     install -dm755 "${pkgdir}/usr/lib/udev/rules.d"
     install -m644 -t "${pkgdir}/usr/lib/udev/rules.d" "${source_dir}/lib/udev/rules.d"/*
 
-    # /usr/share/plymouth/themes/steamos/*
-    install -dm755 "${pkgdir}/usr/share/plymouth/themes/steamos"
-    install -m644 -t "${pkgdir}/usr/share/plymouth/themes/steamos" "${source_dir}/share/plymouth/themes/steamos"/*
+    # plymouth themes
+    install -dm755 "${pkgdir}/usr/share/plymouth/themes"
+    cp -r "${source_dir}/share/plymouth/themes"/* "${pkgdir}/usr/share/plymouth/themes/"
 
     # 创建软链接解决重命名兼容
     # bin
