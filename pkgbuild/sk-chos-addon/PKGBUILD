@@ -16,8 +16,8 @@ depends=(
     cage
     expect
     efibootmgr
-    fpaste
     fakeroot
+    fpaste
     fzf
     glow
     gnu-efi
