@@ -37,13 +37,13 @@ fi
 
 echo "Enable MCU powersave: $ENABLE_MCU_POWERSAVE"
 if [ -n "$ENABLE_MCU_POWERSAVE" ]; then
-    if [ -f /sys/devices/platform/*/mcu_powersave ]; then
-        for i in /sys/devices/platform/*/mcu_powersave; do
+    for i in /sys/devices/platform/*/mcu_powersave; do
+        if [ -f "$i" ]; then
             if [ "$(cat $i)" != "$ENABLE_MCU_POWERSAVE" ]; then
                 echo "$ENABLE_MCU_POWERSAVE" >$i
             fi
-        done
-    fi
+        fi
+    done
     if [ -f /sys/class/firmware-attributes/asus-armoury/attributes/mcu_powersave/current_value ]; then
         if [ "$(cat /sys/class/firmware-attributes/asus-armoury/attributes/mcu_powersave/current_value)" != "$ENABLE_MCU_POWERSAVE" ]; then
             echo "$ENABLE_MCU_POWERSAVE" >/sys/class/firmware-attributes/asus-armoury/attributes/mcu_powersave/current_value
@@ -189,11 +189,11 @@ if [[ -f "$fstab_path" && -f "$deplayment_fstab_path" ]]; then
 fi
 
 # sk-quirks
-if [ -x $(command -v sk-quirks) ]; then
+if [ -x "$(command -v sk-quirks)" ]; then
     sk-quirks
 fi
 
 # setcap mangohud
-if [ -x $(command -v mangohud) ]; then
-    setcap cap_perfmon=+ep $(command -v mangohud)
+if [ -x "$(command -v mangohud)" ]; then
+    setcap cap_perfmon=+ep "$(command -v mangohud)"
 fi

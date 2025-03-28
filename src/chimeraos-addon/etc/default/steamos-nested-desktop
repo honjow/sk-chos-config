@@ -1,4 +1,4 @@
-# from https://github.com/ublue-os/bazzite/blob/main/system_files/desktop/shared/usr/etc/default/steamos-nested-desktop
+# from https://github.com/ublue-os/bazzite/blob/main/system_files/desktop/shared/etc/default/steamos-nested-desktop
 
 # Adjust the below values to set the resolution for devices not explicitly checked for.
 # This includes all laptops, all desktops, and some handhelds.

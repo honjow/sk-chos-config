@@ -107,9 +107,11 @@ function setup_refind_tool() {
         mkdir -p "$refind_tool_dir"
     fi
 
-    if [ -f $boot_mountpoint/EFI/Shell/*.efi ]; then
-        cp $boot_mountpoint/EFI/Shell/*.efi $refind_tool_dir
-    fi
+    for efi in "$boot_mountpoint/EFI/Shell"/*.efi; do
+        if [ -f "$efi" ]; then
+            cp "$efi" "$refind_tool_dir"
+        fi
+    done
 }
 
 function setup_refind() {

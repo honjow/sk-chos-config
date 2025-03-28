@@ -16,13 +16,40 @@ PYTHON_SITE_PACKAGES_PATH=$(python3 -c "import site; print(site.getsitepackages(
 HHD_PATH="${PYTHON_SITE_PACKAGES_PATH}/hhd"
 HHD_ORANGE_INIT_PATH="${HHD_PATH}/device/orange_pi/__init__.py"
 echo "HHD_PATH: $HHD_PATH"
+
+# 重试函数
+function retry() {
+    local max_attempts=5
+    local attempt=1
+    local wait_time=2
+
+    while [ $attempt -le $max_attempts ]; do
+        echo "Attempt $attempt of $max_attempts..."
+        if "$@"; then
+            return 0
+        fi
+        attempt=$((attempt + 1))
+        if [ $attempt -le $max_attempts ]; then
+            echo "Waiting $wait_time seconds before retrying..."
+            sleep $wait_time
+            wait_time=$((wait_time * 2))  # 指数退避
+        fi
+    done
+    return 1
+}
+
 # OrangePi NEO and HHD_ORANGE_INIT_FILE not contain "get_touchpad_config"
 if [[ "$PRODUCT" == "NEO-01" && -f "$HHD_ORANGE_INIT_PATH" ]]; then
     if ! grep -q "get_touchpad_config" "$HHD_ORANGE_INIT_PATH"; then
         PATCH_URL="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs/hhd-orangepi-neo-touchpad.patch"
-        echo "Appay HHD patch for OrangePi NEO"
-        curl -sSL $PATCH_URL | patch -d $HHD_PATH -p1
-        echo "Patch applied"
+        echo "Apply HHD patch for OrangePi NEO"
+        
+        if retry curl -sSL "$PATCH_URL" | patch -d "$HHD_PATH" -p1; then
+            echo "Patch applied successfully"
+        else
+            echo "Failed to apply patch after multiple attempts"
+            exit 1
+        fi
 
         status=$(systemctl is-enabled hhd@gamer 2>/dev/null)
         if [[ "$status" == "enabled" ]]; then

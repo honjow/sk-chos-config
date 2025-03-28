@@ -1,4 +1,4 @@
-# from https://github.com/ublue-os/bazzite/blob/main/system_files/desktop/shared/usr/etc/default/waydroid-launcher
+# from https://github.com/ublue-os/bazzite/blob/main/system_files/desktop/shared/etc/default/waydroid-launcher
 
 # Adjust the below values to set the resolution for devices not explicitly checked for.
 # This includes all laptops, all desktops, and some handhelds.
@@ -103,15 +103,15 @@ for device in "${LIST_720P_DEVICES[@]}"; do
 done
 
 original_user=$(ps -o user= -p $PPID)
-original_home=$(getent passwd $original_user | cut -d: -f6)
-for i in "${original_home}"/.config/environment.d/*.conf; do
+original_home=$(getent passwd "$original_user" | cut -d: -f6)
+for i in "$original_home"/.config/environment.d/*.conf; do
     [[ -f "${i}" ]] && . "${i}"
 done
 
-if [ -x $(command -v edid-decode) ] && [[ -z "$WAYDROID_DENSITY" || -z "$WAYDROID_WIDTH" || -z "$WAYDROID_HEIGHT" ]]; then
+if [ -x "$(command -v edid-decode)" ] && [[ -z "$WAYDROID_DENSITY" || -z "$WAYDROID_WIDTH" || -z "$WAYDROID_HEIGHT" ]]; then
     connected=$(grep -H . /sys/class/drm/card*-*/status | grep :connected | cut -d: -f1 | head -n1 | sed 's/\/status//')
     if [ -n "$connected" ]; then
-        EDID=$(cat $connected/edid | edid-decode)
+        EDID=$(cat "$connected/edid" | edid-decode)
         size_width=$(echo "$EDID" | grep 'Maximum image size' | awk '{print $4}')
         size_height=$(echo "$EDID" | grep 'Maximum image size' | awk '{print $7}')
         resolution=$(echo "$EDID" | grep 'DTD 1: ' | awk '{print $3}')

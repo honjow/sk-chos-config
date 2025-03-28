@@ -8,7 +8,7 @@ USER_DIR=$HOME
 HOMEBREW_FOLDER="${USER_DIR}/homebrew"
 
 function fix_games() {
-    if [ $(command -v sk-fix-games) ]; then
+    if [ -x "$(command -v sk-fix-games)" ]; then
         sk-fix-games
     fi
 }
@@ -47,7 +47,7 @@ function compare_version() {
         if [[ ${version_a_arr[$i]} == "" ]]; then
             version_a_arr[$i]=0
         fi
-        echo ">>> idx: ${i}, ${version_a_arr[$i]}, ${version_b_arr[$i]}" >&2
+        # echo ">>> idx: ${i}, ${version_a_arr[$i]}, ${version_b_arr[$i]}" >&2
         if [[ ${version_a_arr[$i]} -gt ${version_b_arr[$i]} ]]; then
             # echo ">> ${version_a_arr[$i]} > ${version_b_arr[$i]}" >&2
             echo "1"

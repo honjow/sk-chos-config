@@ -10,7 +10,7 @@ fi
 
 ACTION=$1
 
-cpu_id=$(cat /proc/cpuinfo | grep "model name" | head -1 | awk -F ': ' '{print $2}' | xargs)
+cpu_id=$(grep "model name" /proc/cpuinfo | head -1 | awk -F ': ' '{print $2}' | xargs)
 cpu_keywords=(
     "3050e"
     "4500"
@@ -249,19 +249,21 @@ EOM
 function compare_version() {
     local version_a=$1
     local version_b=$2
-    local version_a_arr=(${version_a//./ })
-    local version_b_arr=(${version_b//./ })
+    local version_a_arr=()
+    local version_b_arr=()
+    IFS='.' read -ra version_a_arr <<< "$version_a"
+    IFS='.' read -ra version_b_arr <<< "$version_b"
 
-    echo ">>> Compare version: ${version_a} and ${version_b}" >&2
+    # echo ">>> Compare version: ${version_a} and ${version_b}" >&2
 
     for i in {0..2}; do
-        if [[ ${version_b_arr[$i]} == "" ]]; then
-            version_b_arr[$i]=0
+        if [[ ${version_b_arr[i]} == "" ]]; then
+            version_b_arr[i]=0
         fi
-        if [[ ${version_a_arr[$i]} == "" ]]; then
-            version_a_arr[$i]=0
+        if [[ ${version_a_arr[i]} == "" ]]; then
+            version_a_arr[i]=0
         fi
-        echo ">>> ${i} ${version_a_arr[$i]} ${version_b_arr[$i]}" >&2
+        # echo ">>> ${i} ${version_a_arr[$i]} ${version_b_arr[$i]}" >&2
         if [[ ${version_a_arr[$i]} -gt ${version_b_arr[$i]} ]]; then
             # echo ">> ${version_a_arr[$i]} > ${version_b_arr[$i]}" >&2
             echo "1"
@@ -286,30 +288,30 @@ function copy_plugin() {
     "PowerControl")
         if power_control_support 2>/dev/null; then
             echo "Copying PowerControl plugin..."
-            cp -rf $decky_plugin_path/$name "${HOMEBREW_FOLDER}/plugins"
+            cp -rf "$decky_plugin_path/$name" "${HOMEBREW_FOLDER}/plugins"
         fi
         ;;
     "HueSync")
         if led_support 2>/dev/null; then
             echo "Copying HueSync plugin..."
-            cp -rf $decky_plugin_path/$name "${HOMEBREW_FOLDER}/plugins"
+            cp -rf "$decky_plugin_path/$name" "${HOMEBREW_FOLDER}/plugins"
         fi
         ;;
     "GPD-WinControl")
         if gpd_wincontrol_support 2>/dev/null; then
             echo "Copying GPD-WinControl plugin..."
-            cp -rf $decky_plugin_path/$name "${HOMEBREW_FOLDER}/plugins"
+            cp -rf "$decky_plugin_path/$name" "${HOMEBREW_FOLDER}/plugins"
         fi
         ;;
     "LegionGoRemapper")
         if LegionGoRemapper_support 2>/dev/null; then
             echo "Copying LegionGoRemapper plugin..."
-            cp -rf $decky_plugin_path/$name "${HOMEBREW_FOLDER}/plugins"
+            cp -rf "$decky_plugin_path/$name" "${HOMEBREW_FOLDER}/plugins"
         fi
         ;;
     *)
         echo "Copying $name plugin..."
-        cp -rf $decky_plugin_path/$name "${HOMEBREW_FOLDER}/plugins"
+        cp -rf "$decky_plugin_path/$name" "${HOMEBREW_FOLDER}/plugins"
         ;;
     esac
 }
@@ -318,29 +320,30 @@ function install_decky_plugins() {
 
     if [[ -d $decky_plugin_path ]]; then
         echo "Installing decky plugins..."
-        sudo chmod -R +w $HOMEBREW_FOLDER
+        sudo chmod -R +w "$HOMEBREW_FOLDER"
 
         # cp -rf $decky_plugin_path/* "${HOMEBREW_FOLDER}/plugins"
-        for plugin in $(ls $decky_plugin_path); do
-            if [[ -d "${HOMEBREW_FOLDER}/plugins/$plugin" ]]; then
-                if [[ -f "${HOMEBREW_FOLDER}/plugins/$plugin/package.json" ]]; then
+        for plugin in "$decky_plugin_path"/*; do
+            plugin_name=$(basename "$plugin")
+            if [[ -d "${HOMEBREW_FOLDER}/plugins/$plugin_name" ]]; then
+                if [[ -f "${HOMEBREW_FOLDER}/plugins/$plugin_name/package.json" ]]; then
 
                     # check version, if new version larger than current version, update
                     # 只保留 - 之前的版本号
-                    current_version=$(cat "${HOMEBREW_FOLDER}/plugins/$plugin/package.json" | jq -r '.version' | awk -F '-' '{print $1}')
-                    new_version=$(cat "$decky_plugin_path/$plugin/package.json" | jq -r '.version')
+                    current_version=$(jq -r '.version' < "${HOMEBREW_FOLDER}/plugins/$plugin_name/package.json" | awk -F '-' '{print $1}')
+                    new_version=$(jq -r '.version' < "$decky_plugin_path/$plugin_name/package.json")
 
                     # compare version
-                    compare_result=$(compare_version $current_version $new_version)
+                    compare_result=$(compare_version "$current_version" "$new_version")
                     if [[ "$compare_result" == "-1" ]]; then
-                        echo "Updating $plugin plugin, current version: $current_version, new version: $new_version"
-                        copy_plugin $plugin
+                        echo "Updating $plugin_name plugin, current version: $current_version, new version: $new_version"
+                        copy_plugin "$plugin_name"
                     fi
                 else
-                    copy_plugin $plugin
+                    copy_plugin "$plugin_name"
                 fi
             else
-                copy_plugin $plugin
+                copy_plugin "$plugin_name"
             fi
         done
     fi
@@ -356,8 +359,8 @@ function setup_gamepad() {
         sudo systemctl mask inputplumber || true
         sudo systemctl disable --now steam-powerbuttond || true
 
-        sudo systemctl unmask hhd@${USER} || true
-        sudo systemctl enable --now hhd@${USER}
+        sudo systemctl unmask "hhd@${USER}" || true
+        sudo systemctl enable --now "hhd@${USER}"
     fi
 }
 
@@ -433,13 +436,13 @@ function flatpak_auto_repo() {
 
 function user_setup_after_update() {
     script_dir="$HOME/.config/sk-chos-tool/update"
-    if [[ ! -d $script_dir ]]; then
-        mkdir -p $script_dir
+    if [[ ! -d "$script_dir" ]]; then
+        mkdir -p "$script_dir"
     fi
-    for script in $(ls $script_dir); do
-        if [[ -x "$script_dir/$script" ]]; then
-            echo "Running $script..."
-            exec "$script_dir/$script" || true
+    for script in "$script_dir"/*; do
+        if [[ -x "$script" ]]; then
+            echo "Running $(basename "$script")..."
+            exec "$script" || true
         fi
     done
 }
