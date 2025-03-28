@@ -55,34 +55,34 @@ home_device=$(df -h /home | awk 'NR==2 {print $1}') || error_exit "无法获取 
 [ -e "$home_device" ] || error_exit "设备 $home_device 不存在"
 
 # 从设备路径中提取磁盘设备路径和分区号
-disk_device=$(echo $home_device | sed 's/p\?[0-9]*$//')
-partition_number=$(echo $home_device | awk -F '/' '{print $NF}' | sed 's/.*\([0-9]\+\)$/\1/g')
+disk_device=${home_device//[0-9]*$/}
+partition_number=${home_device##*[!0-9]}
 
 # 使用 parted 命令获取未分配空间信息
 log_info "检查未分配空间..."
-unallocated_start_sector=$(sudo parted $disk_device unit s print free | awk -v partition_number="$partition_number" 'prev==partition_number && /Free Space/ {print $1} {prev=$1; prev_line=$1}' | tr -d 's') || error_exit "无法获取未分配空间信息"
+unallocated_start_sector=$(sudo parted "$disk_device" unit s print free | awk -v partition_number="$partition_number" 'prev==partition_number && /Free Space/ {print $1} {prev=$1; prev_line=$1}' | tr -d 's') || error_exit "无法获取未分配空间信息"
 
-unallocated_end_sector=$(sudo parted $disk_device unit s print free | awk -v partition_number="$partition_number" 'prev==partition_number && /Free Space/ {print $2} {prev=$1; prev_line=$1}' | tr -d 's') || error_exit "无法获取未分配空间信息"
+unallocated_end_sector=$(sudo parted "$disk_device" unit s print free | awk -v partition_number="$partition_number" 'prev==partition_number && /Free Space/ {print $2} {prev=$1; prev_line=$1}' | tr -d 's') || error_exit "无法获取未分配空间信息"
 
 # 计算未分配空间大小
-unallocated_space=$((($unallocated_end_sector - $unallocated_start_sector + 1) / 2048))
+unallocated_space=$(((unallocated_end_sector - unallocated_start_sector + 1) / 2048))
 log_info "相邻未分配空间大小: ${unallocated_space}MiB"
 
 # 获取文件系统信息
-home_filesystem=$(blkid -s TYPE -o value $home_device) || error_exit "无法获取文件系统类型"
-home_size=$(lsblk -b -n -o SIZE $home_device | awk '{print int($1/1024/1024)}') || error_exit "无法获取分区大小"
+home_filesystem=$(blkid -s TYPE -o value "$home_device") || error_exit "无法获取文件系统类型"
+home_size=$(lsblk -b -n -o SIZE "$home_device" | awk '{print int($1/1024/1024)}') || error_exit "无法获取分区大小"
 
 log_info "当前 home 分区大小: ${home_size}MiB"
 log_info "文件系统类型: ${home_filesystem}"
 
 # 检查是否需要扩展
 if [[ ($home_size -lt 51200 || $force) && $unallocated_space -gt 0 ]]; then
-    extend_size=$(($home_size + $unallocated_space))
+    extend_size=$((home_size + unallocated_space))
     log_info "准备扩展到 ${extend_size}MiB..."
 
     # 扩展分区
     log_info "正在扩展分区..."
-    parted $disk_device resizepart $partition_number ${unallocated_end_sector}s || error_exit "分区扩展失败"
+    parted "$disk_device" resizepart "$partition_number" "${unallocated_end_sector}s" || error_exit "分区扩展失败"
 
     log_info "等待系统识别新分区大小..."
     sleep 3
@@ -91,7 +91,7 @@ if [[ ($home_size -lt 51200 || $force) && $unallocated_space -gt 0 ]]; then
     log_info "正在扩展文件系统..."
     case $home_filesystem in
         "ext4")
-            resize2fs $home_device || error_exit "ext4 文件系统扩展失败"
+            resize2fs "$home_device" || error_exit "ext4 文件系统扩展失败"
             ;;
         "btrfs")
             btrfs filesystem resize max /home || error_exit "btrfs 文件系统扩展失败"

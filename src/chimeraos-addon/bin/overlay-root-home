@@ -26,8 +26,7 @@ function mount_overlay() {
 function umount_overlay() {
     # unmount the overlay
     echo "Unmounting the overlay..."
-    umount $low_font_dir
-    umount $low_fontconfig_dir
+    umount "$low_root_home"
 
     echo "Overlay unmounted."
 }

@@ -129,8 +129,8 @@ function install_nix() {
 
     # delete nixbld user, nixbld1-nixbld31
     for i in {1..32}; do
-        if id -u nixbld$i >/dev/null 2>&1; then
-            sudo userdel nixbld$i
+        if id -u "nixbld$i" >/dev/null 2>&1; then
+            sudo userdel "nixbld$i"
         fi
     done
 
@@ -194,8 +194,8 @@ function uninstall_nix() {
     sudo rm -rf /nix/*
 
     for i in {1..32}; do
-        if id -u nixbld$i >/dev/null 2>&1; then
-            sudo userdel nixbld$i
+        if id -u "nixbld$i" >/dev/null 2>&1; then
+            sudo userdel "nixbld$i"
         fi
     done
 

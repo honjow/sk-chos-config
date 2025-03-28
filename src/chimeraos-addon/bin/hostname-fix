@@ -17,8 +17,8 @@ fi
 
 echo "Current hostname: $current_hostname"
 
-# 使用sed过滤
-new_hostname=$(echo "$current_hostname" | sed -e 's/[^a-zA-Z0-9_]//g')
+# 使用bash内置字符串替换
+new_hostname=${current_hostname//[^a-zA-Z0-9_]/}
 
 # 设置新的主机名
 hostnamectl set-hostname "$new_hostname"
