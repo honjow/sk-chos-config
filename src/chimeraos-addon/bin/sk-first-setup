@@ -391,8 +391,6 @@ function install_css_theme() {
         echo "Installing hhd themes..."
         if [ -d "${css_hhd_path}/SBP-PS5-to-Handheld" ]; then
             cp -rf "${css_hhd_path}/SBP-PS5-to-Handheld" "${THEME_FOLDER}"
-        else
-            return
         fi
         if [[ "$PRODUCT" =~ "ROG Ally" ]]; then
             set_ps5_theme_default "ROG Ally"
@@ -425,8 +423,6 @@ function install_css_theme_new() {
         if [ -d "${css_hhd_path}/handheld-controller-glyphs-sk" ]; then
             cp -rf "${css_hhd_path}/handheld-controller-glyphs-sk" "${THEME_FOLDER}"
             rm -rf "${THEME_FOLDER}/SBP-PS5-to-Handheld" || true
-        else
-            return
         fi
         # Anbernic
         if [[ "$PRODUCT" == "Win600" ]]; then
