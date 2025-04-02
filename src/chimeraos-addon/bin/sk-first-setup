@@ -553,6 +553,11 @@ function copy_rime_config() {
     fi
 }
 
+function recopy_skel() {
+    echo "Recopy skel..."
+    sudo cp -rfv /etc/skel/. "$HOME"
+}
+
 case $ACTION in
 "--update")
     install_decky
@@ -565,6 +570,7 @@ case $ACTION in
     copy_rime_config
     ;;
 *)
+    recopy_skel
     install_decky
     install_decky_plugins
     setup_gamepad
