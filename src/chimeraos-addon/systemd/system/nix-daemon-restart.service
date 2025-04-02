@@ -5,7 +5,7 @@ RequiresMountsFor=/nix/store
 
 [Service]
 Type=simple
-ExecStart=/bin/sh -c "/usr/bin/systemctl daemon-reload && /usr/bin/systemctl restart nix-daemon"
+ExecStart=/bin/sh -c "/usr/bin/systemctl daemon-reload && if /usr/bin/systemctl is-active nix-daemon; then /usr/bin/systemctl restart nix-daemon; fi"
 Restart=on-failure
 RestartSec=5s
 
