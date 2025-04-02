@@ -555,7 +555,7 @@ function copy_rime_config() {
 
 function recopy_skel() {
     echo "Recopy skel..."
-    sudo cp -rfv /etc/skel/. "$HOME"
+    cp -rfv /etc/skel/. "$HOME"
 }
 
 case $ACTION in
