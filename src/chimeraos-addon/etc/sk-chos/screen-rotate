@@ -5,6 +5,9 @@ DEVICENAME=$(cat /sys/devices/virtual/dmi/id/product_name)
 VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
 SCREEN_MODEL_NAME=$(cat /sys/class/drm/card*-eDP-1/edid | parse-edid 2>/dev/null | grep "ModelName" | cut -d \" -f 2 | sed 's/[^a-zA-Z0-9_-]//g')
 
+X11_ROTATION="normal"
+video=""
+
 AYA_RIGHT_LIST=(
     "AYA NEO FOUNDER"
     "AYA NEO 2021"
@@ -76,16 +79,20 @@ NORMAL_MODEL_LIST=(
 
 ROTATE_OFFSET="0"
 
-for vendor in "${LEFT_LIST[@]}"; do
-    if [[ "$DEVICENAME" =~ "$vendor" ]]; then
+for product in "${LEFT_LIST[@]}"; do
+    if [[ "$DEVICENAME" =~ "$product" ]]; then
         ROTATE_OFFSET="3"
+        X11_ROTATION="left"
+        video="eDP-1:panel_orientation=left_side_up"
         break
     fi
 done
 
-for vendor in "${RIGHT_LIST[@]}"; do
-    if [[ "$DEVICENAME" =~ "$vendor" ]]; then
+for product in "${RIGHT_LIST[@]}"; do
+    if [[ "$DEVICENAME" =~ "$product" ]]; then
         ROTATE_OFFSET="1"
+        X11_ROTATION="right"
+        video="eDP-1:panel_orientation=right_side_up"
         break
     fi
 done
@@ -94,24 +101,13 @@ done
 for model in "${NORMAL_MODEL_LIST[@]}"; do
     if [[ "$SCREEN_MODEL_NAME" =~ "$model" ]]; then
         ROTATE_OFFSET="0"
+        X11_ROTATION="normal"
+        unset video
         break
     fi
 done
 
-# if [[ "$ROTATE_OFFSET" != "0" ]]; then
-#     export FBCON_PARA="rotate:$ROTATE_OFFSET"
-# fi
-
 export FBCON_PARA="rotate:$ROTATE_OFFSET"
-
-video=""
-
-if [[ "$ROTATE_OFFSET" == "1" ]]; then
-    video="eDP-1:panel_orientation=right_side_up"
-elif [[ "$ROTATE_OFFSET" == "3" ]]; then
-    video="eDP-1:panel_orientation=left_side_up"
-fi
-
-VIDEO_PARA="$video"
-
+export VIDEO_PARA="$video"
 export ROTATE_OFFSET=$ROTATE_OFFSET
+export X11_ROTATION=$X11_ROTATION
