@@ -3,7 +3,7 @@ Description=Desktop Permissions Monitor
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/sk-desktop-monitor
+ExecStart=/usr/bin/bash -c '/usr/bin/sk-desktop-monitor'
 
 [Install]
 WantedBy=default.target

@@ -3,7 +3,7 @@ Description=Waydroid Desktop Monitor
 
 [Service]
 Type=simple
-ExecStart=/usr/libexec/monitor-waydroid
+ExecStart=/usr/bin/bash -c '/usr/libexec/monitor-waydroid'
 
 [Install]
 WantedBy=default.target

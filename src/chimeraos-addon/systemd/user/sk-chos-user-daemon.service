@@ -4,7 +4,7 @@ After=graphical.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/sk-chos-user-daemon
+ExecStart=/usr/bin/bash -c '/usr/bin/sk-chos-user-daemon'
 
 [Install]
 WantedBy=default.target

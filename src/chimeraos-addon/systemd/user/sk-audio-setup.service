@@ -7,7 +7,7 @@ AssertPathExists=/usr/bin/sk-audio-setup
 [Service]
 Type=oneshot
 ExecStartPre=/usr/bin/sleep 5
-ExecStart=/usr/bin/sk-audio-setup
+ExecStart=/usr/bin/bash -c '/usr/bin/sk-audio-setup'
 RemainAfterExit=yes
 
 [Install]
