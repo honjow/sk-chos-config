@@ -17,9 +17,6 @@ VALID_BRANCHES=(
   "cinnamon-pre#testing:cinnamon"
   "hyprland#stable:hyprland"
   "hyprland-pre#testing:hyprland"
-)
-
-VALID_NV_BRANCHES=(
   "gnome_nvidia#stable:gnome-nv"
   "gnome_nvidia-pre#testing:gnome-nv"
   "gnome_nvidia-dev#unstable:gnome-nv"
@@ -27,8 +24,6 @@ VALID_NV_BRANCHES=(
   "plasma_nvidia-pre#testing:kde-nv"
   "plasma_nvidia-dev#unstable:kde-nv"
 )
-
-VALID_BRANCHES+=("${VALID_NV_BRANCHES[@]}")
 
 SHOW_BRANCHES=()
 for b in "${VALID_BRANCHES[@]}"; do
