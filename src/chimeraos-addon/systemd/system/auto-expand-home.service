@@ -1,5 +1,6 @@
 [Unit]
 Description=Home Partition Resize
+After=local-fs.target
 Before=frzr_swap-swap-swapfile.swap sk-setup-kernel-options.service
 
 [Service]

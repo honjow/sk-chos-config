@@ -1,6 +1,7 @@
 [Unit]
 Description=Create Swap File
 DefaultDependencies=no
+After=auto-expand-home.service
 Before=shutdown.target frzr_swap-swap-swapfile.swap
 Conflicts=shutdown.target
 ConditionFileIsExecutable=/usr/bin/sk-mkswapfile

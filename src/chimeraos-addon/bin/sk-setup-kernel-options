@@ -74,15 +74,15 @@ get_video() {
 
 # 检查并加载配置文件
 if [[ ! -f "/etc/sk-chos/sk-chos.conf" ]]; then
-    echo "警告: 配置文件 /etc/sk-chos/sk-chos.conf 不存在"
+    echo >&2 "警告: 配置文件 /etc/sk-chos/sk-chos.conf 不存在"
 fi
 
 if [[ -d "/tmp/frzr_root" ]]; then
     if [[ ! -f "${MOUNT_PATH}/etc/sk-chos/sk-chos.conf" ]]; then
-        echo "错误: 配置文件 ${MOUNT_PATH}/etc/sk-chos/sk-chos.conf 不存在"
-        exit 1
+        echo >&2 "警告: 配置文件 ${MOUNT_PATH}/etc/sk-chos/sk-chos.conf 不存在"
+    else
+        source "${MOUNT_PATH}/etc/sk-chos/sk-chos.conf"
     fi
-    source "${MOUNT_PATH}/etc/sk-chos/sk-chos.conf"
 else
     source "/etc/sk-chos/sk-chos.conf"
 fi
@@ -92,7 +92,7 @@ if efibootmgr | grep -i "Linux Boot Manager" | grep -iq "systemd-bootx64.efi"; t
     echo "Linux Boot Manager exists, no need to add it"
 else
     echo "Linux Boot Manager not exists, add it"
-    /usr/bin/sk-chos-boot-fix || echo "警告: sk-chos-boot-fix 执行失败"
+    /usr/bin/sk-chos-boot-fix || echo >&2 "警告: sk-chos-boot-fix 执行失败"
 fi
 
 # 获取 swap 设备信息
@@ -109,11 +109,40 @@ root_partuuid=$(lsblk -no PARTUUID "$(mount | grep ' / ' | cut -d' ' -f1)")
 # 处理 swapfile
 RESUME_OFFSET=""
 if [[ -f "/frzr_root/swap/swapfile" ]]; then
-    RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r "/frzr_root/swap/swapfile") || echo "警告: 获取 swapfile offset 失败"
+    RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r "/frzr_root/swap/swapfile") || echo >&2 "警告: 获取 swapfile offset 失败"
 fi
 
-MK_SWAPFILE_SERVICE="sk-mkswapfile.service"
 SWAP_FILE_SERVICE="frzr_root-swap-swapfile.swap"
+
+function enable_swapfile() {
+    is_enabled=$(systemctl is-enabled "$SWAP_FILE_SERVICE")
+    if [[ "${is_enabled}" == "enabled" ]]; then
+        echo "$SWAP_FILE_SERVICE is enabled"
+    else
+        systemctl enable "$SWAP_FILE_SERVICE" || return 1
+    fi
+
+    is_active=$(systemctl is-active "$SWAP_FILE_SERVICE")
+    if [[ "${is_active}" == "active" ]]; then
+        systemctl restart "$SWAP_FILE_SERVICE" || return 1
+    else
+        systemctl start "$SWAP_FILE_SERVICE" || return 1
+    fi
+    return 0
+}
+
+function disable_swapfile() {
+    is_active=$(systemctl is-active "$SWAP_FILE_SERVICE")
+    if [[ "${is_active}" == "active" ]]; then
+        systemctl stop "$SWAP_FILE_SERVICE" || return 1
+    fi
+
+    is_enabled=$(systemctl is-enabled "$SWAP_FILE_SERVICE")
+    if [[ "${is_enabled}" == "enabled" ]]; then
+        systemctl disable "$SWAP_FILE_SERVICE" || return 1
+    fi
+    return 0
+}
 
 # 设置 resume 命令
 RESUME_CMD=""
@@ -121,31 +150,19 @@ if [[ -n "${SWAP_PARTUUID}" ]]; then
     echo "SWAP_PARTUUID 非空，添加到内核参数"
     RESUME_CMD="resume=PARTUUID=${SWAP_PARTUUID}"
 
-    systemctl disable --now "$MK_SWAPFILE_SERVICE" || echo "警告: 禁用 $MK_SWAPFILE_SERVICE 失败"
-    systemctl disable --now "$SWAP_FILE_SERVICE" || echo "警告: 禁用 $SWAP_FILE_SERVICE 失败"
+    disable_swapfile
 
-    rm -f "/frzr_root/swap/swapfile" || echo "警告: 删除 swapfile 失败"
+    rm -f "/frzr_root/swap/swapfile" || echo >&2 "警告: 删除 swapfile 失败"
 
 elif [[ -n "${RESUME_OFFSET}" ]]; then
     echo "RESUME_OFFSET 非空, 启动swap服务, 添加到内核参数"
 
-    if ! systemctl enable --now "$MK_SWAPFILE_SERVICE"; then
-        echo "错误: 启用 $MK_SWAPFILE_SERVICE 失败"
-    elif ! systemctl enable --now "$SWAP_FILE_SERVICE"; then
-        echo "错误: 启用 $SWAP_FILE_SERVICE 失败"
-    fi
-
-    is_enabled=$(systemctl is-enabled "$SWAP_FILE_SERVICE")
-    is_active=$(systemctl is-active "$SWAP_FILE_SERVICE")
-
-    if [[ "${is_enabled}" == "enabled" && "${is_active}" == "active" ]]; then
-        echo "$SWAP_FILE_SERVICE is enabled"
-    else
-        echo "启动swap服务失败, 重新创建swap文件"
+    if ! enable_swapfile; then
+        echo >&2 "启动swap服务失败, 重新创建swap文件"
         if ! /usr/bin/sk-mkswapfile; then
-            echo "错误: 创建 swapfile 失败"
+            echo >&2 "错误: 创建 swapfile 失败"
         else
-            RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r "/frzr_root/swap/swapfile") || echo "警告: 获取 swapfile offset 失败"
+            RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r "/frzr_root/swap/swapfile") || echo >&2 "警告: 获取 swapfile offset 失败"
         fi
     fi
 
@@ -155,11 +172,10 @@ elif [[ -n "${RESUME_OFFSET}" ]]; then
 elif [[ "${CREATE_SWAP_FILE:-0}" == "1" ]]; then
     echo "新创建 swapfile"
     if ! /usr/bin/sk-mkswapfile; then
-        echo "错误: 创建 swapfile 失败"
+        echo >&2 "错误: 创建 swapfile 失败"
     else
-        RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r "/frzr_root/swap/swapfile") || echo "警告: 获取 swapfile offset 失败"
-        systemctl enable --now "$MK_SWAPFILE_SERVICE" || echo "警告: 启用 $MK_SWAPFILE_SERVICE 失败"
-        systemctl enable --now "$SWAP_FILE_SERVICE" || echo "警告: 启用 $SWAP_FILE_SERVICE 失败"
+        RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r "/frzr_root/swap/swapfile") || echo >&2 "警告: 获取 swapfile offset 失败"
+        enable_swapfile
         RESUME_CMD="resume=PARTUUID=${root_partuuid}"
         RESUME_OFFSET_CMD="resume_offset=${RESUME_OFFSET}"
     fi
