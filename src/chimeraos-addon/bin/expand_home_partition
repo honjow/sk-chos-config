@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2001
 export LANG=en_US.UTF-8
 
 set -e
@@ -55,7 +56,7 @@ home_device=$(df -h /home | awk 'NR==2 {print $1}') || error_exit "无法获取 
 [ -e "$home_device" ] || error_exit "设备 $home_device 不存在"
 
 # 从设备路径中提取磁盘设备路径和分区号
-disk_device=${home_device//[0-9]*$/}
+disk_device=$(echo $home_device | sed 's/p\?[0-9]*$//')
 partition_number=${home_device##*[!0-9]}
 
 # 使用 parted 命令获取未分配空间信息
