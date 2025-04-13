@@ -1,8 +1,17 @@
 #!/bin/bash
 
-# 启用严格模式和错误处理
-set -euo pipefail
+set -eo pipefail
 trap 'echo "Error on line $LINENO"' ERR
+
+function kernel_options_manager() {
+    scripts_path="/usr/share/device-quirks/scripts/kernel-options-manager"
+    if [[ -x "$scripts_path" ]]; then
+        sudo "$scripts_path" "$@"
+    else
+        echo "Error: script $scripts_path not found" >&2
+        exit 1
+    fi
+}
 
 # 初始化变量
 REBOOT=false
@@ -205,17 +214,20 @@ while IFS= read -r -d '' conf; do
 
         # 更新 resume 参数
         if [[ -n "$RESUME_CMD" ]]; then
-            update_kernel_param "$conf" "resume" "$RESUME_CMD"
+            # update_kernel_param "$conf" "resume" "$RESUME_CMD"
+            kernel_options_manager --append "${RESUME_CMD}"
         fi
 
         # 更新 fbcon 参数
         if [[ -n "$FBCON" ]]; then
-            update_kernel_param "$conf" "fbcon" "$FBCON"
+            # update_kernel_param "$conf" "fbcon" "$FBCON"
+            kernel_options_manager --append "${FBCON}"
         fi
 
         # 更新 video 参数
         if [[ -n "$VIDEO" ]]; then
-            update_kernel_param "$conf" "video" "$VIDEO"
+            # update_kernel_param "$conf" "video" "$VIDEO"
+            kernel_options_manager --append "${VIDEO}"
         fi
     fi
 done < <(find "/frzr_root/boot/loader/entries" -name "frzr*.conf" -print0)
