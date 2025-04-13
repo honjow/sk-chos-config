@@ -47,6 +47,16 @@ function power_control_support() {
     return 1
 }
 
+function kernel_options_manager() {
+    scripts_path="/usr/share/device-quirks/scripts/kernel-options-manager"
+    if [[ -x "$scripts_path" ]]; then
+        sudo "$scripts_path" "$@"
+    else
+        echo "Error: script $scripts_path not found" >&2
+        exit 1
+    fi
+}
+
 pre_path=/usr/local/share/sk-pre
 
 decky_path=$pre_path/decky
@@ -568,6 +578,12 @@ function set_hostname() {
     fi
 }
 
+function set_kernel_options() {
+    echo "Setting kernel options..."
+    kernel_options_manager --append "quiet"
+    kernel_options_manager --append "splash"
+}
+
 case $ACTION in
 "--update")
     install_decky
@@ -580,6 +596,7 @@ case $ACTION in
     copy_rime_config
     ;;
 *)
+    set_kernel_options
     recopy_skel
     set_hostname
     install_decky
