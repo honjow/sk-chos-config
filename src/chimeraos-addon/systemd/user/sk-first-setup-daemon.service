@@ -2,6 +2,7 @@
 Description=Sk ChimersOS first setup daemon
 ConditionPathExists=|!/etc/sk-first-setup-done
 ConditionPathExists=|/etc/sk-first-setup-force
+After=network.target
 
 [Service]
 Type=simple
