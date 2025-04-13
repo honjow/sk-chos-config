@@ -121,8 +121,4 @@ else
     restore_backup "$backup_name" || exit 1
 fi
 
-if [ -x "$(command -v sk-setup-kernel-options)" ]; then
-    sk-setup-kernel-options
-fi
-
 echo "交换文件设置完成"
