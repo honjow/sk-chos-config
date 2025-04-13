@@ -149,7 +149,8 @@ elif [[ -n "${RESUME_OFFSET}" ]]; then
         fi
     fi
 
-    RESUME_CMD="resume=PARTUUID=${root_partuuid} resume_offset=${RESUME_OFFSET}"
+    RESUME_CMD="resume=PARTUUID=${root_partuuid}"
+    RESUME_OFFSET_CMD="resume_offset=${RESUME_OFFSET}"
 
 elif [[ "${CREATE_SWAP_FILE:-0}" == "1" ]]; then
     echo "新创建 swapfile"
@@ -159,11 +160,10 @@ elif [[ "${CREATE_SWAP_FILE:-0}" == "1" ]]; then
         RESUME_OFFSET=$(btrfs inspect-internal map-swapfile -r "/frzr_root/swap/swapfile") || echo "警告: 获取 swapfile offset 失败"
         systemctl enable --now "$MK_SWAPFILE_SERVICE" || echo "警告: 启用 $MK_SWAPFILE_SERVICE 失败"
         systemctl enable --now "$SWAP_FILE_SERVICE" || echo "警告: 启用 $SWAP_FILE_SERVICE 失败"
-        RESUME_CMD="resume=PARTUUID=${root_partuuid} resume_offset=${RESUME_OFFSET}"
+        RESUME_CMD="resume=PARTUUID=${root_partuuid}"
+        RESUME_OFFSET_CMD="resume_offset=${RESUME_OFFSET}"
     fi
 fi
-
-echo "RESUME_CMD=${RESUME_CMD}"
 
 # 获取显示相关参数
 FBCON=$(get_fbcon 2>/dev/null)
@@ -172,65 +172,44 @@ echo "FBCON: ${FBCON}"
 VIDEO=$(get_video 2>/dev/null)
 echo "VIDEO: ${VIDEO}"
 
-update_kernel_param() {
-    local conf="$1"
-    local param_name="$2"
-    local param_value="$3"
-    local conf_base_name
-    conf_base_name=$(basename "$conf")
-
-    if [[ ! -f "$conf" ]]; then
-        echo "警告: 配置文件 $conf_base_name 不存在"
-        return 1
+# 更新内核参数
+# 更新 resume 参数
+if [[ -n "$RESUME_CMD" ]]; then
+    if ! kernel_options_manager --append "${RESUME_CMD}" | grep -q "No changes needed"; then
+        NEED_REBOOT=$((NEED_REBOOT + 1))
     fi
+else
+    kernel_options_manager --remove "resume"
+fi
 
-    if ! grep -q "${param_name}=" "$conf"; then
-        if [[ -n "$param_value" ]]; then
-            echo "添加 $param_value 到 $conf_base_name"
-            sed -i "s/ splash / splash ${param_value} /" "$conf"
-            return 0
-        fi
-    else
-        local existing_param
-        existing_param=$(grep -o "${param_name}=[^[:space:]]*\(\s*${param_name}_offset=[^[:space:]]*\)\?" "$conf")
-        echo "已存在的 ${param_name}: ${existing_param}"
-
-        if [[ "${existing_param}" != "${param_value}" ]]; then
-            echo "替换 $conf_base_name 中原有的 ${param_name}"
-            sed -i "s/${existing_param}/${param_value}/" "$conf"
-            NEED_REBOOT=$((NEED_REBOOT + 1))
-            return 0
-        else
-            echo "${param_name} 已存在 $conf_base_name 中, 并且匹配. 无需更新"
-            return 0
-        fi
+# 更新 resume_offset 参数
+if [[ -n "$RESUME_OFFSET_CMD" ]]; then
+    if ! kernel_options_manager --append "${RESUME_OFFSET_CMD}" | grep -q "No changes needed"; then
+        NEED_REBOOT=$((NEED_REBOOT + 1))
     fi
-}
+else
+    kernel_options_manager --remove "resume_offset"
+fi
 
-# 遍历并更新内核参数
-while IFS= read -r -d '' conf; do
-    if [[ -f "$conf" ]]; then
-        echo "处理配置文件: $conf"
-
-        # 更新 resume 参数
-        if [[ -n "$RESUME_CMD" ]]; then
-            # update_kernel_param "$conf" "resume" "$RESUME_CMD"
-            kernel_options_manager --append "${RESUME_CMD}"
-        fi
-
-        # 更新 fbcon 参数
-        if [[ -n "$FBCON" ]]; then
-            # update_kernel_param "$conf" "fbcon" "$FBCON"
-            kernel_options_manager --append "${FBCON}"
-        fi
-
-        # 更新 video 参数
-        if [[ -n "$VIDEO" ]]; then
-            # update_kernel_param "$conf" "video" "$VIDEO"
-            kernel_options_manager --append "${VIDEO}"
-        fi
+# 更新 fbcon 参数
+if [[ -n "$FBCON" ]]; then
+    if ! kernel_options_manager --append "${FBCON}" | grep -q "No changes needed"; then
+        NEED_REBOOT=$((NEED_REBOOT + 1))
     fi
-done < <(find "/frzr_root/boot/loader/entries" -name "frzr*.conf" -print0)
+else
+    kernel_options_manager --remove "fbcon"
+fi
+
+# 更新 video 参数
+if [[ -n "$VIDEO" ]]; then
+    if ! kernel_options_manager --append "${VIDEO}" | grep -q "No changes needed"; then
+        NEED_REBOOT=$((NEED_REBOOT + 1))
+    fi
+else
+    kernel_options_manager --remove "video"
+fi
+
+echo "NEED_REBOOT=$NEED_REBOOT"
 
 # 处理重启
 if [[ $NEED_REBOOT -gt 1 && $REBOOT == true ]] || [[ $FORCE == true ]]; then
