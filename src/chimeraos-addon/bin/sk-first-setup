@@ -221,7 +221,8 @@ function install_decky() {
         mkdir -p "${HOMEBREW_FOLDER}/services"
         mkdir -p "${HOMEBREW_FOLDER}/plugins"
         mkdir -p "${HOMEBREW_FOLDER}/themes"
-        touch "${USER_DIR}/.steam/steam/.cef-enable-remote-debugging"
+        mkdir -p "${USER_DIR}/.local/share/Steam/"
+        touch "${USER_DIR}/.local/share/Steam/.cef-enable-remote-debugging"
         [ -d "${USER_DIR}/.var/app/com.valvesoftware.Steam/data/Steam/" ] && touch "${USER_DIR}/.var/app/com.valvesoftware.Steam/data/Steam/.cef-enable-remote-debugging"
 
         sudo cp $decky_file "${HOMEBREW_FOLDER}/services/PluginLoader"
@@ -571,10 +572,11 @@ function recopy_skel() {
 function set_hostname() {
     current_hostname=$(hostnamectl --static)
     product_name=$(cat /sys/devices/virtual/dmi/id/product_name)
-    hostname=$(echo "$product_name" | tr '[:upper:]' '[:lower:]' | sed 's/ /_/g;s/-/_/g')
+    hostname=$(echo "$product_name" | sed 's/ /-/g;s/:/-/g')
+    echo "Setting hostname to $hostname..."
     sudo hostnamectl set-hostname "$hostname"
     if [[ "$current_hostname" != "$hostname" ]]; then
-        systemctl restart systemd-hostnamed
+        sudo systemctl restart systemd-hostnamed
     fi
 }
 
