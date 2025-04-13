@@ -172,10 +172,9 @@ pre_zsh_dir=$pre_path/zsh/ohmyzsh
 pre_zshrc=$pre_path/zsh/.zshrc
 
 if [[ -d $pre_zsh_dir ]]; then
-    if [[ ! -d "${HOME}/.oh-my-zsh" ]]; then
-        echo "Installing oh-my-zsh..."
-        rsync -av "${pre_zsh_dir}/" "${HOME}/.oh-my-zsh/"
-    fi
+    echo "Installing oh-my-zsh..."
+    mkdir -p "${HOME}/.oh-my-zsh"
+    rsync -av "${pre_zsh_dir}/" "${HOME}/.oh-my-zsh/"
 fi
 
 zshrc_path="${HOME}/.zshrc"
