@@ -143,6 +143,7 @@ ORANGEPI_MATCH_LIST=(
 MSI_MATCH_LIST=(
     "Claw A1M"
     "Claw 8"
+    "Claw 7"
 )
 
 HHD_MATCH_LIST=(
@@ -183,6 +184,12 @@ function led_support() {
 
     for item in "${LED_MATCH_LIST[@]}"; do
         if [[ "$PRODUCT" =~ "$item" ]]; then
+            return 0
+        fi
+    done
+
+    for name in "${MSI_MATCH_LIST[@]}"; do
+        if [[ "$PRODUCT" =~ "$name" ]]; then
             return 0
         fi
     done
