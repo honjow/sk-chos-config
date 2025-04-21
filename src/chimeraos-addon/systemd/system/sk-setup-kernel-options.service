@@ -1,7 +1,6 @@
 [Unit]
 Description=Auto setup kernel options
-After=local-fs.target
-After=frzr_root-swap-swapfile.swap
+After=local-fs.target frzr_root-swap-swapfile.swap
 
 [Service]
 Type=oneshot
