@@ -1,9 +1,10 @@
 [Unit]
 Description=Sk-Chimeraos user daemon
-After=graphical.target
+After=graphical.target network.target
 
 [Service]
-Type=simple
+Type=oneshot
+RemainAfterExit=yes
 ExecStart=/usr/bin/bash -c '/usr/bin/sk-chos-user-daemon'
 
 [Install]

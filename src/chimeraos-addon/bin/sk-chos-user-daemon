@@ -68,8 +68,8 @@ update_decky() {
     boot_flag_file="/tmp/.decky-update-booted"
 
     if [[ ! -f "${boot_flag_file}" ]]; then
-        echo "Decky update on boot, sleep 120s"
-        sleep 120
+        echo "Decky update on boot, sleep 10s"
+        sleep 10
         touch "${boot_flag_file}"
     fi
 
@@ -210,10 +210,10 @@ script_dir="$HOME/.config/sk-chos-tool/startup"
 if [[ ! -d $script_dir ]]; then
     mkdir -p $script_dir
 fi
-for script in $(ls $script_dir); do
-    if [[ -x "${script_dir}/${script}" ]]; then
-        echo "run ${script_dir}/${script}"
-        exec "${script_dir}/${script}"
+for script_path in "$script_dir"/*; do
+    if [[ -x "$script_path" ]]; then
+        echo "run $script_path"
+        exec "$script_path"
     fi
 done
 
@@ -281,6 +281,8 @@ if [ -x "/usr/libexec/user-wireplumber" ]; then
 fi
 
 fix_games &
+disown
 
 # Decky update
-update_decky &
+nohup bash -c "update_decky" >/dev/null 2>&1 &
+disown
