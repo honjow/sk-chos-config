@@ -1,7 +1,8 @@
 [Unit]
 Description=Home Partition Resize
+DefaultDependencies=no
 After=local-fs.target
-Before=frzr_swap-swap-swapfile.swap sk-setup-kernel-options.service
+Before=frzr_swap-swap-swapfile.swap sk-setup-kernel-options.service swap.target
 
 [Service]
 #Type=oneshot
