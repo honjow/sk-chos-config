@@ -44,9 +44,10 @@ if [ -n "$ENABLE_MCU_POWERSAVE" ]; then
             fi
         fi
     done
-    if [ -f /sys/class/firmware-attributes/asus-armoury/attributes/mcu_powersave/current_value ]; then
-        if [ "$(cat /sys/class/firmware-attributes/asus-armoury/attributes/mcu_powersave/current_value)" != "$ENABLE_MCU_POWERSAVE" ]; then
-            echo "$ENABLE_MCU_POWERSAVE" >/sys/class/firmware-attributes/asus-armoury/attributes/mcu_powersave/current_value
+    ASUS_ARMOR_PATH="/sys/class/firmware-attributes/asus-armoury/attributes/mcu_powersave"
+    if [ -f "$ASUS_ARMOR_PATH/current_value" ]; then
+        if [ "$(cat $ASUS_ARMOR_PATH/current_value)" != "$ENABLE_MCU_POWERSAVE" ]; then
+            echo "$ENABLE_MCU_POWERSAVE" >$ASUS_ARMOR_PATH/current_value
         fi
     fi
 fi
@@ -180,10 +181,10 @@ fi
 # fstab
 DEPLOYMENT=$(frzr-release)
 fstab_path="/frzr_root/etc/fstab"
-deplayment_fstab_path="/frzr_root/deployments/${DEPLOYMENT}/etc/fstab"
+deployment_fstab_path="/frzr_root/deployments/${DEPLOYMENT}/etc/fstab"
 # 如果内容相同 删除 fstab_path
-if [[ -f "$fstab_path" && -f "$deplayment_fstab_path" ]]; then
-    if echo $(cat $deplayment_fstab_path 2>/dev/null) | grep -q "$(cat $fstab_path 2>/dev/null)"; then
+if [[ -f "$fstab_path" && -f "$deployment_fstab_path" ]]; then
+    if grep -q "$(cat "$fstab_path" 2>/dev/null)" "$deployment_fstab_path" 2>/dev/null; then
         rm -f "$fstab_path"
     fi
 fi
