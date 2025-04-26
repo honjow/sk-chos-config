@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2076
 
 set -e
 
@@ -12,29 +13,10 @@ ACTION=$1
 
 cpu_id=$(grep "model name" /proc/cpuinfo | head -1 | awk -F ': ' '{print $2}' | xargs)
 cpu_keywords=(
-    "3050e"
-    "4500"
-    "4800"
-    "5560"
-    "5700"
-    "5800"
-    "5825"
-    "6800"
-    "7320"
-    "7520"
-    "7735"
-    "7640"
-    "7840"
-    "Z1"
-    "8840"
-    "AI 9 36"
-    "AI 9 HX 37"
-    "1135G7"
-    "1165G7"
-    "1195G7"
-    "Ultra 7 2"
-    "Ultra 5 2"
-    "Ultra 9 2"
+    "Intel(R) Core(TM)"
+    "AMD Ryzen"
+    "AMD Athlon Silver"
+    "AMD Custom APU"
 )
 
 function power_control_support() {
