@@ -141,10 +141,10 @@ function install_nix() {
 
     set +e
     curl -L https://mirrors.tuna.tsinghua.edu.cn/nix/latest/install | sudo sh -s -- --daemon --no-channel-add
-
+    RESULT=$?
     USE_MIRRORS="1"
-    echo " result: $?"
-    if [ $? -ne 0 ]; then
+    echo " result: $RESULT"
+    if [ $RESULT -ne 0 ]; then
         echo "nix installation failed, retrying..."
         USE_MIRRORS="0"
         curl -L https://nixos.org/nix/install | sudo sh -s -- --daemon --no-channel-add

@@ -17,7 +17,7 @@ show_error() {
     fi
 }
 
-if [ $(id -u) = "0" ]; then
+if [ "$(id -u)" = "0" ]; then
     show_error "This script cannot be run as root"
     exit 1
 fi
