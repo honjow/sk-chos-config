@@ -5,26 +5,36 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+kernel_package=(
+    "linux-*chimeraos"
+    "linux-skchos"
+)
 
-mv /boot/vmlinuz-linux-*chimeraos /boot/vmlinuz-linux
-mv /boot/initramfs-linux-*chimeraos.img /boot/initramfs-linux.img
-rm -f /boot/initramfs-linux-*chimeraos-fallback.img
+SYSTEM_NAME="chimeraos"
 
-if [ -d "/boot/chimeraos-*_*" ]; then
-    echo "Copying kernel to boot"
-    cp -f /boot/vmlinuz-linux /boot/initramfs-linux.img /boot/chimeraos-*_*/
-fi
+for kernel in "${kernel_package[@]}"; do
+    if [ -f "/boot/vmlinuz-$kernel" ]; then
+        mv /boot/vmlinuz-$kernel /boot/vmlinuz-linux
+        mv /boot/initramfs-$kernel.img /boot/initramfs-linux.img || true
+        rm -f /boot/initramfs-$kernel-fallback.img || true
+    fi
 
-if [ -d "/efi/chimeraos-*_*" ]; then
-    echo "Copying kernel to efi"
-    cp -f /boot/vmlinuz-linux /boot/initramfs-linux.img /efi/
-    cp -f /boot/vmlinuz-linux /boot/initramfs-linux.img /efi/chimeraos-*_*/
-fi
+    if [ -d "/boot/$SYSTEM_NAME-*_*" ]; then
+        echo "Copying kernel to boot"
+        cp -f /boot/vmlinuz-linux /boot/initramfs-linux.img /boot/$SYSTEM_NAME-*_*/
+    fi
 
-if mount | grep -q " /frzr_root/boot "; then
-    echo "Copying kernel to frzr_root"
-    cp -f /boot/vmlinuz-linux /boot/initramfs-linux.img /frzr_root/boot/
-    cp -f /boot/vmlinuz-linux /boot/initramfs-linux.img /frzr_root/boot/chimeraos-*_*/
-fi
+    if [ -d "/efi/$SYSTEM_NAME-*_*" ]; then
+        echo "Copying kernel to efi"
+        cp -f /boot/vmlinuz-linux /boot/initramfs-linux.img /efi/
+        cp -f /boot/vmlinuz-linux /boot/initramfs-linux.img /efi/$SYSTEM_NAME-*_*/
+    fi
 
-rm -f /etc/mkinitcpio.d/linux-chimeraos.preset
+    if mount | grep -q " /frzr_root/boot "; then
+        echo "Copying kernel to frzr_root"
+        cp -f /boot/vmlinuz-linux /boot/initramfs-linux.img /frzr_root/boot/
+        cp -f /boot/vmlinuz-linux /boot/initramfs-linux.img /frzr_root/boot/$SYSTEM_NAME-*_*/
+    fi
+
+    rm -f /etc/mkinitcpio.d/linux-$kernel.preset
+done
