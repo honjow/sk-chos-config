@@ -27,8 +27,8 @@ ENABLE_MCU_POWERSAVE=""
 if [[ "$PRODUCT" =~ "ROG Ally RC71L" ]]; then
     ENABLE_MCU_POWERSAVE="0"
 
-    # 如果内核名称包含 -sk -chimeraos ,启用 mcu powersave
-    if [[ "$(uname -r)" =~ -sk.*-.*chimeraos ]]; then
+    # 如果内核名称包含 -sk -chimeraos 或者 -skchos ,启用 mcu powersave
+    if [[ "$(uname -r)" =~ -sk.*-.*chimeraos || "$(uname -r)" =~ -skchos ]]; then
         ENABLE_MCU_POWERSAVE="1"
     fi
 elif [[ "$PRODUCT" =~ "ROG Ally X RC72L" ]]; then
