@@ -13,7 +13,9 @@ kernel_package=(
 SYSTEM_NAME="chimeraos"
 
 for kernel in "${kernel_package[@]}"; do
-    if [ -f "/boot/vmlinuz-$kernel" ]; then
+    echo "Start moving kernel $kernel"
+    if [ -f "/boot/vmlinuz-"$kernel ]; then
+        echo "Moving kernel $kernel"
         mv /boot/vmlinuz-$kernel /boot/vmlinuz-linux
         mv /boot/initramfs-$kernel.img /boot/initramfs-linux.img || true
         rm -f /boot/initramfs-$kernel-fallback.img || true
