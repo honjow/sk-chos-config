@@ -11,9 +11,9 @@ fi
 
 ACTION=$1
 
-cpu_id=$(grep "model plugin_name" /proc/cpuinfo | head -1 | awk -F ': ' '{print $2}' | xargs)
+cpu_id=$(grep "model name" /proc/cpuinfo | head -1 | awk -F ': ' '{print $2}' | xargs)
 cpu_keywords=(
-    "Intel(R) Core(TM)"
+    "Intel\(R\) Core\(TM\)"
     "AMD Ryzen"
     "AMD Athlon Silver"
     "AMD Custom APU"
@@ -292,6 +292,7 @@ function copy_plugin() {
 
     case $plugin_name in
     "PowerControl")
+        echo "PowerControl plugin: ${power_control_support}"
         if power_control_support 2>/dev/null; then
             echo "Copying PowerControl plugin..."
             cp -rf "$decky_plugin_path/$plugin_name" "${HOMEBREW_FOLDER}/plugins"
