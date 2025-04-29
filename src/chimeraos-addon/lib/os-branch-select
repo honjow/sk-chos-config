@@ -262,7 +262,6 @@ case "$1" in
 "-l")
   if [[ -n "$OTHER_SOURCE" ]]; then
     echo "$OTHER_SOURCE"
-    exit 0
   fi
 
   mapfile -t show_branch_list < <(generate_branch_list "$BRANCH_FLG" "$DESKTOP" "$NV_BRANCH_FLG")
