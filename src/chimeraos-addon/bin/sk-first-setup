@@ -11,7 +11,7 @@ fi
 
 ACTION=$1
 
-cpu_id=$(grep "model name" /proc/cpuinfo | head -1 | awk -F ': ' '{print $2}' | xargs)
+cpu_id=$(grep "model plugin_name" /proc/cpuinfo | head -1 | awk -F ': ' '{print $2}' | xargs)
 cpu_keywords=(
     "Intel(R) Core(TM)"
     "AMD Ryzen"
@@ -20,6 +20,7 @@ cpu_keywords=(
 )
 
 function power_control_support() {
+    local cpu
     for cpu in "${cpu_keywords[@]}"; do
         if [[ "$cpu_id" =~ "$cpu" ]]; then
             return 0
@@ -30,7 +31,7 @@ function power_control_support() {
 }
 
 function kernel_options_manager() {
-    scripts_path="/usr/share/device-quirks/scripts/kernel-options-manager"
+    local scripts_path="/usr/share/device-quirks/scripts/kernel-options-manager"
     if [[ -x "$scripts_path" ]]; then
         sudo "$scripts_path" "$@"
     else
@@ -141,6 +142,7 @@ HHD_MATCH_LIST=(
 )
 
 function hhd_support() {
+    local item
     # if [[ "$PRODUCT" =~ "ROG Ally X RC72L" ]] && [[ "$(uname -r)" =~ -sk[1-9]-chimeraos-[1-9] ]]; then
     #     # 如果内核名称包含 -skX-chimeraos-X ，启用 InputPlumber, 禁用 hhd
     #     return 1
@@ -156,6 +158,8 @@ function hhd_support() {
 }
 
 function led_support() {
+    local product_name
+    local item
     if [[ ":${LED_VENDOR_LIST}:" =~ ":${VENDOR}:" ]]; then
         return 0
     fi
@@ -170,8 +174,8 @@ function led_support() {
         fi
     done
 
-    for name in "${MSI_MATCH_LIST[@]}"; do
-        if [[ "$PRODUCT" =~ "$name" ]]; then
+    for product_name in "${MSI_MATCH_LIST[@]}"; do
+        if [[ "$PRODUCT" =~ "$product_name" ]]; then
             return 0
         fi
     done
@@ -180,6 +184,7 @@ function led_support() {
 }
 
 function gpd_wincontrol_support() {
+    local item
     for item in "${GPD_MATCH_LIST[@]}"; do
         if [[ "$PRODUCT" =~ "$item" ]]; then
             return 0
@@ -190,6 +195,7 @@ function gpd_wincontrol_support() {
 }
 
 function LegionGoRemapper_support() {
+    local item
     for item in "${LGO_MATCH_LIST[@]}"; do
         if [[ "$PRODUCT" =~ "$item" ]]; then
             return 0
@@ -278,40 +284,41 @@ function compare_version() {
 }
 
 function copy_plugin() {
-    local name=$1
+    local plugin_name=$1
 
     if [[ ! -d "${HOMEBREW_FOLDER}/plugins" ]]; then
         mkdir -p "${HOMEBREW_FOLDER}/plugins"
     fi
 
-    case $name in
+    case $plugin_name in
     "PowerControl")
         if power_control_support 2>/dev/null; then
             echo "Copying PowerControl plugin..."
-            cp -rf "$decky_plugin_path/$name" "${HOMEBREW_FOLDER}/plugins"
+            cp -rf "$decky_plugin_path/$plugin_name" "${HOMEBREW_FOLDER}/plugins"
         fi
         ;;
     "HueSync")
+        echo "HueSync plugin: ${plugin_name}"
         if led_support 2>/dev/null; then
-            echo "Copying HueSync plugin..."
-            cp -rf "$decky_plugin_path/$name" "${HOMEBREW_FOLDER}/plugins"
+            echo "Copying HueSync plugin... ${plugin_name}"
+            cp -rf "$decky_plugin_path/$plugin_name" "${HOMEBREW_FOLDER}/plugins"
         fi
         ;;
     "GPD-WinControl")
         if gpd_wincontrol_support 2>/dev/null; then
             echo "Copying GPD-WinControl plugin..."
-            cp -rf "$decky_plugin_path/$name" "${HOMEBREW_FOLDER}/plugins"
+            cp -rf "$decky_plugin_path/$plugin_name" "${HOMEBREW_FOLDER}/plugins"
         fi
         ;;
     "LegionGoRemapper")
         if LegionGoRemapper_support 2>/dev/null; then
             echo "Copying LegionGoRemapper plugin..."
-            cp -rf "$decky_plugin_path/$name" "${HOMEBREW_FOLDER}/plugins"
+            cp -rf "$decky_plugin_path/$plugin_name" "${HOMEBREW_FOLDER}/plugins"
         fi
         ;;
     *)
-        echo "Copying $name plugin..."
-        cp -rf "$decky_plugin_path/$name" "${HOMEBREW_FOLDER}/plugins"
+        echo "Copying $plugin_name plugin..."
+        cp -rf "$decky_plugin_path/$plugin_name" "${HOMEBREW_FOLDER}/plugins"
         ;;
     esac
 }
@@ -510,7 +517,7 @@ function flatpak_auto_repo() {
 }
 
 function user_setup_after_update() {
-    script_dir="$HOME/.config/sk-chos-tool/update"
+    local script_dir="$HOME/.config/sk-chos-tool/update"
     if [[ ! -d "$script_dir" ]]; then
         mkdir -p "$script_dir"
     fi
@@ -523,6 +530,8 @@ function user_setup_after_update() {
 }
 
 function copy_rime_config() {
+    local ibus_config_path
+    local dst_dir
     if [[ -d "${rime_config_path}" ]]; then
         ibus_config_path="${USER_DIR}/.config/ibus"
         dst_dir="${ibus_config_path}/rime"
@@ -559,6 +568,9 @@ function recopy_skel() {
 }
 
 function set_hostname() {
+    local current_hostname
+    local product_name
+    local hostname
     current_hostname=$(hostnamectl --static)
     product_name=$(cat /sys/devices/virtual/dmi/id/product_name)
     hostname=$(echo "$product_name" | sed 's/ /-/g;s/:/-/g')
