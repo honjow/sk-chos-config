@@ -13,7 +13,7 @@ ACTION=$1
 
 cpu_id=$(grep "model name" /proc/cpuinfo | head -1 | awk -F ': ' '{print $2}' | xargs)
 cpu_keywords=(
-    "Intel\(R\) Core\(TM\)"
+    "Intel(R) Core(TM)"
     "AMD Ryzen"
     "AMD Athlon Silver"
     "AMD Custom APU"
@@ -22,7 +22,9 @@ cpu_keywords=(
 function power_control_support() {
     local cpu
     for cpu in "${cpu_keywords[@]}"; do
-        if [[ "$cpu_id" =~ "$cpu" ]]; then
+        echo ">>> [${cpu_id}] [${cpu}"]
+        if [[ "$cpu_id" == *"$cpu"* ]]; then
+            echo ">>> [${cpu_id}] [${cpu}] match"
             return 0
         fi
     done
@@ -292,10 +294,11 @@ function copy_plugin() {
 
     case $plugin_name in
     "PowerControl")
-        echo "PowerControl plugin: ${power_control_support}"
         if power_control_support 2>/dev/null; then
             echo "Copying PowerControl plugin..."
             cp -rf "$decky_plugin_path/$plugin_name" "${HOMEBREW_FOLDER}/plugins"
+        else
+            echo "PowerControl plugin not supported"
         fi
         ;;
     "HueSync")
