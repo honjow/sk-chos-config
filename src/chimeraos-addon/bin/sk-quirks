@@ -15,6 +15,7 @@ fi
 PYTHON_SITE_PACKAGES_PATH=$(python3 -c "import site; print(site.getsitepackages()[0])")
 HHD_PATH="${PYTHON_SITE_PACKAGES_PATH}/hhd"
 HHD_ORANGE_INIT_PATH="${HHD_PATH}/device/orange_pi/__init__.py"
+HHD_OUTPUTS_PATH="${HHD_PATH}/plugins/outputs.py"
 echo "HHD_PATH: $HHD_PATH"
 
 # 重试函数
@@ -41,9 +42,13 @@ function retry() {
 # OrangePi NEO and HHD_ORANGE_INIT_FILE not contain "get_touchpad_config"
 if [[ "$PRODUCT" == "NEO-01" && -f "$HHD_ORANGE_INIT_PATH" ]]; then
     if ! grep -q "get_touchpad_config" "$HHD_ORANGE_INIT_PATH"; then
-        PATCH_URL="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs/hhd-orangepi-neo-touchpad.patch"
+        if ! grep -q "touchpad_enable" "$HHD_OUTPUTS_PATH"; then
+            PATCH_URL="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs/hhd-orangepi-neo-touchpad.patch"
+        else
+            PATCH_URL="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs/hhd-orangepi-neo-touchpad-new.patch"
+        fi
         echo "Apply HHD patch for OrangePi NEO"
-        
+            
         if retry curl -sSL "$PATCH_URL" | patch -d "$HHD_PATH" -p1; then
             echo "Patch applied successfully"
         else
