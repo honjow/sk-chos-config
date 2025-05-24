@@ -63,3 +63,11 @@ if [[ "$PRODUCT" == "NEO-01" && -f "$HHD_ORANGE_INIT_PATH" ]]; then
         fi
     fi
 fi
+
+# AOKZOE A1X
+HHD_OXP_CONST_PATH="${HHD_PATH}/device/oxp/const.py"
+if [[ "$PRODUCT" == "AOKZOE A1X" && -f "$HHD_OXP_CONST_PATH" ]]; then
+    if ! grep -q "AOKZOE A1X" "$HHD_OXP_CONST_PATH"; then
+        sed -i 's/AOKZOE A1 Pro/AOKZOE A1X/g' ${HHD_OXP_CONST_PATH}
+    fi
+fi
