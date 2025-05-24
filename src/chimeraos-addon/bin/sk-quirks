@@ -33,10 +33,18 @@ function retry() {
         if [ $attempt -le $max_attempts ]; then
             echo "Waiting $wait_time seconds before retrying..."
             sleep $wait_time
-            wait_time=$((wait_time * 2))  # 指数退避
+            wait_time=$((wait_time * 2)) # 指数退避
         fi
     done
     return 1
+}
+
+function restart_hhd_gamer() {
+    status=$(systemctl is-enabled hhd@gamer 2>/dev/null)
+    if [[ "$status" == "enabled" ]]; then
+        echo "Restart hhd@gamer"
+        systemctl restart hhd@gamer
+    fi
 }
 
 # OrangePi NEO and HHD_ORANGE_INIT_FILE not contain "get_touchpad_config"
@@ -48,19 +56,14 @@ if [[ "$PRODUCT" == "NEO-01" && -f "$HHD_ORANGE_INIT_PATH" ]]; then
             PATCH_URL="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs/hhd-orangepi-neo-touchpad-new.patch"
         fi
         echo "Apply HHD patch for OrangePi NEO"
-            
+
         if retry curl -sSL "$PATCH_URL" | patch -d "$HHD_PATH" -p1; then
             echo "Patch applied successfully"
         else
             echo "Failed to apply patch after multiple attempts"
             exit 1
         fi
-
-        status=$(systemctl is-enabled hhd@gamer 2>/dev/null)
-        if [[ "$status" == "enabled" ]]; then
-            echo "Restart hhd@gamer"
-            systemctl restart hhd@gamer
-        fi
+        restart_hhd_gamer
     fi
 fi
 
@@ -69,5 +72,6 @@ HHD_OXP_CONST_PATH="${HHD_PATH}/device/oxp/const.py"
 if [[ "$PRODUCT" == "AOKZOE A1X" && -f "$HHD_OXP_CONST_PATH" ]]; then
     if ! grep -q "AOKZOE A1X" "$HHD_OXP_CONST_PATH"; then
         sed -i 's/AOKZOE A1 Pro/AOKZOE A1X/g' ${HHD_OXP_CONST_PATH}
+        restart_hhd_gamer
     fi
 fi
