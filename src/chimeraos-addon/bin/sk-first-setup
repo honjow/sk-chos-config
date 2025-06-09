@@ -207,7 +207,23 @@ function LegionGoRemapper_support() {
     return 1
 }
 
+function check_decky_enabled() {
+    local service_name="plugin_loader"
+    local is_enabled
+    is_enabled=$(systemctl is-enabled $service_name 2>/dev/null)
+    if [[ "$is_enabled" == "enabled" ]]; then
+        return 0
+    fi
+    return 1
+}
+
 function install_decky() {
+    # only install decky if plugin_loader is enabled
+    if ! check_decky_enabled; then
+        echo "Decky is not enabled, skipping..."
+        return
+    fi
+
     # install decky from local
     if [[ -f $decky_file ]]; then
         echo "Installing decky..."
@@ -249,8 +265,8 @@ WantedBy=multi-user.target
 EOM
         sudo cp "${HOMEBREW_FOLDER}/services/.systemd/plugin_loader.service" "/etc/systemd/system/plugin_loader.service"
 
-        sudo systemctl daemon-reload
-        sudo systemctl enable plugin_loader
+        # sudo systemctl daemon-reload
+        # sudo systemctl enable plugin_loader
     fi
 }
 
