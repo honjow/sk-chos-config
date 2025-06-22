@@ -1,0 +1,89 @@
+#!/bin/bash
+
+SK_TOOL_DIR="$HOME/.local/share/sk-chos-tool"
+# 创建目录
+mkdir -p "$SK_TOOL_DIR"
+
+# 使用用户目录，避免权限问题
+LAST_RUN_FILE="$SK_TOOL_DIR/last-update"
+LOCK_FILE="$SK_TOOL_DIR/update.lock"
+CURRENT_TIME=$(date +%s)
+
+# 时间间隔配置（可通过环境变量设置）
+UPDATE_INTERVAL_HOURS=${UPDATE_INTERVAL_HOURS:-24} # 默认24小时
+LOCK_TIMEOUT_HOURS=${LOCK_TIMEOUT_HOURS:-1}        # 锁文件超时，默认1小时
+
+# 验证数值有效性
+if ! [[ "$UPDATE_INTERVAL_HOURS" =~ ^[0-9]+$ ]] || [ "$UPDATE_INTERVAL_HOURS" -lt 1 ]; then
+    echo "Error: UPDATE_INTERVAL_HOURS must be a positive integer, got: $UPDATE_INTERVAL_HOURS"
+    exit 1
+fi
+
+if ! [[ "$LOCK_TIMEOUT_HOURS" =~ ^[0-9]+$ ]] || [ "$LOCK_TIMEOUT_HOURS" -lt 1 ]; then
+    echo "Error: LOCK_TIMEOUT_HOURS must be a positive integer, got: $LOCK_TIMEOUT_HOURS"
+    exit 1
+fi
+
+UPDATE_INTERVAL_SECONDS=$((UPDATE_INTERVAL_HOURS * 3600))
+LOCK_TIMEOUT_SECONDS=$((LOCK_TIMEOUT_HOURS * 3600))
+
+# 检查锁文件（处理残留锁文件）
+if [ -f "$LOCK_FILE" ]; then
+    LOCK_TIME=$(stat -c %Y "$LOCK_FILE" 2>/dev/null || echo 0)
+    if [ $((CURRENT_TIME - LOCK_TIME)) -lt $LOCK_TIMEOUT_SECONDS ]; then
+        echo "Update is already running, skipping"
+        exit 0
+    else
+        echo "Removing stale lock file"
+        rm -f "$LOCK_FILE"
+    fi
+fi
+
+# 检查上次执行时间（防止边界错误）
+if [ -f "$LAST_RUN_FILE" ]; then
+    LAST_RUN=$(cat "$LAST_RUN_FILE" 2>/dev/null || echo 0)
+    LAST_RUN=${LAST_RUN:-0} # 防止空值
+    TIME_DIFF=$((CURRENT_TIME - LAST_RUN))
+
+    # 检查是否达到更新间隔
+    if [ $TIME_DIFF -lt $UPDATE_INTERVAL_SECONDS ]; then
+        echo "Last update was $(($TIME_DIFF / 3600)) hours ago, skipping (need $UPDATE_INTERVAL_HOURS+ hours)"
+        exit 0
+    fi
+fi
+
+# 创建锁文件
+touch "$LOCK_FILE"
+trap 'rm -f "$LOCK_FILE"' EXIT
+
+# 调用原始更新脚本（保持完整输出）
+echo "Starting sk-chos-tool update..."
+echo "Update interval: $UPDATE_INTERVAL_HOURS hours"
+echo "Lock timeout: $LOCK_TIMEOUT_HOURS hours"
+if [ "${LAST_RUN:-0}" -gt 0 ]; then
+    HOURS_AGO=$(((CURRENT_TIME - LAST_RUN) / 3600))
+    echo "Last update was $HOURS_AGO hours ago"
+else
+    echo "No previous update found"
+fi
+
+# 检查原脚本是否存在
+if [ ! -f "/usr/bin/sk-chos-tool-update" ]; then
+    echo "Error: /usr/bin/sk-chos-tool-update not found"
+    exit 1
+fi
+
+/usr/bin/sk-chos-tool-update
+EXIT_CODE=$?
+
+echo "Update finished with exit code: $EXIT_CODE"
+
+# 只有成功时才记录时间
+if [ $EXIT_CODE -eq 0 ]; then
+    echo "$CURRENT_TIME" >"$LAST_RUN_FILE"
+    echo "Update time recorded successfully"
+else
+    echo "Update failed, will retry on next boot"
+fi
+
+exit $EXIT_CODE

@@ -5,7 +5,9 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/sk-chos-tool-update
+ExecStart=/usr/bin/sk-chos-tool-update-wrapper
 User=gamer
 RemainAfterExit=false
 StandardOutput=journal
+Environment="UPDATE_INTERVAL_HOURS=168"
+Environment="LOCK_TIMEOUT_HOURS=1"
