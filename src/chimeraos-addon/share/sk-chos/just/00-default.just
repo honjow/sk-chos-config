@@ -73,10 +73,10 @@ toggle-user-motd:
 # Test amd s2idle suspend / 测试 amd s2idle 睡眠
 amd-s2idle-test:
     #!/usr/bin/bash
-    if [ -x $(command -v amd_s2idle-analysis) ]; then
-      sudo amd_s2idle-analysis --force --log "s2idle_report_$(date +%Y%m%d_%H%M%S).log"
+    if [ -x $(command -v amd-s2idle) ]; then
+      sudo amd-s2idle test --force
     else
-      echo "amd_s2idle-analysis is not installed."
+      echo "amd-debug-tools is not installed."
     fi
 
 # Show battery information / 显示电池信息
