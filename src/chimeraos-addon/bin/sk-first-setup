@@ -17,6 +17,7 @@ cpu_keywords=(
     "AMD Ryzen"
     "AMD Athlon Silver"
     "AMD Custom APU"
+    "AMD Eng Sample"
 )
 
 function power_control_support() {
