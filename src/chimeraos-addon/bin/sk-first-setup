@@ -542,7 +542,7 @@ function install_css_theme_new() {
 
 function device_quirks() {
     # turn off usb wakeup
-    if [[ "$VENDOR" == "AYANEO" && "$VENDOR" == "GPD" ]]; then
+    if [[ "$VENDOR" == "AYANEO" || "$VENDOR" == "GPD" ]]; then
         log_info "Disabling USB wakeup..."
         config_path="/etc/device-quirks/device-quirks.conf"
         enable_str="USB_WAKE_ENABLED=1"
