@@ -3,9 +3,11 @@
 
 set -e
 
+source /usr/bin/sk-utils.sh
+
 # cant run this script as root
 if [ "$EUID" -eq 0 ]; then
-    echo "Please run this script as a normal user, not root."
+    log_error "Please run this script as a normal user, not root."
     exit 1
 fi
 
@@ -38,7 +40,7 @@ function kernel_options_manager() {
     if [[ -x "$scripts_path" ]]; then
         sudo "$scripts_path" "$@"
     else
-        echo "Error: script $scripts_path not found" >&2
+        log_error "Error: script $scripts_path not found" >&2
         exit 1
     fi
 }
@@ -221,13 +223,13 @@ function check_decky_enabled() {
 function install_decky() {
     # only install decky if plugin_loader is enabled
     if ! check_decky_enabled; then
-        echo "Decky is not enabled, skipping..."
+        log_warning "Decky is not enabled, skipping..."
         return
     fi
 
     # install decky from local
     if [[ -f $decky_file ]]; then
-        echo "Installing decky..."
+        log_info "Installing decky..."
         if [[ -d "${HOMEBREW_FOLDER}/services" ]]; then
             sudo rm -rf "${HOMEBREW_FOLDER}/services"
         fi
@@ -304,6 +306,7 @@ function compare_version() {
 
 function copy_plugin() {
     local plugin_name=$1
+    # log_info "start copy plugin: $plugin_name"
 
     if [[ ! -d "${HOMEBREW_FOLDER}/plugins" ]]; then
         mkdir -p "${HOMEBREW_FOLDER}/plugins"
@@ -312,47 +315,66 @@ function copy_plugin() {
     case $plugin_name in
     "PowerControl")
         if power_control_support 2>/dev/null; then
-            echo "Copying PowerControl plugin..."
-            cp -rf "$decky_plugin_path/$plugin_name" "${HOMEBREW_FOLDER}/plugins"
+            log_info "Copying PowerControl plugin..."
+            sudo cp -rf "$decky_plugin_path/$plugin_name" "${HOMEBREW_FOLDER}/plugins"
         else
-            echo "PowerControl plugin not supported"
+            log_warning "PowerControl plugin not supported"
+            return 1
         fi
         ;;
     "HueSync")
         echo "HueSync plugin: ${plugin_name}"
         if led_support 2>/dev/null; then
-            echo "Copying HueSync plugin... ${plugin_name}"
-            cp -rf "$decky_plugin_path/$plugin_name" "${HOMEBREW_FOLDER}/plugins"
+            log_info "Copying HueSync plugin... ${plugin_name}"
+            sudo cp -rf "$decky_plugin_path/$plugin_name" "${HOMEBREW_FOLDER}/plugins"
+        else
+            log_warning "HueSync plugin not supported"
+            return 1
         fi
         ;;
     "GPD-WinControl")
         if gpd_wincontrol_support 2>/dev/null; then
-            echo "Copying GPD-WinControl plugin..."
-            cp -rf "$decky_plugin_path/$plugin_name" "${HOMEBREW_FOLDER}/plugins"
+            log_info "Copying GPD-WinControl plugin..."
+            sudo cp -rf "$decky_plugin_path/$plugin_name" "${HOMEBREW_FOLDER}/plugins"
+        else
+            log_warning "GPD-WinControl plugin not supported"
+            return 1
         fi
         ;;
     "LegionGoRemapper")
         if LegionGoRemapper_support 2>/dev/null; then
-            echo "Copying LegionGoRemapper plugin..."
-            cp -rf "$decky_plugin_path/$plugin_name" "${HOMEBREW_FOLDER}/plugins"
+            log_info "Copying LegionGoRemapper plugin..."
+            sudo cp -rf "$decky_plugin_path/$plugin_name" "${HOMEBREW_FOLDER}/plugins"
+        else
+            log_warning "LegionGoRemapper plugin not supported"
+            return 1
         fi
         ;;
     *)
-        echo "Copying $plugin_name plugin..."
-        cp -rf "$decky_plugin_path/$plugin_name" "${HOMEBREW_FOLDER}/plugins"
+        log_info "Copying $plugin_name plugin..."
+        if ! sudo cp -rf "$decky_plugin_path/$plugin_name" "${HOMEBREW_FOLDER}/plugins"; then
+            log_error "Error: Failed to copy $plugin_name plugin"
+        fi
         ;;
     esac
+}
+
+function _format_name() {
+    local plugin_name=$1
+    echo "${BOLD}${YELLOW}$plugin_name${NC}${NORMAL}"
 }
 
 function install_decky_plugins() {
 
     if [[ -d $decky_plugin_path ]]; then
-        echo "Installing decky plugins..."
+        log_info "*********** Installing decky plugins ***********"
         sudo chmod -R +w "$HOMEBREW_FOLDER"
+        sudo chown -R $USER:$USER "$HOMEBREW_FOLDER"
 
         # cp -rf $decky_plugin_path/* "${HOMEBREW_FOLDER}/plugins"
         for plugin in "$decky_plugin_path"/*; do
             plugin_name=$(basename "$plugin")
+            # log_info ">>>>>>> ${BOLD}${YELLOW}$plugin_name${NC}${NORMAL}"
             if [[ -d "${HOMEBREW_FOLDER}/plugins/$plugin_name" ]]; then
                 if [[ -f "${HOMEBREW_FOLDER}/plugins/$plugin_name/package.json" ]]; then
 
@@ -364,14 +386,21 @@ function install_decky_plugins() {
                     # compare version
                     compare_result=$(compare_version "$current_version" "$new_version")
                     if [[ "$compare_result" == "-1" ]]; then
-                        echo "Updating $plugin_name plugin, current version: $current_version, new version: $new_version"
-                        copy_plugin "$plugin_name"
+                        if copy_plugin "$plugin_name"; then
+                            log_success "$(_format_name "$plugin_name"): $current_version -> $new_version"
+                        fi
+                    else
+                        log_info "$(_format_name "$plugin_name"): $current_version >= $new_version"
                     fi
                 else
-                    copy_plugin "$plugin_name"
+                    if copy_plugin "$plugin_name"; then
+                        log_success "$(_format_name "$plugin_name"): new $current_version"
+                    fi
                 fi
             else
-                copy_plugin "$plugin_name"
+                if copy_plugin "$plugin_name"; then
+                    log_success "$(_format_name "$plugin_name"): new $current_version"
+                fi
             fi
         done
     fi
@@ -380,7 +409,7 @@ function install_decky_plugins() {
 
 function setup_gamepad() {
     if hhd_support 2>/dev/null; then
-        echo "disabling handycon/inputplumber and enabling hhd@${USER}..."
+        log_info "disabling handycon/inputplumber and enabling hhd@${USER}..."
         sudo systemctl disable --now handycon || true
         sudo systemctl mask handycon || true
         sudo systemctl disable --now inputplumber || true
@@ -416,7 +445,7 @@ AYANEO_NEO_LIST="AYA NEO FOUNDER:AYA NEO 2021:AYANEO 2021:AYANEO 2021 Pro:AYANEO
 
 function install_css_theme() {
     if [[ -d $css_hhd_path ]]; then
-        echo "Installing hhd themes..."
+        log_info "Installing hhd themes..."
         if [ -d "${css_hhd_path}/SBP-PS5-to-Handheld" ]; then
             cp -rf "${css_hhd_path}/SBP-PS5-to-Handheld" "${THEME_FOLDER}"
         fi
@@ -447,7 +476,7 @@ function install_css_theme() {
 
 function install_css_theme_new() {
     if [[ -d $css_hhd_path ]]; then
-        echo "Installing hhd themes (new)..."
+        log_info "Installing hhd themes (new)..."
         if [ -d "${css_hhd_path}/handheld-controller-glyphs-sk" ]; then
             cp -rf "${css_hhd_path}/handheld-controller-glyphs-sk" "${THEME_FOLDER}"
             rm -rf "${THEME_FOLDER}/SBP-PS5-to-Handheld" || true
@@ -514,7 +543,7 @@ function install_css_theme_new() {
 function device_quirks() {
     # turn off usb wakeup
     if [[ "$VENDOR" == "AYANEO" && "$VENDOR" == "GPD" ]]; then
-        echo "Disabling USB wakeup..."
+        log_info "Disabling USB wakeup..."
         config_path="/etc/device-quirks/device-quirks.conf"
         enable_str="USB_WAKE_ENABLED=1"
         disable_str="USB_WAKE_ENABLED=0"
@@ -526,12 +555,12 @@ function device_quirks() {
 }
 
 function restart_plugin_loader() {
-    echo "restarting plugin_loader..."
+    log_info "restarting plugin_loader..."
     sudo systemctl restart plugin_loader
 }
 
 function flatpak_auto_repo() {
-    echo "Auto set flathub repo..."
+    log_info "Auto set flathub repo..."
     if [ -x "$(command -v cjust)" ]; then
         cjust flatpak-auto-repo || true
     fi
@@ -544,7 +573,7 @@ function user_setup_after_update() {
     fi
     for script in "$script_dir"/*; do
         if [[ -x "$script" ]]; then
-            echo "Running $(basename "$script")..."
+            log_info "Running $(basename "$script")..."
             exec "$script" || true
         fi
     done
@@ -558,33 +587,33 @@ function copy_rime_config() {
         dst_dir="${ibus_config_path}/rime"
 
         if ! mkdir -p "${ibus_config_path}"; then
-            echo "Error: Failed to create ibus config directory"
+            log_error "Error: Failed to create ibus config directory"
             return 1
         fi
         chown "${USER}:${USER}" "${ibus_config_path}"
 
         if ! mkdir -p "${dst_dir}"; then
-            echo "Error: Failed to create rime config directory"
+            log_error "Error: Failed to create rime config directory"
             return 1
         fi
         chown "${USER}:${USER}" "${dst_dir}"
 
         if [[ ! -d "${dst_dir}/.git" ]]; then
-            echo "Copying rime config..."
+            log_info "Copying rime config..."
             if ! rsync -a "${rime_config_path}/" "${dst_dir}/"; then
-                echo "Error: Failed to copy rime config"
+                log_error "Error: Failed to copy rime config"
                 return 1
             fi
             chown -R "${USER}:${USER}" "${dst_dir}"
         fi
     else
-        echo "Warning: Rime config source directory not found at ${rime_config_path}"
+        log_warning "Warning: Rime config source directory not found at ${rime_config_path}"
         return 0
     fi
 }
 
 function recopy_skel() {
-    echo "Recopy skel..."
+    log_info "Recopy skel..."
     cp -rfv /etc/skel/. "$HOME"
 }
 
@@ -595,7 +624,7 @@ function set_hostname() {
     current_hostname=$(hostnamectl --static)
     product_name=$(cat /sys/devices/virtual/dmi/id/product_name)
     hostname=$(echo "$product_name" | sed 's/ /-/g;s/:/-/g')
-    echo "Setting hostname to $hostname..."
+    log_info "Setting hostname to $hostname..."
     sudo hostnamectl set-hostname "$hostname"
     if [[ "$current_hostname" != "$hostname" ]]; then
         sudo systemctl restart systemd-hostnamed
@@ -603,7 +632,7 @@ function set_hostname() {
 }
 
 function set_kernel_options() {
-    echo "Setting kernel options..."
+    log_info "Setting kernel options..."
     kernel_options_manager --append "quiet"
     kernel_options_manager --append "splash"
 }
