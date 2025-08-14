@@ -440,99 +440,81 @@ AYANEO_AIR_LIST="AIR:AIR Pro:AIR Plus:AIR 1S:AIR 1S Limited"
 AYANEO_NEXT_LIST="NEXT Advance:NEXT Lite:NEXT Pro:NEXT"
 AYANEO_NEO_LIST="AYA NEO FOUNDER:AYA NEO 2021:AYANEO 2021:AYANEO 2021 Pro:AYANEO 2021 Pro Retro Power"
 
-function install_css_theme() {
-    if [[ -d $css_hhd_path ]]; then
-        log_info "Installing hhd themes..."
-        if [ -d "${css_hhd_path}/SBP-PS5-to-Handheld" ]; then
-            cp -rf "${css_hhd_path}/SBP-PS5-to-Handheld" "${THEME_FOLDER}"
-        fi
-        if [[ "$PRODUCT" =~ "ROG Ally" ]]; then
-            set_ps5_theme_default "ROG Ally"
-        elif [[ "$PRODUCT" == "G1617-01" ]]; then
-            # GPD Win Mini
-            set_ps5_theme_default "GPD Win Mini"
-        elif [[ "$PRODUCT" == "G1618-04" ]]; then
-            # GPD Win4
-            set_ps5_theme_default "GPD Win4"
-        elif [[ "$PRODUCT" == "G1618-03" ]]; then
-            # GPD Win3
-            set_ps5_theme_default "GPD Win3"
-        elif [[ "$PRODUCT" == "83E1" ]]; then
-            set_ps5_theme_default "Legion Go"
-        elif [[ ":$AYANEO_AIR_LIST:" =~ ":$PRODUCT:" ]]; then
-            set_ps5_theme_default "AYANEO AIR"
-        elif [[ "$VENDOR" == "AYANEO" ]]; then
-            set_ps5_theme_default "AYANEO"
-        elif [[ "$VENDOR" == "GPD" ]]; then
-            set_ps5_theme_default "GPD"
-        elif [[ "$VENDOR" == "AOKZOE" || "$VENDOR" == "ONE-NETBOOK" ]]; then
-            set_ps5_theme_default "Aokzoe/OneXPlayer"
-        fi
-    fi
-}
 
-function install_css_theme_new() {
+function install_css_theme() {
     if [[ -d $css_hhd_path ]]; then
         log_info "Installing hhd themes (new)..."
         if [ -d "${css_hhd_path}/handheld-controller-glyphs-sk" ]; then
             cp -rf "${css_hhd_path}/handheld-controller-glyphs-sk" "${THEME_FOLDER}"
             rm -rf "${THEME_FOLDER}/SBP-PS5-to-Handheld" || true
         fi
-        # Anbernic
-        if [[ "$PRODUCT" == "Win600" ]]; then
-            set_ps5_theme_default "Anbernic Win600"
-        # AOKZOE
-        elif [[ "$PRODUCT" =~ "AOKZOE A1" ]]; then
-            set_ps5_theme_default "AOKZOE A1"
-        # ROG Ally
-        elif [[ "$PRODUCT" =~ "ROG Ally" ]]; then
-            set_ps5_theme_default "ASUS ROG Ally"
-        # AYANEO
-        elif [[ ":$AYANEO_AIR_LIST:" =~ ":$PRODUCT:" ]]; then
-            set_ps5_theme_default "AYANEO Air"
-        elif [[ "$PRODUCT" =~ "AYANEO 2" || "$PRODUCT" =~ "GEEK" ]]; then
-            set_ps5_theme_default "AYANEO 2"
-        elif [[ "$PRODUCT" =~ "KUN" ]]; then
-            set_ps5_theme_default "AYANEO Kun"
-        elif [[ ":$AYANEO_NEO_LIST:" =~ ":$PRODUCT:" ]]; then
-            set_ps5_theme_default "AYANEO Neo"
-        elif [[ ":$AYANEO_NEXT_LIST:" =~ ":$PRODUCT:" ]]; then
-            set_ps5_theme_default "AYANEO Next"
-        elif [[ "$PRODUCT" == "SLIDE" ]]; then
-            set_ps5_theme_default "AYANEO Slide"
-        # AYN
-        elif [[ "$PRODUCT" =~ "Loki" ]]; then
-            set_ps5_theme_default "AYN Loki"
-        # GPD
-        elif [[ "$PRODUCT" == "G1618-03" ]]; then
-            set_ps5_theme_default "GPD Win 3"
-        elif [[ "$PRODUCT" == "G1618-04" ]]; then
-            set_ps5_theme_default "GPD Win 4"
-        elif [[ "$PRODUCT" == "G1617-01" || "$PRODUCT" == "G1617-02" ]]; then
-            set_ps5_theme_default "GPD Win Mini"
-        elif [[ "$PRODUCT" == "G1619-05" || "$PRODUCT" == "G1619-04" ]]; then
-            set_ps5_theme_default "GPD Win Max 2"
-        # Lenovo
-        elif [[ "$PRODUCT" == "83E1" ]]; then
-            set_ps5_theme_default "Lenovo Legion Go"
-        elif [[ "$PRODUCT" == "83L3" || "$PRODUCT" == "83N6" || "$PRODUCT" == "83Q2" || "$PRODUCT" == "83Q3" ]]; then
-            set_ps5_theme_default "Lenovo Legion Go S"
-        # MSI
-        elif [[ "$PRODUCT" == "Claw A1M" || "$PRODUCT" == "Claw 7 AI+ A2VM" ]]; then
-            set_ps5_theme_default "MSI Claw"
-        # ONEXPLAYER
-        elif [[ "$PRODUCT" =~ "ONEXFLY X1" ]]; then
-            set_ps5_theme_default "ONEXFLY X1"
-        elif [[ "$PRODUCT" =~ "ONEXFLY 2" ]]; then
-            set_ps5_theme_default "ONEXFLY 2"
-        elif [[ "$PRODUCT" =~ "ONEXFLY F1" ]]; then
-            set_ps5_theme_default "ONEXFLY F1"
-        # TECNO
-        elif [[ "$PRODUCT" == "Pocket Go" ]]; then
-            set_ps5_theme_default "TECNO Pocket Go"
-        # Zotac
-        elif [[ "$PRODUCT" == "ZOTAC GAMING ZONE" ]]; then
-            set_ps5_theme_default "Zotac Zone"
+        
+        # 精确匹配设备
+        declare -A device_themes=(
+            ["Win600"]="Anbernic Win600"
+            ["G1618-03"]="GPD Win 3"
+            ["G1618-04"]="GPD Win 4"
+            ["G1617-01"]="GPD Win Mini"
+            ["G1617-02"]="GPD Win Mini"
+            ["G1619-05"]="GPD Win Max 2"
+            ["G1619-04"]="GPD Win Max 2"
+            ["SLIDE"]="AYANEO Slide"
+            ["83E1"]="Lenovo Legion Go"
+            ["83L3"]="Lenovo Legion Go S"
+            ["83N6"]="Lenovo Legion Go S"
+            ["83Q2"]="Lenovo Legion Go S"
+            ["83Q3"]="Lenovo Legion Go S"
+            ["Claw A1M"]="MSI Claw"
+            ["Claw 7 AI+ A2VM"]="MSI Claw"
+            ["Pocket Go"]="TECNO Pocket Go"
+            ["ZOTAC GAMING ZONE"]="Zotac Zone"
+        )
+        
+        # 模式匹配设备
+        declare -A pattern_themes=(
+            ["AOKZOE A1"]="AOKZOE A1"
+            ["ROG Ally"]="ASUS ROG Ally"
+            ["AYANEO 2"]="AYANEO 2"
+            ["GEEK"]="AYANEO 2"
+            ["KUN"]="AYANEO Kun"
+            ["Loki"]="AYN Loki"
+            ["ONEXFLY X1"]="ONEXFLY X1"
+            ["ONEXFLY 2"]="ONEXFLY 2"
+            ["ONEXFLY F1"]="ONEXFLY F1"
+        )
+        
+        # 预定义列表
+        declare -A list_themes=(
+            ["AYANEO_AIR_LIST"]="AYANEO Air"
+            ["AYANEO_NEO_LIST"]="AYANEO Neo"
+            ["AYANEO_NEXT_LIST"]="AYANEO Next"
+        )
+        
+        local theme="${device_themes[$PRODUCT]}"
+        
+        # 检查预定义列表
+        if [[ -z "$theme" ]]; then
+            for list_name in "${!list_themes[@]}"; do
+                if [[ ":${!list_name}:" =~ ":$PRODUCT:" ]]; then
+                    theme="${list_themes[$list_name]}"
+                    break
+                fi
+            done
+        fi
+        
+        # 检查模式匹配
+        if [[ -z "$theme" ]]; then
+            for pattern in "${!pattern_themes[@]}"; do
+                if [[ "$PRODUCT" =~ $pattern ]]; then
+                    theme="${pattern_themes[$pattern]}"
+                    break
+                fi
+            done
+        fi
+        
+        # 设置主题
+        if [[ -n "$theme" ]]; then
+            set_ps5_theme_default "$theme"
         fi
     fi
 }
@@ -639,7 +621,6 @@ case $ACTION in
     install_decky
     install_decky_plugins
     install_css_theme
-    install_css_theme_new
     restart_plugin_loader
     device_quirks
     user_setup_after_update
@@ -653,7 +634,6 @@ case $ACTION in
     install_decky_plugins
     setup_gamepad
     install_css_theme
-    install_css_theme_new
     restart_plugin_loader
     device_quirks
     user_setup_after_update
