@@ -1,5 +1,5 @@
 #!/bin/bash
-# shellcheck disable=SC2076
+# shellcheck disable=SC2076,SC2155
 
 set -e
 
@@ -404,6 +404,51 @@ function install_decky_plugins() {
 
 }
 
+function apply_default_config() {
+    local config_file="$1"
+    local default_config="$2"
+
+    if [[ ! -x "$(command -v jq)" ]]; then
+        return 1
+    fi
+
+    # 使用 jq 的深度合并：现有配置 * 默认配置
+    echo "$default_config" | jq -s '.[1] * .[0]' "$config_file" - >"$config_file.tmp" &&
+        mv "$config_file.tmp" "$config_file"
+}
+
+function setup_decky_plugins() {
+    log_warning "Setting up decky plugins..."
+    sudo systemctl stop plugin_loader
+    # 初始化部分 decky 插件的配置
+    SETTINGS_PATH="${HOMEBREW_FOLDER}/settings"
+
+    declare -A plugin_defaults=(
+        ["decky-terminal|config.json"]='{"default_shell": "/bin/zsh", "font_size": 11, "handheld_mode": true, "extra_keys": true}'
+        ["protondb-decky|config.json"]='{"settings": {"size": "small", "position": "tl"}}'
+        ["SDH-PauseGames|settings.json"]='{"pauseBeforeSuspend": true, "autoPause": true}'
+    )
+
+    for plugin_config in "${!plugin_defaults[@]}"; do
+        local plugin_name
+        local config_file
+        plugin_name=$(echo "$plugin_config" | cut -d'|' -f1)
+        config_file=$(echo "$plugin_config" | cut -d'|' -f2)
+
+        mkdir -p "${SETTINGS_PATH}/$plugin_name"
+
+        if [[ ! -f "$config_file" ]]; then
+            log_info "Setting up $plugin_name..."
+            echo "${plugin_defaults[$plugin_config]}" >"$config_file"
+        else
+            log_info "Updating $plugin_name with defaults..."
+            apply_default_config "$config_file" "${plugin_defaults[$plugin_config]}"
+        fi
+    done
+    sudo systemctl start plugin_loader
+    log_success "Decky plugins setup completed"
+}
+
 function setup_gamepad() {
     if hhd_support 2>/dev/null; then
         log_info "disabling handycon/inputplumber and enabling hhd@${USER}..."
@@ -440,7 +485,6 @@ AYANEO_AIR_LIST="AIR:AIR Pro:AIR Plus:AIR 1S:AIR 1S Limited"
 AYANEO_NEXT_LIST="NEXT Advance:NEXT Lite:NEXT Pro:NEXT"
 AYANEO_NEO_LIST="AYA NEO FOUNDER:AYA NEO 2021:AYANEO 2021:AYANEO 2021 Pro:AYANEO 2021 Pro Retro Power"
 
-
 function install_css_theme() {
     if [[ -d $css_hhd_path ]]; then
         log_info "Installing hhd themes (new)..."
@@ -448,7 +492,7 @@ function install_css_theme() {
             cp -rf "${css_hhd_path}/handheld-controller-glyphs-sk" "${THEME_FOLDER}"
             rm -rf "${THEME_FOLDER}/SBP-PS5-to-Handheld" || true
         fi
-        
+
         # 精确匹配设备
         declare -A device_themes=(
             ["Win600"]="Anbernic Win600"
@@ -469,7 +513,7 @@ function install_css_theme() {
             ["Pocket Go"]="TECNO Pocket Go"
             ["ZOTAC GAMING ZONE"]="Zotac Zone"
         )
-        
+
         # 模式匹配设备
         declare -A pattern_themes=(
             ["AOKZOE A1"]="AOKZOE A1"
@@ -482,16 +526,16 @@ function install_css_theme() {
             ["ONEXFLY 2"]="ONEXFLY 2"
             ["ONEXFLY F1"]="ONEXFLY F1"
         )
-        
+
         # 预定义列表
         declare -A list_themes=(
             ["AYANEO_AIR_LIST"]="AYANEO Air"
             ["AYANEO_NEO_LIST"]="AYANEO Neo"
             ["AYANEO_NEXT_LIST"]="AYANEO Next"
         )
-        
+
         local theme="${device_themes[$PRODUCT]}"
-        
+
         # 检查预定义列表
         if [[ -z "$theme" ]]; then
             for list_name in "${!list_themes[@]}"; do
@@ -501,7 +545,7 @@ function install_css_theme() {
                 fi
             done
         fi
-        
+
         # 检查模式匹配
         if [[ -z "$theme" ]]; then
             for pattern in "${!pattern_themes[@]}"; do
@@ -511,7 +555,7 @@ function install_css_theme() {
                 fi
             done
         fi
-        
+
         # 设置主题
         if [[ -n "$theme" ]]; then
             set_ps5_theme_default "$theme"
@@ -621,6 +665,7 @@ case $ACTION in
     install_decky
     install_decky_plugins
     install_css_theme
+    setup_decky_plugins
     restart_plugin_loader
     device_quirks
     user_setup_after_update
@@ -634,6 +679,7 @@ case $ACTION in
     install_decky_plugins
     setup_gamepad
     install_css_theme
+    setup_decky_plugins
     restart_plugin_loader
     device_quirks
     user_setup_after_update
