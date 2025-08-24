@@ -3,8 +3,8 @@
  "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
  "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
 <policyconfig>
-  <vendor>Sk-ChimeraOS</vendor>
-  <vendor_url>https://github.com/3003n/chimeraos</vendor_url>
+  <vendor>SkorionOS</vendor>
+  <vendor_url>https://github.com/3003n/skorionos</vendor_url>
 
   <action id="org.sk-chos.policykit.waydroid.setup">
     <description>Start Waydroid Container</description>

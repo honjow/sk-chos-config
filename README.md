@@ -1,4 +1,4 @@
-# Sk ChimeraOS 定制化配置
+# SkorionOS 定制化配置
 
 ## 一些脚本
 

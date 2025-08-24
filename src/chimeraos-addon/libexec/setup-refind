@@ -80,7 +80,7 @@ scan_all_linux_kernels false
 write_systemd_vars true
 enable_mouse
 
-include sk-chimeraos.conf
+include skorionos.conf
 $theme_option
 EOF
 }
@@ -89,12 +89,12 @@ function set_boot_config() {
     local refind_dir=$1
     local icon=${2:-"EFI/refind/icons/os_arch.png"}
 
-    if [ -f "$refind_dir/sk-chimeraos.conf" ]; then
-        mv "$refind_dir/sk-chimeraos.conf" "$refind_dir/sk-chimeraos.conf.bak"
+    if [ -f "$refind_dir/skorionos.conf" ]; then
+        mv "$refind_dir/skorionos.conf" "$refind_dir/skorionos.conf.bak"
     fi
 
-    cat >"$refind_dir/sk-chimeraos.conf" <<-EOF
-menuentry "ChimeraOS" {
+    cat >"$refind_dir/skorionos.conf" <<-EOF
+menuentry "SkorionOS" {
     icon     $icon
     loader   EFI/systemd/systemd-bootx64.efi
 }

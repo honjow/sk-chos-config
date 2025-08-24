@@ -1,5 +1,5 @@
 [Unit]
-Description=Sk-Chimeraos user daemon
+Description=SkorionOS user daemon
 After=graphical.target network.target
 
 [Service]

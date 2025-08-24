@@ -10,7 +10,7 @@ kernel_package=(
     "linux-skchos"
 )
 
-SYSTEM_NAME="chimeraos"
+SYSTEM_NAME="skorionos"
 
 for kernel in "${kernel_package[@]}"; do
     echo "Start moving kernel $kernel"
