@@ -192,9 +192,22 @@ function gamepad_fix_for_allyx_old() {
     echo "gamepad fix for allyx finished"
 }
 
+# 检查 hhd 是否启用，如果启用，则禁用 inputplumber
+function check_hhd_enable() {
+    hhd_enable=$(systemctl is-enabled "hhd@${USER}" 2>/dev/null)
+    hhd_global_enable=$(systemctl is-enabled hhd 2>/dev/null)
+    if [[ "$hhd_enable" == "enabled" ]] || [[ "$hhd_global_enable" == "enabled" ]]; then
+        systemctl disable --now inputplumber || true
+        systemctl mask inputplumber || true
+        pkill inputplumber || true
+    fi
+}
+
 toggle_mcu_powersave
 
 gamepad_fix_for_allyx
+
+check_hhd_enable &
 
 # 为 atd 创建目录
 mkdir -p /var/spool/atd

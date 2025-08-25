@@ -450,16 +450,23 @@ function setup_decky_plugins() {
 }
 
 function setup_gamepad() {
-    if hhd_support 2>/dev/null; then
-        log_info "disabling handycon/inputplumber and enabling hhd@${USER}..."
+    hhd_enable=$(systemctl is-enabled "hhd@${USER}" 2>/dev/null)
+    hhd_global_enable=$(systemctl is-enabled hhd 2>/dev/null)
+    if [[ "$hhd_enable" == "enabled" ]] ||
+        [[ "$hhd_global_enable" == "enabled" ]] ||
+        hhd_support 2>/dev/null; then
+        log_info "disabling handycon/inputplumber and enabling hhd..."
         sudo systemctl disable --now handycon || true
         sudo systemctl mask handycon || true
         sudo systemctl disable --now inputplumber || true
         sudo systemctl mask inputplumber || true
+        sudo pkill inputplumber || true
         sudo systemctl disable --now steam-powerbuttond || true
 
-        sudo systemctl unmask "hhd@${USER}" || true
-        sudo systemctl enable --now "hhd@${USER}"
+        if [[ "$hhd_enable" != "enabled" ]] && [[ "$hhd_global_enable" != "enabled" ]]; then
+            log_info "hhd@${USER} is not enabled, enabling..."
+            sudo systemctl enable --now "hhd@${USER}"
+        fi
     fi
 }
 

@@ -151,7 +151,7 @@ if [[ -x "$(command -v gpdconfig)" && "$VENDOR" == "GPD" && -x "$(command -v hhd
 fi
 
 # pacman -Q , check install gnome-shell-extension-screen-autorotate
-if [[ $(pacman -Q | grep gnome-shell-extension-screen-autorotate) ]]; then
+if pacman -Q | grep -q gnome-shell-extension-screen-autorotate; then
     echo "gnome-shell-extension-screen-autorotate is installed, set orientation-offset..."
     # check gsettings is installed
     if [[ -x $(command -v gsettings) ]]; then
