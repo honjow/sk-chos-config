@@ -194,8 +194,8 @@ function gamepad_fix_for_allyx_old() {
 
 # 检查 hhd 是否启用，如果启用，则禁用 inputplumber
 function check_hhd_enable() {
-    hhd_enable=$(systemctl is-enabled "hhd@${USER}" 2>/dev/null)
-    hhd_global_enable=$(systemctl is-enabled hhd 2>/dev/null)
+    hhd_enable=$(systemctl is-enabled "hhd@${USER}" 2>/dev/null || echo "disabled")
+    hhd_global_enable=$(systemctl is-enabled hhd 2>/dev/null || echo "disabled")
     if [[ "$hhd_enable" == "enabled" ]] || [[ "$hhd_global_enable" == "enabled" ]]; then
         systemctl disable --now inputplumber || true
         systemctl mask inputplumber || true

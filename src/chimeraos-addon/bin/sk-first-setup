@@ -450,8 +450,8 @@ function setup_decky_plugins() {
 }
 
 function setup_gamepad() {
-    hhd_enable=$(systemctl is-enabled "hhd@${USER}" 2>/dev/null)
-    hhd_global_enable=$(systemctl is-enabled hhd 2>/dev/null)
+    hhd_enable=$(systemctl is-enabled "hhd@${USER}" 2>/dev/null || echo "disabled")
+    hhd_global_enable=$(systemctl is-enabled hhd 2>/dev/null || echo "disabled")
     if [[ "$hhd_enable" == "enabled" ]] ||
         [[ "$hhd_global_enable" == "enabled" ]] ||
         hhd_support 2>/dev/null; then
