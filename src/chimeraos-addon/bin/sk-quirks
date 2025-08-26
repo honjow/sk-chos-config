@@ -81,7 +81,7 @@ if [[ "$PRODUCT" == "NEO-01" && -f "$HHD_ORANGE_INIT_PATH" ]]; then
             PATCH_URL="${path_base_url}${patch_name}"
             
             # Try to download and apply patch
-            if retry curl -sSL "$PATCH_URL" | patch -d "$HHD_PATH" -p1; then
+            if retry curl -sSL "$PATCH_URL" | patch -d "$HHD_PATH" -p1 --batch --forward --no-backup-if-mismatch; then
                 echo "Patch $patch_name applied successfully"
                 patch_applied=true
                 break
