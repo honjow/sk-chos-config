@@ -49,21 +49,61 @@ function restart_hhd_gamer() {
 
 # OrangePi NEO and HHD_ORANGE_INIT_FILE not contain "get_touchpad_config"
 if [[ "$PRODUCT" == "NEO-01" && -f "$HHD_ORANGE_INIT_PATH" ]]; then
-    if ! grep -q "get_touchpad_config" "$HHD_ORANGE_INIT_PATH"; then
-        if ! grep -q "touchpad_enable" "$HHD_OUTPUTS_PATH"; then
-            PATCH_URL="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs/hhd-orangepi-neo-touchpad.patch"
-        else
-            PATCH_URL="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs/hhd-orangepi-neo-touchpad-new.patch"
-        fi
-        echo "Apply HHD patch for OrangePi NEO"
+    path_base_url="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs/"
+    path_list=(
+        "hhd-orangepi-neo-touchpad.patch"
+        "hhd-orangepi-neo-touchpad-new.patch"
+        "hhd-orangepi-neo-touchpad-new2.patch"
+    )
 
-        if retry curl -sSL "$PATCH_URL" | patch -d "$HHD_PATH" -p1; then
-            echo "Patch applied successfully"
-        else
-            echo "Failed to apply patch after multiple attempts"
+    if ! grep -q "get_touchpad_config" "$HHD_ORANGE_INIT_PATH"; then
+        echo "Apply HHD patch for OrangePi NEO"
+        
+        # Create backup directory
+        backup_dir="/tmp/hhd_patch_backup_$$"
+        if ! mkdir -p "$backup_dir"; then
+            echo "Failed to create backup directory"
             exit 1
         fi
-        restart_hhd_gamer
+        
+        # Backup entire HHD directory
+        if ! cp -a "$HHD_PATH" "$backup_dir/"; then
+            echo "Failed to create backup"
+            rm -rf "$backup_dir"
+            exit 1
+        fi
+        
+        patch_applied=false
+        
+        # Try patches in order
+        for patch_name in "${path_list[@]}"; do
+            echo "Trying patch: $patch_name"
+            PATCH_URL="${path_base_url}${patch_name}"
+            
+            # Try to download and apply patch
+            if retry curl -sSL "$PATCH_URL" | patch -d "$HHD_PATH" -p1; then
+                echo "Patch $patch_name applied successfully"
+                patch_applied=true
+                break
+            else
+                echo "Patch $patch_name failed, restoring backup..."
+                # Restore backup
+                if ! rm -rf "$HHD_PATH" || ! cp -a "$backup_dir/hhd" "$HHD_PATH"; then
+                    echo "Critical error: Failed to restore backup"
+                    exit 1
+                fi
+            fi
+        done
+        
+        # Clean up backup directory
+        rm -rf "$backup_dir"
+        
+        if [[ "$patch_applied" == true ]]; then
+            restart_hhd_gamer
+        else
+            echo "All patches failed"
+            exit 1
+        fi
     fi
 fi
 
