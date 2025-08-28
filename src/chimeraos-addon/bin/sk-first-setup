@@ -463,14 +463,15 @@ function setup_gamepad() {
         sudo pkill inputplumber || true
         sudo systemctl disable --now steam-powerbuttond || true
 
-        ignore_handheld_powerkey
+        # ignore_handheld_powerkey
 
         if [[ "$hhd_enable" != "enabled" ]] && [[ "$hhd_global_enable" != "enabled" ]]; then
             log_info "hhd@${USER} is not enabled, enabling..."
             sudo systemctl enable --now "hhd@${USER}"
         fi
     else
-        ignore_handheld_powerkey --reset
+        # ignore_handheld_powerkey --reset
+        :
     fi
 }
 
