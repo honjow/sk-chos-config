@@ -47,71 +47,100 @@ function restart_hhd_gamer() {
     fi
 }
 
-# OrangePi NEO and HHD_ORANGE_INIT_FILE not contain "get_touchpad_config"
-if [[ "$PRODUCT" == "NEO-01" && -f "$HHD_ORANGE_INIT_PATH" ]]; then
-    path_base_url="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs/"
-    path_list=(
-        "hhd-orangepi-neo-touchpad.patch"
-        "hhd-orangepi-neo-touchpad-new.patch"
-        "hhd-orangepi-neo-touchpad-new2.patch"
-    )
+# Try patches in order until one succeeds
+# Usage: try_patches_in_order <target_dir> <patch_urls_array_name>
+# Returns: 0 if any patch succeeded, 1 if all failed
+function try_patches_in_order() {
+    local target_dir="$1"
+    local -n patch_urls_ref="$2"
+    
+    # Create backup directory
+    local backup_dir="/tmp/hhd_patch_backup_$$"
+    if ! mkdir -p "$backup_dir"; then
+        echo "Failed to create backup directory"
+        return 1
+    fi
 
-    if ! grep -q "get_touchpad_config" "$HHD_ORANGE_INIT_PATH"; then
-        echo "Apply HHD patch for OrangePi NEO"
-        
-        # Create backup directory
-        backup_dir="/tmp/hhd_patch_backup_$$"
-        if ! mkdir -p "$backup_dir"; then
-            echo "Failed to create backup directory"
-            exit 1
-        fi
-        
-        # Backup entire HHD directory
-        if ! cp -a "$HHD_PATH" "$backup_dir/"; then
-            echo "Failed to create backup"
-            rm -rf "$backup_dir"
-            exit 1
-        fi
-        
-        patch_applied=false
-        
-        # Try patches in order
-        for patch_name in "${path_list[@]}"; do
-            echo "Trying patch: $patch_name"
-            PATCH_URL="${path_base_url}${patch_name}"
-            
-            # Try to download and apply patch
-            if retry curl -sSL "$PATCH_URL" | patch -d "$HHD_PATH" -p1 --batch --forward --no-backup-if-mismatch; then
-                echo "Patch $patch_name applied successfully"
-                patch_applied=true
-                break
-            else
-                echo "Patch $patch_name failed, restoring backup..."
-                # Restore backup
-                if ! rm -rf "$HHD_PATH" || ! cp -a "$backup_dir/hhd" "$HHD_PATH"; then
-                    echo "Critical error: Failed to restore backup"
-                    exit 1
-                fi
-            fi
-        done
-        
-        # Clean up backup directory
+    # Backup entire target directory
+    if ! cp -a "$target_dir" "$backup_dir/"; then
+        echo "Failed to create backup"
         rm -rf "$backup_dir"
-        
-        if [[ "$patch_applied" == true ]]; then
-            restart_hhd_gamer
+        return 1
+    fi
+
+    local patch_applied=false
+    local target_dir_name
+    target_dir_name=$(basename "$target_dir")
+
+    # Try patches in order
+    for patch_url in "${patch_urls_ref[@]}"; do
+        local patch_name
+        patch_name=$(basename "$patch_url")
+        echo "Trying patch: $patch_name"
+
+        # Try to download and apply patch
+        if retry curl -sSL "$patch_url" | patch -d "$target_dir" -p1 --batch --forward --no-backup-if-mismatch; then
+            echo "Patch $patch_name applied successfully"
+            patch_applied=true
+            break
         else
-            echo "All patches failed"
-            exit 1
+            echo "Patch $patch_name failed, restoring backup..."
+            # Restore backup
+            if ! rm -rf "$target_dir" || ! cp -a "$backup_dir/$target_dir_name" "$target_dir"; then
+                echo "Critical error: Failed to restore backup"
+                rm -rf "$backup_dir"
+                return 1
+            fi
+        fi
+    done
+
+    # Clean up backup directory
+    rm -rf "$backup_dir"
+
+    if [[ "$patch_applied" == true ]]; then
+        return 0
+    else
+        echo "All patches failed"
+        return 1
+    fi
+}
+
+function apply_hhd_patch_orangepi_neo() {
+    # OrangePi NEO and HHD_ORANGE_INIT_FILE not contain "get_touchpad_config"
+    if [[ "$PRODUCT" == "NEO-01" && -f "$HHD_ORANGE_INIT_PATH" ]]; then
+        if ! grep -q "get_touchpad_config" "$HHD_ORANGE_INIT_PATH"; then
+            echo "Apply HHD patch for OrangePi NEO"
+
+            # Define patch URLs
+            local path_base_url="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs/"
+            local patch_urls=(
+                "${path_base_url}hhd-orangepi-neo-touchpad.patch"
+                "${path_base_url}hhd-orangepi-neo-touchpad-new.patch"
+                "${path_base_url}hhd-orangepi-neo-touchpad-new2.patch"
+            )
+
+            # Try patches in order using the new function
+            if try_patches_in_order "$HHD_PATH" patch_urls; then
+                restart_hhd_gamer
+            else
+                echo "All patches failed"
+                exit 1
+            fi
         fi
     fi
-fi
+}
 
-# AOKZOE A1X
-HHD_OXP_CONST_PATH="${HHD_PATH}/device/oxp/const.py"
-if [[ "$PRODUCT" == "AOKZOE A1X" && -f "$HHD_OXP_CONST_PATH" ]]; then
-    if ! grep -q "AOKZOE A1X" "$HHD_OXP_CONST_PATH"; then
-        sed -i 's/AOKZOE A1 Pro/AOKZOE A1X/g' ${HHD_OXP_CONST_PATH}
-        restart_hhd_gamer
+function apply_hhd_patch_aokzoe_a1x() {
+
+    # AOKZOE A1X
+    HHD_OXP_CONST_PATH="${HHD_PATH}/device/oxp/const.py"
+    if [[ "$PRODUCT" == "AOKZOE A1X" && -f "$HHD_OXP_CONST_PATH" ]]; then
+        if ! grep -q "AOKZOE A1X" "$HHD_OXP_CONST_PATH"; then
+            sed -i 's/AOKZOE A1 Pro/AOKZOE A1X/g' ${HHD_OXP_CONST_PATH}
+            restart_hhd_gamer
+        fi
     fi
-fi
+}
+
+apply_hhd_patch_orangepi_neo
+apply_hhd_patch_aokzoe_a1x
