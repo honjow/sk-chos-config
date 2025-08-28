@@ -685,6 +685,14 @@ function set_kernel_options() {
     kernel_options_manager --append "splash"
 }
 
+function update_udev_rules() {
+    log_info "Updating udev rules..."
+    sudo systemd-hwdb update
+    sudo udevadm control --reload-rules
+    sudo udevadm trigger
+    sudo udevadm settle
+}
+
 case $ACTION in
 "--update")
     install_decky
@@ -693,6 +701,7 @@ case $ACTION in
     setup_decky_plugins
     restart_plugin_loader
     device_quirks
+    update_udev_rules
     user_setup_after_update
     copy_rime_config
     ;;
@@ -707,6 +716,7 @@ case $ACTION in
     setup_decky_plugins
     restart_plugin_loader
     device_quirks
+    update_udev_rules
     user_setup_after_update
     copy_rime_config
     flatpak_auto_repo
