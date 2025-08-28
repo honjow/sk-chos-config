@@ -53,7 +53,7 @@ function restart_hhd_gamer() {
 function try_patches_in_order() {
     local target_dir="$1"
     local -n patch_urls_ref="$2"
-    
+
     # Create backup directory
     local backup_dir="/tmp/hhd_patch_backup_$$"
     if ! mkdir -p "$backup_dir"; then
@@ -121,7 +121,7 @@ function apply_hhd_patch_orangepi_neo() {
 
             # Try patches in order using the new function
             if try_patches_in_order "$HHD_PATH" patch_urls; then
-                restart_hhd_gamer
+                echo "OrangePi NEO hhd patches applied"
             else
                 echo "All patches failed"
                 exit 1
@@ -137,10 +137,48 @@ function apply_hhd_patch_aokzoe_a1x() {
     if [[ "$PRODUCT" == "AOKZOE A1X" && -f "$HHD_OXP_CONST_PATH" ]]; then
         if ! grep -q "AOKZOE A1X" "$HHD_OXP_CONST_PATH"; then
             sed -i 's/AOKZOE A1 Pro/AOKZOE A1X/g' ${HHD_OXP_CONST_PATH}
-            restart_hhd_gamer
+            echo "AOKZOE A1X hhd patches applied"
         fi
     fi
 }
 
-apply_hhd_patch_orangepi_neo
-apply_hhd_patch_aokzoe_a1x
+function apply_hhd_patch() {
+    local path_base_url="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs/"
+    local path_01=("${path_base_url}hhd-fix-ungrab-failure.patch")
+    local path_02=("${path_base_url}hhd-fix-restore-device-permissions.patch")
+
+    if try_patches_in_order "$HHD_PATH" path_01 || echo "pub hhd ungrab failure patch failed" >&2 ||
+        try_patches_in_order "$HHD_PATH" path_02 || echo "pub hhd restore device permissions patch failed" >&2; then
+        echo "pub hhd patches applied"
+    else
+        echo "All pub hhd patches failed"
+        return 1
+    fi
+}
+
+function apply_hhd_claw() {
+    local path_base_url="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs/"
+    local path_powerbtn=("${path_base_url}hhd-clawa8-fix-powerbutton.patch")
+    local path_dynamic_grabbing=("${path_base_url}hhd-claw-dynamic-grabbing.patch")
+
+    if [[ "$VENDOR" == "Micro-Star International Co., Ltd." ]]; then
+        if try_patches_in_order "$HHD_PATH" path_powerbtn || echo "Claw power button patch failed" >&2 ||
+            try_patches_in_order "$HHD_PATH" path_dynamic_grabbing || echo "Claw dynamic grabbing patch failed" >&2; then
+            echo "claw hhd patches applied"
+        else
+            echo "All claw hhd patches failed"
+            return 1
+        fi
+    fi
+}
+
+if (apply_hhd_patch || echo "All pub hhd patches failed" >&2) ||
+    apply_hhd_patch_orangepi_neo ||
+    apply_hhd_patch_aokzoe_a1x ||
+    apply_hhd_claw; then
+    # hhd patches applied
+    echo "All hhd patches applied"
+    restart_hhd_gamer
+else
+    echo "All hhd patches failed"
+fi
