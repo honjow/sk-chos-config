@@ -49,8 +49,8 @@ if [ ! -f ${temp}/$plugin_name.tar.gz ]; then
 fi
 
 # remove old version
-chmod -R 777 ${HOME}/homebrew/plugins
-rm -rf "${HOME}/homebrew/plugins/$plugin_name"
+sudo chmod -R 777 ${HOME}/homebrew/plugins
+sudo rm -rf "${HOME}/homebrew/plugins/$plugin_name"
 
 # Extract
 tar -xzf "${temp}/${plugin_name}.tar.gz" -C "${HOME}/homebrew/plugins"

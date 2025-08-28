@@ -47,8 +47,8 @@ if [ ! -f ${temp}/PowerControl.tar.gz ]; then
 fi
 
 # remove old version
-chmod -R 777 ${HOME}/homebrew/plugins
-rm -rf ${HOME}/homebrew/plugins/PowerControl
+sudo chmod -R 777 ${HOME}/homebrew/plugins
+sudo rm -rf ${HOME}/homebrew/plugins/PowerControl
 
 # Extract
 tar -xzf ${temp}/PowerControl.tar.gz -C ${HOME}/homebrew/plugins

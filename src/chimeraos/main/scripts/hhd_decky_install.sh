@@ -14,7 +14,7 @@ echo "github_release_prefix: ${github_release_prefix}"
 temp=$(mktemp -d)
 
 # Download latest release
-RELEASE=$(curl -s "https://api.github.com/repos/hhd-dev/hhd-decky/releases/latest" --connect-timeout 10)
+RELEASE=$(curl -s "https://api.github.com/repos/honjow/hhd-decky/releases/latest" --connect-timeout 10)
 
 # if $RELEASE not starting with '{', then there is an error
 if [[ "x${RELEASE:0:1}" != "x{" ]]; then
@@ -53,8 +53,8 @@ if [ ! -f ${temp}/hhd-decky.tar.gz ]; then
 fi
 
 # remove old version
-chmod -R 777 ${HOME}/homebrew/plugins
-rm -rf ${HOME}/homebrew/plugins/hhd-decky
+sudo chmod -R 777 ${HOME}/homebrew/plugins
+sudo rm -rf ${HOME}/homebrew/plugins/hhd-decky
 
 # Extract
 tar -xzf ${temp}/hhd-decky.tar.gz -C ${HOME}/homebrew/plugins
