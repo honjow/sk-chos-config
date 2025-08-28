@@ -1,8 +1,8 @@
 *.DS_Store
 doc/*.html
 .history
-**/pkg/
-**/src/
+pkgbuild/**/pkg/
+pkgbuild/**/src/
 *.SRCINFO
 *.tar.xz
 *.tar.zst
