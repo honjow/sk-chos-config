@@ -128,6 +128,7 @@ function apply_hhd_patch_orangepi_neo() {
             fi
         fi
     fi
+    return 1
 }
 
 function apply_hhd_patch_aokzoe_a1x() {
@@ -139,6 +140,7 @@ function apply_hhd_patch_aokzoe_a1x() {
             sed -i 's/AOKZOE A1 Pro/AOKZOE A1X/g' ${HHD_OXP_CONST_PATH} && echo "AOKZOE A1X hhd patches applied"
         fi
     fi
+    return 1
 }
 
 function apply_hhd_patch() {
@@ -167,6 +169,7 @@ function apply_hhd_claw() {
             return 1
         fi
     fi
+    return 1
 }
 
 # Execute all applicable patch functions independently
