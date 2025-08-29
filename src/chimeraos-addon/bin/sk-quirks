@@ -124,7 +124,7 @@ function apply_hhd_patch_orangepi_neo() {
                 echo "OrangePi NEO hhd patches applied"
             else
                 echo "All patches failed"
-                exit 1
+                return 1
             fi
         fi
     fi
@@ -136,8 +136,7 @@ function apply_hhd_patch_aokzoe_a1x() {
     HHD_OXP_CONST_PATH="${HHD_PATH}/device/oxp/const.py"
     if [[ "$PRODUCT" == "AOKZOE A1X" && -f "$HHD_OXP_CONST_PATH" ]]; then
         if ! grep -q "AOKZOE A1X" "$HHD_OXP_CONST_PATH"; then
-            sed -i 's/AOKZOE A1 Pro/AOKZOE A1X/g' ${HHD_OXP_CONST_PATH}
-            echo "AOKZOE A1X hhd patches applied"
+            sed -i 's/AOKZOE A1 Pro/AOKZOE A1X/g' ${HHD_OXP_CONST_PATH} && echo "AOKZOE A1X hhd patches applied"
         fi
     fi
 }
@@ -147,13 +146,12 @@ function apply_hhd_patch() {
     local path_01=("${path_base_url}hhd-fix-ungrab-failure.patch")
     local path_02=("${path_base_url}hhd-fix-restore-device-permissions.patch")
 
-    if try_patches_in_order "$HHD_PATH" path_01 || echo "pub hhd ungrab failure patch failed" >&2 ||
-        try_patches_in_order "$HHD_PATH" path_02 || echo "pub hhd restore device permissions patch failed" >&2; then
-        echo "pub hhd patches applied"
-    else
-        echo "All pub hhd patches failed"
-        return 1
-    fi
+    try_patches_in_order "$HHD_PATH" path_01
+    local result1=$?
+    try_patches_in_order "$HHD_PATH" path_02
+    local result2=$?
+
+    [[ $result1 -eq 0 || $result2 -eq 0 ]]
 }
 
 function apply_hhd_claw() {
@@ -162,7 +160,7 @@ function apply_hhd_claw() {
     local path_dynamic_grabbing=("${path_base_url}hhd-claw-dynamic-grabbing.patch")
 
     if [[ "$VENDOR" == "Micro-Star International Co., Ltd." ]]; then
-        if try_patches_in_order "$HHD_PATH" path_dynamic_grabbing || echo "Claw dynamic grabbing patch failed" >&2; then
+        if try_patches_in_order "$HHD_PATH" path_dynamic_grabbing; then
             echo "claw hhd patches applied"
         else
             echo "All claw hhd patches failed"
@@ -171,13 +169,17 @@ function apply_hhd_claw() {
     fi
 }
 
-if (apply_hhd_patch || echo "All pub hhd patches failed" >&2) ||
-    apply_hhd_patch_orangepi_neo ||
-    apply_hhd_patch_aokzoe_a1x ||
-    apply_hhd_claw; then
-    # hhd patches applied
-    echo "All hhd patches applied"
+# Execute all applicable patch functions independently
+patch_applied=false
+
+apply_hhd_patch && patch_applied=true
+apply_hhd_patch_orangepi_neo && patch_applied=true  
+apply_hhd_patch_aokzoe_a1x && patch_applied=true
+apply_hhd_claw && patch_applied=true
+
+if [[ "$patch_applied" == true ]]; then
+    echo "Some hhd patches applied successfully"
     restart_hhd_gamer
 else
-    echo "All hhd patches failed"
+    echo "No hhd patches were applied"
 fi
