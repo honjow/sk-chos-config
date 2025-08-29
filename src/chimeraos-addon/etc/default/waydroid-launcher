@@ -13,6 +13,10 @@ LIST_800P_DEVICES=(
     "Galileo"
     "GEEK"
     "G1619-05"
+    "AYA NEO 2021"
+    "AYANEO 2021"
+    "AYA NEO FOUNDER"
+    "NEXT"
 )
 
 LIST_1080P_DEVICES=(
