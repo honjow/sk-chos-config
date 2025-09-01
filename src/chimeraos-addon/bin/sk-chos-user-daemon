@@ -139,7 +139,7 @@ function update_decky() {
 # 在解决 gpio-keys 电源键问题前, 先屏蔽 steamos-powerbuttond.service
 function handle_steamos_powerbutton() {
     local service_name="steamos-powerbuttond.service"
-    
+
     # 检查是否存在 gpio-keys 设备
     if grep -q "gpio-keys" /proc/bus/input/devices 2>/dev/null; then
         log_info "Found gpio-keys device, disabling $service_name"
@@ -147,11 +147,11 @@ function handle_steamos_powerbutton() {
         systemctl --user mask "$service_name" 2>/dev/null || true
     else
         log_info "No gpio-keys device found"
-        
+
         # 获取服务状态
         local service_status
         service_status=$(systemctl --user is-enabled "$service_name" 2>/dev/null || echo "not-found")
-        
+
         if [[ "$service_status" == "masked" ]]; then
             log_info "$service_name is masked, unmasking it"
             systemctl --user unmask "$service_name" 2>/dev/null || true
@@ -238,10 +238,20 @@ script_dir="$HOME/.config/sk-chos-tool/startup"
 if [[ ! -d $script_dir ]]; then
     mkdir -p $script_dir
 fi
+
 for script_path in "$script_dir"/*; do
-    if [[ -x "$script_path" ]]; then
-        log_info "run $script_path"
-        exec "$script_path"
+    if [[ -f "$script_path" && -x "$script_path" ]]; then
+        script_name=$(basename "$script_path")
+        log_info "Running startup script: $script_name"
+
+        # Run script and capture output to log
+        {
+            echo "=== $script_name output start ==="
+            "$script_path" 2>&1
+            echo "=== $script_name output end ==="
+        } | while IFS= read -r line; do
+            log_info "[$script_name] $line"
+        done &
     fi
 done
 
