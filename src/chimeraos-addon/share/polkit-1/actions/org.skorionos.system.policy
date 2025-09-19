@@ -4,7 +4,7 @@
  "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
 <policyconfig>
   <vendor>Sk-ChimeraOS</vendor>
-  <vendor_url>https://github.com/3003n/chimeraos</vendor_url>
+  <vendor_url>https://github.com/SkorionOS/chimeraos</vendor_url>
 
   <action id="org.sk-chos.policykit.system.refind.setup">
     <description>Setup refind</description>
