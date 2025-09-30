@@ -103,7 +103,6 @@ GPD_MATCH_LIST=(
 
 ROG_MATCH_LIST=(
     "ROG Ally RC71L"
-    "ROG Ally X"
 )
 
 AOKZOE_MATCH_LIST=(
