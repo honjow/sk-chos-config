@@ -19,8 +19,8 @@ ASUS_ALLY_HID_BLACKLIST="/etc/modprobe.d/asus_ally_hid.conf"
 ASUS_ALLY_HID_MOD_NAME="asus_ally_hid"
 
 function is_exist_mod() {
-    local ASUS_ALLY_HID_MOD_NAME=$1
-    lsmod | grep "$ASUS_ALLY_HID_MOD_NAME" >/dev/null 2>&1
+    local MOD_NAME=$1
+    lsmod | grep "$MOD_NAME" >/dev/null 2>&1
 }
 
 function toggle_mcu_powersave() {
@@ -34,7 +34,7 @@ function toggle_mcu_powersave() {
         if [[ "$(uname -r)" =~ -sk.*-.*chimeraos || "$(uname -r)" =~ -skchos ]]; then
             ENABLE_MCU_POWERSAVE="1"
         fi
-    elif [[ "$PRODUCT" =~ "ROG Ally X RC72L" ]]; then
+    elif [[ "$PRODUCT" =~ "ROG Ally X" ]]; then
         ENABLE_MCU_POWERSAVE="1"
     fi
 
@@ -86,7 +86,7 @@ function enable_inputplumber() {
 }
 
 function enable_hhd_allyx() {
-    if [[ "$PRODUCT" =~ "ROG Ally X RC72L" ]]; then
+    if [[ "$PRODUCT" =~ "ROG Ally X" ]]; then
         if [[ -n "$(is_exist_mod "$ASUS_ALLY_HID_MOD_NAME")" ]]; then
             echo "mod $ASUS_ALLY_HID_MOD_NAME is exist, disable it"
             echo "blacklist $ASUS_ALLY_HID_MOD_NAME" >$ASUS_ALLY_HID_BLACKLIST
@@ -98,7 +98,7 @@ function enable_hhd_allyx() {
 }
 
 function enable_inputplumber_allyx() {
-    if [[ "$PRODUCT" =~ "ROG Ally X RC72L" ]]; then
+    if [[ "$PRODUCT" =~ "ROG Ally X" ]]; then
         if [[ -z "$(is_exist_mod "$ASUS_ALLY_HID_MOD_NAME")" ]]; then
             echo "mod $ASUS_ALLY_HID_MOD_NAME is not exist, enable it"
             depmod -a
@@ -116,7 +116,7 @@ function enable_inputplumber_allyx() {
 function gamepad_fix_for_allyx() {
     echo "gamepad fix for allyx"
 
-    if [[ ! "$PRODUCT" =~ "ROG Ally X RC72L" ]]; then
+    if [[ ! "$PRODUCT" =~ "ROG Ally X" ]]; then
         return
     fi
 
@@ -139,7 +139,7 @@ function gamepad_fix_for_allyx_old() {
     local IS_ENABLE_ASUS_ALLY_HID=""
     IS_ENABLE_ASUS_ALLY_HID=$(is_exist_mod "$ASUS_ALLY_HID_MOD_NAME")
 
-    if [[ "$PRODUCT" =~ "ROG Ally X RC72L" ]]; then
+    if [[ "$PRODUCT" =~ "ROG Ally X" ]]; then
         # 如果声明了启用模块黑名单，并且模块存在
         if [[ "$BLACKLIST_HID_ALLY" == "Y" && -n "$IS_ENABLE_ASUS_ALLY_HID" ]]; then
             echo "Force blacklist $ASUS_ALLY_HID_MOD_NAME"
