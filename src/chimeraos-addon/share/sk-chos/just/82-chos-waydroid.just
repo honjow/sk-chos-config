@@ -68,7 +68,7 @@ setup-waydroid ACTION="":
         # 设置封面图片 并重启 Steam
         local name="$1"
         local exe="$2"
-        local exec_when_done="${3:-pkill -HUP steam}"
+        local exec_when_done="${3:-pkill -f steam -HUP}"
         steam_shortcuts -t setimg -n "$name" -e "$exe" \
           --icon "/usr/share/applications/Waydroid/icon.png" \
           --cover "/usr/share/applications/Waydroid/capsule.png" \
