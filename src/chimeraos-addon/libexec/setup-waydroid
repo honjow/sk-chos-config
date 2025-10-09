@@ -19,7 +19,7 @@ function is_steam_gamepad_running {
 }
 
 function init {
-    sudo waydroid init -f -c 'https://ota.waydro.id/system' -v 'https://ota.waydro.id/vendor'
+    sudo waydroid init -f -c 'https://ota.waydro.id/system' -v 'https://ota.waydro.id/vendor' -s GAPPS
     sudo waydroid-extras install libhoudini
     echo "Waydroid has been initialized, please run waydroid once before you Configure Waydroid"
 }

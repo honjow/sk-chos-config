@@ -38,7 +38,7 @@ setup-waydroid ACTION="":
     if [[ "${OPTION,,}" =~ ^exit ]]; then
       exit 0
     elif [[ "${OPTION,,}" =~ ^init ]]; then
-      sudo waydroid init -c 'https://ota.waydro.id/system' -v 'https://ota.waydro.id/vendor'
+      sudo waydroid init -c 'https://ota.waydro.id/system' -v 'https://ota.waydro.id/vendor' -s GAPPS
       sudo waydroid-extras install libhoudini
       echo "Waydroid has been initialized, please run waydroid once before you Configure Waydroid"
     elif [[ "${OPTION,,}" =~ ^configure ]]; then
