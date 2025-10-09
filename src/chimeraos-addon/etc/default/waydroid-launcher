@@ -50,8 +50,8 @@ LIST_720P_DEVICES=(
     "G1618-03"
 )
 
-WAYDROID_WIDTH=$WAYDROID_UNKNOWN_WIDTH
-WAYDROID_HEIGHT=$WAYDROID_UNKNOWN_HEIGHT
+WAYDROID_WIDTH=""
+WAYDROID_HEIGHT=""
 WAYDROID_DENSITY=""
 MATCH_DEVICE=false
 
@@ -143,9 +143,14 @@ if [ -x "$(command -v edid-decode)" ] && [[ -z "$WAYDROID_DENSITY" || -z "$WAYDR
         EDID=$(cat "$connected/edid" | edid-decode)
         size_width=$(echo "$EDID" | grep 'Maximum image size' | awk '{print $4}')
         size_height=$(echo "$EDID" | grep 'Maximum image size' | awk '{print $7}')
-        resolution=$(echo "$EDID" | grep 'DTD 1: ' | awk '{print $3}')
+        if echo "$EDID" | grep -q 'DTD 1: '; then
+            resolution=$(echo "$EDID" | grep 'DTD 1: ' | awk '{print $3}')
+        elif echo "$EDID" | grep -q 'DTD: '; then
+            resolution=$(echo "$EDID" | grep 'DTD: ' | awk '{print $2}' | head -n1)
+        fi
         resolution_width=$(echo "$resolution" | cut -d'x' -f1)
         resolution_height=$(echo "$resolution" | cut -d'x' -f2)
+        echo >&2 "resolution_width: $resolution_width, resolution_height: $resolution_height"
         if [ -n "$resolution_width" ] && [ -n "$resolution_height" ] && [ -z "$WAYDROID_WIDTH" ] && [ -z "$WAYDROID_HEIGHT" ]; then
             # 长边为 width 短边为 height
             if [ $resolution_width -gt $resolution_height ]; then
@@ -155,10 +160,11 @@ if [ -x "$(command -v edid-decode)" ] && [[ -z "$WAYDROID_DENSITY" || -z "$WAYDR
                 WAYDROID_WIDTH=$resolution_height
                 WAYDROID_HEIGHT=$resolution_width
             fi
+            echo >&2 "from EDID, WAYDROID_WIDTH: $WAYDROID_WIDTH, WAYDROID_HEIGHT: $WAYDROID_HEIGHT"
         fi
 
 
-        if [[ -z "$WAYDROID_DENSITY" ]]; then
+        if [[ -z "$WAYDROID_DENSITY" && -n "$resolution_width" && -n "$resolution_height" ]]; then
             # 计算像素密度
             ppi=$(echo "scale=4; sqrt($resolution_width^2 + $resolution_height^2) / (sqrt($size_width^2 + $size_height^2) / 2.54)" | bc -l)
             ppi=${ppi%.*}
@@ -177,3 +183,13 @@ if [ -x "$(command -v edid-decode)" ] && [[ -z "$WAYDROID_DENSITY" || -z "$WAYDR
         fi
     fi 
 fi
+
+if [[ -z "$WAYDROID_WIDTH" ]]; then
+    WAYDROID_WIDTH=$WAYDROID_UNKNOWN_WIDTH
+fi
+
+if [[ -z "$WAYDROID_HEIGHT" ]]; then
+    WAYDROID_HEIGHT=$WAYDROID_UNKNOWN_HEIGHT
+fi
+
+echo >&2 "WAYDROID_WIDTH: $WAYDROID_WIDTH, WAYDROID_HEIGHT: $WAYDROID_HEIGHT, WAYDROID_DENSITY: $WAYDROID_DENSITY"
