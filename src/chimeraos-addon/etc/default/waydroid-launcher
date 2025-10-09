@@ -168,6 +168,7 @@ if [ -x "$(command -v edid-decode)" ] && [[ -z "$WAYDROID_DENSITY" || -z "$WAYDR
             # 计算像素密度
             ppi=$(echo "scale=4; sqrt($resolution_width^2 + $resolution_height^2) / (sqrt($size_width^2 + $size_height^2) / 2.54)" | bc -l)
             ppi=${ppi%.*}
+            echo >&2 "from EDID, ppi: $ppi"
 
             # 根据像素密度设置 WAYDROID_DENSITY 最接近的整 10 数
             WAYDROID_DENSITY=$(echo "scale=0; ($ppi + 5) / 10 * 10" | bc -l)
