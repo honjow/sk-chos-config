@@ -172,6 +172,21 @@ function apply_hhd_claw() {
     return 1
 }
 
+function apply_hhd_gpd() {
+    local path_base_url="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs/"
+    local path_dynamic_grabbing=("${path_base_url}hhd-orangepi-neo-touchpad-new2.patch")
+
+    if [[ "$VENDOR" == "GPD" ]]; then
+        if try_patches_in_order "$HHD_PATH" path_dynamic_grabbing; then
+            echo "GPD hhd patches applied"
+        else
+            echo "All GPD hhd patches failed"
+            return 1
+        fi
+    fi
+    return 1
+}
+
 # Execute all applicable patch functions independently
 patch_applied=false
 
@@ -179,6 +194,7 @@ apply_hhd_patch && patch_applied=true
 apply_hhd_patch_orangepi_neo && patch_applied=true  
 apply_hhd_patch_aokzoe_a1x && patch_applied=true
 apply_hhd_claw && patch_applied=true
+apply_hhd_gpd && patch_applied=true
 
 if [[ "$patch_applied" == true ]]; then
     echo "Some hhd patches applied successfully"
