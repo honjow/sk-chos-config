@@ -38,7 +38,7 @@ setup-waydroid ACTION="":
     if [[ "${OPTION,,}" =~ ^exit ]]; then
       exit 0
     elif [[ "${OPTION,,}" =~ ^init ]]; then
-      sudo waydroid init -c 'https://ota.waydro.id/system' -v 'https://ota.waydro.id/vendor' -s GAPPS
+      sudo waydroid init -f -s GAPPS
       sudo waydroid-extras install libhoudini
       echo "Waydroid has been initialized, please run waydroid once before you Configure Waydroid"
     elif [[ "${OPTION,,}" =~ ^configure ]]; then
@@ -58,7 +58,7 @@ setup-waydroid ACTION="":
       fi
     elif [[ "${OPTION,,}" =~ ^reset ]]; then
       echo "Resetting Waydroid"
-      bash -c 'sudo rm -rf /var/lib/waydroid /home/.waydroid ~/waydroid ~/.share/waydroid ~/.local/share/applications/*aydroid* ~/.local/share/waydroid'
+      sudo rm -rf /var/lib/waydroid /home/.waydroid ~/waydroid ~/.share/waydroid ~/.local/share/applications/*aydroid* ~/.local/share/waydroid
       echo "Waydroid has been reset"
     elif [[ "${OPTION,,}" =~ ^add ]]; then
       name="Waydroid"
