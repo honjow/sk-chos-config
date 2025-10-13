@@ -2,6 +2,8 @@
 # from https://github.com/ublue-os/bazzite/blob/main/system_files/desktop/shared/usr/share/ublue-os/just/81-bazzite-fixes.just
 
 # Fix the default Steam config to improve download speeds / 修复默认的 Steam 配置以提高下载速度
+[group("system")]
+[group("gaming")]
 fix-steam-download-speed:
     mkdir -p $HOME/.local/share/Steam
     rm -f $HOME/.local/share/Steam/steam_dev.cfg
@@ -23,6 +25,7 @@ fix-steam-download-speed:
 alias fix-rdr2 := fix-rdr2-black-screen
 
 # Red Dead Redemption 2 Black Screen Fix / 荒野大镖客 2 黑屏修复
+[group("gaming")]
 fix-rdr2-black-screen:
     #!/usr/bin/bash
     compatdata_path="$HOME/.steam/steam/steamapps/compatdata"

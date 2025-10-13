@@ -1,6 +1,7 @@
 # vim: set ft=make :
 
 # rEFInd 安装配置
+[group("system")]
 setup-refind ACTION="":
     #!/usr/bin/bash
     set -eu

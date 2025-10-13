@@ -3,17 +3,19 @@
 # some from https://github.com/ublue-os/config/blob/main/build/ublue-os-just
 
 # make swapfile / 创建交换文件 参数可空 单位 GB
+[group("system")]
 mkswapfile SIZE="":
     #!/bin/bash
     sudo /usr/bin/sk-mkswapfile {{SIZE}}
 
 # fix boot entry / 修复启动项
+[group("system")]
 boot-entry-fix:
     #!/bin/bash
     sudo /usr/bin/sk-chos-boot-fix
 
 # HHD fast QAM 切换
-hhd-fast-qam-toggle:
+_hhd-fast-qam-toggle:
     #!/bin/bash
     conf_file="$HOME/.config/environment.d/99-hhd-fast-qam.conf"
     if [ ! -f "$conf_file" ]; then
@@ -33,26 +35,31 @@ hhd-fast-qam-toggle:
     fi
 
 # Handheld Daemon enable / 启用 Handheld Daemon
+[group("system")]
 hhd-enable:
     #!/bin/bash
     sudo systemctl enable --now hhd@$(whoami).service
 
 # Handheld Daemon disable / 停用 Handheld Daemon
+[group("system")]
 hhd-disable:
     #!/bin/bash
     sudo systemctl disable --now hhd@$(whoami).service
 
 # InputPlumber enable / 启用 InputPlumber
+[group("system")]
 inputplumber-enable:
     #!/bin/bash
     sudo systemctl enable --now inputplumber.service
 
 # InputPlumber disable / 停用 InputPlumber
+[group("system")]
 inputplumber-disable:
     #!/bin/bash
     sudo systemctl disable --now inputplumber.service
 
 # 静默启动开启 / quiet boot enable
+[group("system")]
 quiet-boot-enable:
     #!/bin/bash
     if [ -f /usr/share/device-quirks/scripts/kernel-options-manager ]; then
@@ -62,6 +69,7 @@ quiet-boot-enable:
     fi
 
 # 静默启动关闭 / quiet boot disable
+[group("system")]
 quiet-boot-disable:
     #!/bin/bash
     if [ -f /usr/share/device-quirks/scripts/kernel-options-manager ]; then
@@ -71,7 +79,7 @@ quiet-boot-disable:
     fi
 
 # Disable swipe gestures for QAM and HOME / 禁用游戏模式的侧边滑动手势
-disable-swipe-gestures:
+_disable-swipe-gestures:
     #!/usr/bin/bash
     echo "禁用游戏模式的侧边滑动手势"
     mkdir -p $HOME/.config/environment.d
@@ -85,7 +93,7 @@ disable-swipe-gestures:
     echo "操作完成，请重启 Steam 游戏模式以应用更改"
 
 # Enable swipe gestures for QAM and HOME / 启用游戏模式的侧边滑动手势
-enable-swipe-gestures:
+_enable-swipe-gestures:
     #!/usr/bin/bash
     echo "启用游戏模式的侧边滑动手势"
     conf_file="$HOME/.config/environment.d/chos-disable-gamescope-gestures.conf"
@@ -104,6 +112,7 @@ enable-swipe-gestures:
     echo "操作完成，请重启 Steam 游戏模式以应用更改"
 
 # expand partition / 扩展分区
+[group("system")]
 expand-partition:
     #!/bin/bash
     if [ -f /usr/bin/expand_home_partition ]; then
@@ -113,6 +122,7 @@ expand-partition:
     fi
 
 # expand partition force / 扩展分区（强制）
+[group("system")]
 expand-partition-force:
     #!/bin/bash
     if [ -f /usr/bin/expand_home_partition ]; then
@@ -122,6 +132,7 @@ expand-partition-force:
     fi
 
 # run first setup / 运行首次设置
+[group("system")]
 run-first-setup:
     #!/bin/bash
     /usr/bin/sk-first-setup
@@ -130,6 +141,7 @@ run-first-setup:
 alias tdp := set-tdp
 
 # set TDP / 设置 TDP
+[group("system")]
 set-tdp tdp_num:
     #!/bin/bash
     tdp_watt=$(({{tdp_num}} * 1000))
@@ -140,6 +152,7 @@ set-tdp tdp_num:
     fi
 
 # toggle use mirrors to update / 切换使用镜像地址更新
+[group("system")]
 toggle-mirrors:
     #!/bin/bash
     conf_file="/etc/frzr-sk.conf"

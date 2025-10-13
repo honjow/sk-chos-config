@@ -2,6 +2,7 @@
 
 
 # etc 清理复位
+[group("system")]
 clean-etc:
     #!/bin/bash
     if [ -f /usr/share/sk-chos-tool/scripts/etc_repair.sh ]; then
@@ -11,6 +12,7 @@ clean-etc:
     fi
 
 # etc 清理复位(完全)
+[group("system")]
 clean-etc-full:
     #!/bin/bash
     if [ -f /usr/share/sk-chos-tool/scripts/etc_repair.sh ]; then
