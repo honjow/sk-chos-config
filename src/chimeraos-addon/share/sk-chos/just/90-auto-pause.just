@@ -12,7 +12,7 @@ setup-auto-pause ACTION="":
     if systemctl --user is-enabled auto-pause.service &>/dev/null; then
       echo "Current status: ${green}${bold}enabled${normal}"
       CHOICE=$(ugum choose "Disable auto-pause / 禁用自动暂停" "Exit without changes / 不更改并退出")
-      if [[ "$CHOICE" == "Disable auto-pause" ]]; then
+      if [[ "$CHOICE" =~ ^Disable ]]; then
         systemctl --user disable --now auto-pause.service 2>/dev/null || true
         rm -f "$SERVICE_FILE"
         systemctl --user daemon-reload
@@ -23,7 +23,7 @@ setup-auto-pause ACTION="":
     else
       echo "Current status: ${red}${bold}disabled${normal}"
       CHOICE=$(ugum choose "Enable auto-pause / 启用自动暂停" "Exit without changes / 不更改并退出")
-      if [[ "$CHOICE" == "Enable auto-pause" ]]; then
+      if [[ "$CHOICE" =~ ^Enable ]]; then
         mkdir -p "$(dirname "$SERVICE_FILE")"
         {
           echo "[Unit]"
