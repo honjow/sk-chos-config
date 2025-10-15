@@ -41,15 +41,17 @@ fi
 
 if [ -x "$(command -v kmimetypefinder)" ] && [ -x "$(command -v startplasma-wayland)" ]; then
     mime=$(kmimetypefinder "$file")
-# elif [ -x "$(command -v xdg-mime)" ]; then
-#     mime=$(xdg-mime query filetype "$file")
+elif [ -x "$(command -v gio)" ]; then
+    # GNOME/GTK equivalent of kmimetypefinder, returns compatible MIME types
+    mime=$(gio info -a standard::content-type "$file" | grep "standard::content-type" | awk '{print $2}')
 else
+    # No MIME detection available, add directly (Steam will validate)
     add_to_steam "$file"
     exit 0
 fi
 
 case "$mime" in
-    "application/x-desktop"|"application/x-ms-dos-executable"|"application/x-msdownload")
+    "application/x-desktop"|"application/x-ms-dos-executable"|"application/x-msdownload"|"application/vnd.microsoft.portable-executable")
         add_to_steam "$file"
         ;;
     "application/x-executable"|"application/vnd.appimage"|"application/x-shellscript")
@@ -63,3 +65,4 @@ case "$mime" in
         show_error "Unsupported file type"
         ;;
 esac
+
