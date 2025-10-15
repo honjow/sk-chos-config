@@ -11,7 +11,13 @@ add_to_steam() {
 
 show_error() {
     if [ "$show_dialog" = "1" ]; then
-        kdialog --title Error --error "$1"
+        if [ -x "$(command -v kdialog)" ]; then
+            kdialog --title Error --error "$1"
+        elif [ -x "$(command -v zenity)" ]; then
+            zenity --error --title="Error" --text="$1" --width=300
+        else
+            echo "$1" >&2
+        fi
     else
         echo "$1" >&2
     fi
