@@ -189,34 +189,75 @@ def create_image(img_path, compat_id, user_dir, img_type_dst=None) -> str:
     return dst
 
 
-def create_image_from_exe(exe, name, img_path, img_type_dst=None):
+def create_image_from_exe(exe, name, img_path, img_type_dst=None, debug=False):
+    """Create image for a shortcut by matching exe and name"""
+    found = False
     for user_dir in STEAM_USER_DIRS:
         steam_shortcuts_file = SteamShortcutsFile(os.path.basename(user_dir))
         shortcuts_map = steam_shortcuts_file.get_current_data()
+        modified = False
+        
         for key in shortcuts_map:
-            shortcut = {k.lower(): v for k, v in shortcuts_map[key].items()}
+            # Use lowercase version for matching
+            shortcut_lower = {k.lower(): v for k, v in shortcuts_map[key].items()}
+            
             if (
-                "exe" in shortcut
-                and "appname" in shortcut
-                and shortcut["exe"] == exe
-                and shortcut["appname"] == name
+                "exe" in shortcut_lower
+                and "appname" in shortcut_lower
+                and shortcut_lower["exe"] == exe
+                and shortcut_lower["appname"] == name
             ):
-                app_id = shortcut["appid"]
+                found = True
+                app_id = shortcut_lower["appid"]
                 compat_id = app_id + 2**32
+                
+                if debug:
+                    print(f"[DEBUG] Found matching shortcut in user {os.path.basename(user_dir)}")
+                    print(f"[DEBUG] AppID: {app_id}, CompatID: {compat_id}")
+                    print(f"[DEBUG] Original keys: {list(shortcuts_map[key].keys())}")
+                
                 dst = create_image(img_path, compat_id, user_dir, img_type_dst)
-                print(
-                    f"Created image {dst} for {name}, appid {app_id}, compat_id {compat_id}"
-                )
+                print(f"Created image {dst} for {name}, appid {app_id}, compat_id {compat_id}")
+                
                 if img_type_dst == "icon":
-                    shortcut["icon"] = dst
-        steam_shortcuts_file.save()
+                    # Fix: Find the original icon field name (might be Icon, icon, ICON, etc.)
+                    original_icon_key = None
+                    for k in shortcuts_map[key].keys():
+                        if k.lower() == "icon":
+                            original_icon_key = k
+                            break
+                    
+                    # If not found, use lowercase "icon"
+                    if original_icon_key is None:
+                        original_icon_key = "icon"
+                    
+                    old_value = shortcuts_map[key].get(original_icon_key, "")
+                    shortcuts_map[key][original_icon_key] = dst
+                    modified = True
+                    
+                    if debug:
+                        print(f"[DEBUG] Setting icon field '{original_icon_key}'")
+                        print(f"[DEBUG] Old value: {old_value}")
+                        print(f"[DEBUG] New value: {dst}")
+        
+        if modified:
+            if debug:
+                print(f"[DEBUG] Saving shortcuts.vdf for user {os.path.basename(user_dir)}")
+            steam_shortcuts_file.save()
+            if debug:
+                # Reload to verify
+                steam_shortcuts_file.load_data()
+                print(f"[DEBUG] Reloaded and verified save")
+    
+    return found
 
 
 def check_shortcut_exists(name, exe):
+    """Check if a shortcut exists"""
     user = __get_current_steam_user()
-    steamID3 = user["SteamID3"]
+    steamID3 = user["SteamID3"] if user else None
     for user_dir in STEAM_USER_DIRS:
-        if steamID3 and os.path.basename(user_dir) != steamID3:
+        if steamID3 and os.path.basename(user_dir) != str(steamID3):
             continue
 
         steam_shortcuts_file = SteamShortcutsFile(os.path.basename(user_dir))
@@ -233,6 +274,75 @@ def check_shortcut_exists(name, exe):
     return False
 
 
+def query_shortcut(name, exe):
+    """Query detailed information about a shortcut"""
+    import json
+    
+    found = False
+    for user_dir in STEAM_USER_DIRS:
+        user_id = os.path.basename(user_dir)
+        steam_shortcuts_file = SteamShortcutsFile(user_id)
+        shortcuts_map = steam_shortcuts_file.get_current_data()
+        
+        for key in shortcuts_map:
+            shortcut = shortcuts_map[key]
+            shortcut_lower = {k.lower(): v for k, v in shortcut.items()}
+            
+            if (
+                "exe" in shortcut_lower
+                and "appname" in shortcut_lower
+                and shortcut_lower["exe"] == exe
+                and shortcut_lower["appname"] == name
+            ):
+                found = True
+                app_id = shortcut_lower["appid"]
+                compat_id = app_id + 2**32
+                
+                print(f"\n{'='*60}")
+                print(f"Found shortcut in user directory: {user_id}")
+                print(f"{'='*60}")
+                print(f"App Name: {shortcut_lower['appname']}")
+                print(f"Exe Path: {shortcut_lower['exe']}")
+                print(f"AppID: {app_id}")
+                print(f"CompatID: {compat_id}")
+                print(f"\n{'='*60}")
+                print("Current Images:")
+                print(f"{'='*60}")
+                
+                # Check various images
+                grid_dir = os.path.join(user_dir, "config", "grid")
+                image_types = {
+                    "Banner": get_banner_id(compat_id),
+                    "Poster": get_poster_id(compat_id),
+                    "Background": get_background_id(compat_id),
+                    "Logo": get_logo_id(compat_id),
+                    "Icon": get_icon_id(compat_id),
+                }
+                
+                for img_type, img_id in image_types.items():
+                    found_files = []
+                    for ext in [".jpg", ".jpeg", ".png", ".JPG", ".JPEG", ".PNG"]:
+                        img_path = os.path.join(grid_dir, str(img_id) + ext)
+                        if os.path.exists(img_path):
+                            is_link = " (symlink)" if os.path.islink(img_path) else ""
+                            found_files.append(f"{img_path}{is_link}")
+                    
+                    if found_files:
+                        print(f"{img_type}: {', '.join(found_files)}")
+                    else:
+                        print(f"{img_type}: Not set")
+                
+                print(f"\n{'='*60}")
+                print("Raw Shortcut Data:")
+                print(f"{'='*60}")
+                print(json.dumps(shortcut, indent=2, default=str))
+                print()
+    
+    if not found:
+        sys.stderr.write(f"错误: 未找到匹配的快捷方式 (name={name}, exe={exe})\n")
+        sys.exit(1)
+
+
 def set_image_from_exe(
     exe,
     name,
@@ -241,17 +351,147 @@ def set_image_from_exe(
     banner_path=None,
     background_path=None,
     logo_path=None,
+    debug=False,
 ):
+    """Set images for a shortcut"""
+    if debug:
+        print(f"[DEBUG] Starting set_image_from_exe")
+        print(f"[DEBUG] Name: {name}")
+        print(f"[DEBUG] Exe: {exe}")
+        print(f"[DEBUG] Icon: {icon_path}")
+        print(f"[DEBUG] Cover: {cover_path}")
+        print(f"[DEBUG] Banner: {banner_path}")
+        print(f"[DEBUG] Background: {background_path}")
+        print(f"[DEBUG] Logo: {logo_path}")
+    
+    results = {}
     if icon_path is not None and os.path.isfile(icon_path):
-        create_image_from_exe(exe, name, icon_path, "icon")
+        if debug:
+            print(f"[DEBUG] Processing icon: {icon_path}")
+        found = create_image_from_exe(exe, name, icon_path, "icon", debug)
+        results["icon"] = found
     if cover_path is not None and os.path.isfile(cover_path):
-        create_image_from_exe(exe, name, cover_path, "poster")
+        if debug:
+            print(f"[DEBUG] Processing cover: {cover_path}")
+        found = create_image_from_exe(exe, name, cover_path, "poster", debug)
+        results["cover"] = found
     if banner_path is not None and os.path.isfile(banner_path):
-        create_image_from_exe(exe, name, banner_path, "banner")
+        if debug:
+            print(f"[DEBUG] Processing banner: {banner_path}")
+        found = create_image_from_exe(exe, name, banner_path, "banner", debug)
+        results["banner"] = found
     if background_path is not None and os.path.isfile(background_path):
-        create_image_from_exe(exe, name, background_path, "background")
+        if debug:
+            print(f"[DEBUG] Processing background: {background_path}")
+        found = create_image_from_exe(exe, name, background_path, "background", debug)
+        results["background"] = found
     if logo_path is not None and os.path.isfile(logo_path):
-        create_image_from_exe(exe, name, logo_path, "logo")
+        if debug:
+            print(f"[DEBUG] Processing logo: {logo_path}")
+        found = create_image_from_exe(exe, name, logo_path, "logo", debug)
+        results["logo"] = found
+    
+    if debug:
+        print(f"[DEBUG] Results: {results}")
+    
+    # Check if at least one succeeded
+    if not any(results.values()):
+        sys.stderr.write(f"警告: 未找到匹配的快捷方式\n")
+
+
+def verify_shortcut_images(name, exe, expected_images):
+    """Verify if images are correctly set in shortcuts.vdf"""
+    import json
+    
+    all_verified = True
+    found_any = False
+    
+    for user_dir in STEAM_USER_DIRS:
+        user_id = os.path.basename(user_dir)
+        steam_shortcuts_file = SteamShortcutsFile(user_id)
+        shortcuts_map = steam_shortcuts_file.get_current_data()
+        
+        for key in shortcuts_map:
+            shortcut = shortcuts_map[key]
+            shortcut_lower = {k.lower(): v for k, v in shortcut.items()}
+            
+            if (
+                "exe" in shortcut_lower
+                and "appname" in shortcut_lower
+                and shortcut_lower["exe"] == exe
+                and shortcut_lower["appname"] == name
+            ):
+                found_any = True
+                print(f"\n{'='*60}")
+                print(f"Verifying shortcut in user directory: {user_id}")
+                print(f"{'='*60}")
+                
+                app_id = shortcut_lower["appid"]
+                compat_id = app_id + 2**32
+                grid_dir = os.path.join(user_dir, "config", "grid")
+                
+                # Verify various images
+                verifications = []
+                
+                if "icon" in expected_images:
+                    icon_in_vdf = shortcut_lower.get("icon", "")
+                    icon_exists = os.path.exists(icon_in_vdf) if icon_in_vdf else False
+                    verifications.append({
+                        "type": "Icon (VDF field)",
+                        "expected": expected_images["icon"],
+                        "actual": icon_in_vdf,
+                        "exists": icon_exists,
+                        "status": "✓" if icon_exists and icon_in_vdf else "✗"
+                    })
+                
+                image_checks = {
+                    "banner": ("Banner", get_banner_id(compat_id)),
+                    "poster": ("Cover", get_poster_id(compat_id)),
+                    "background": ("Background", get_background_id(compat_id)),
+                    "logo": ("Logo", get_logo_id(compat_id)),
+                    "icon": ("Icon (Grid)", get_icon_id(compat_id)),
+                }
+                
+                for key_name, (display_name, img_id) in image_checks.items():
+                    if key_name in expected_images:
+                        found_path = None
+                        for ext in [".jpg", ".jpeg", ".png", ".JPG", ".JPEG", ".PNG"]:
+                            img_path = os.path.join(grid_dir, str(img_id) + ext)
+                            if os.path.exists(img_path):
+                                found_path = img_path
+                                break
+                        
+                        exists = found_path is not None
+                        verifications.append({
+                            "type": display_name,
+                            "expected": expected_images[key_name],
+                            "actual": found_path or "Not found",
+                            "exists": exists,
+                            "status": "✓" if exists else "✗"
+                        })
+                
+                # Print verification results
+                for v in verifications:
+                    print(f"\n{v['status']} {v['type']}:")
+                    print(f"  Expected: {v['expected']}")
+                    print(f"  Actual:   {v['actual']}")
+                    print(f"  Exists:   {v['exists']}")
+                    
+                    if not v['exists']:
+                        all_verified = False
+                
+                print(f"\n{'='*60}")
+    
+    if not found_any:
+        sys.stderr.write(f"错误: 未找到匹配的快捷方式 (name={name}, exe={exe})\n")
+        sys.exit(1)
+    
+    if all_verified:
+        print("\n✓ All images verified successfully!")
+        return True
+    else:
+        print("\n✗ Some images are missing or incorrect!")
+        return False
 
 
 def main():
@@ -261,8 +501,8 @@ def main():
         "--type",
         type=str,
         default="setimg",
-        choices=["setimg", "isexisted", "getuser"],
-        help="操作类型, 默认为 setimg",
+        choices=["setimg", "isexisted", "getuser", "query", "verify"],
+        help="操作类型: setimg(设置图片), isexisted(检查存在), getuser(获取用户), query(查询信息), verify(验证)",
     )
     parser.add_argument(
         "-m",
@@ -279,12 +519,47 @@ def main():
     parser.add_argument("-cc", "--banner", type=str, help="封面横幅路径")
     parser.add_argument("-b", "--background", type=str, help="背景路径")
     parser.add_argument("-l", "--logo", type=str, help="Logo 路径")
+    parser.add_argument("--debug", action="store_true", help="启用调试输出")
 
     args = parser.parse_args()
 
+    # query operation
+    if args.type == "query":
+        if args.name is None or args.exe is None:
+            sys.stderr.write("错误: 当 --type 为 'query' 时，--name 和 --exe 是必需的\n")
+            sys.exit(1)
+        query_shortcut(args.name, args.exe)
+        sys.exit(0)
+
+    # verify operation
+    if args.type == "verify":
+        if args.name is None or args.exe is None:
+            sys.stderr.write("错误: 当 --type 为 'verify' 时，--name 和 --exe 是必需的\n")
+            sys.exit(1)
+        
+        expected_images = {}
+        if args.icon:
+            expected_images["icon"] = args.icon
+        if args.cover:
+            expected_images["poster"] = args.cover
+        if args.banner:
+            expected_images["banner"] = args.banner
+        if args.background:
+            expected_images["background"] = args.background
+        if args.logo:
+            expected_images["logo"] = args.logo
+        
+        if not expected_images:
+            sys.stderr.write("错误: 至少需要指定一个图片参数进行验证\n")
+            sys.exit(1)
+        
+        success = verify_shortcut_images(args.name, args.exe, expected_images)
+        sys.exit(0 if success else 1)
+
+    # setimg operation
     if args.type == "setimg":
         if args.name is None or args.exe is None:
-            sys.stderr.write("错误: 当 --type 为 'setimg' 时，--match 是必需的\n")
+            sys.stderr.write("错误: 当 --type 为 'setimg' 时，--name 和 --exe 是必需的\n")
             sys.exit(1)
 
         if args.match == "name_exe":
@@ -302,10 +577,13 @@ def main():
                 args.banner,
                 args.background,
                 args.logo,
+                args.debug,
             )
+    
+    # isexisted operation
     if args.type == "isexisted":
         if args.name is None or args.exe is None:
-            sys.stderr.write("错误: 当 --type 为 'isexisted' 时，--match 是必需的\n")
+            sys.stderr.write("错误: 当 --type 为 'isexisted' 时，--name 和 --exe 是必需的\n")
             sys.exit(1)
         if args.match == "name_exe":
             if args.name is None or args.exe is None:
@@ -318,6 +596,7 @@ def main():
             else:
                 sys.exit(1)
 
+    # getuser operation
     if args.type == "getuser":
         get_current_steam_user()
 
