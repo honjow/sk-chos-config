@@ -178,7 +178,11 @@ function copy_efi_drivers() {
         sudo mkdir -p "$dst_efi_drivers_dir"
     fi
 
-    sudo cp -rf "$efi_drivers_dir"/* "$dst_efi_drivers_dir"
+    for file in "$efi_drivers_dir"/*; do
+        if [[ -f "$file" && $(file -b "$file") == *"executable"* ]]; then
+            sudo cp -f "$file" "$dst_efi_drivers_dir"
+        fi
+    done
 }
 
 function convert_skorionos_icon() {
