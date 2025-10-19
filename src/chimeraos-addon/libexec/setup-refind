@@ -118,7 +118,8 @@ function setup_refind() {
     copy_refind_theme_regular
     convert_skorionos_icon
     setup_refind_tool
-
+    copy_efi_drivers
+    
     refind_dir="$boot_mountpoint/EFI/refind"
     if [ ! -d "$refind_dir" ]; then
         echo "rEFInd boot directory not found."
@@ -168,6 +169,16 @@ selection_small themes/refind-theme-regular/icons/128-48/selection_dark-small.pn
 font themes/refind-theme-regular/fonts/source-code-pro-extralight-14.png
 EOF
 
+}
+
+function copy_efi_drivers() {
+    efi_drivers_dir="/usr/local/share/sk-pre/drivers"
+    dst_efi_drivers_dir="$boot_mountpoint/EFI/refind/drivers_x64"
+    if [ ! -d "$dst_efi_drivers_dir" ]; then
+        mkdir -p "$dst_efi_drivers_dir"
+    fi
+
+    cp -rf "$efi_drivers_dir"/* "$dst_efi_drivers_dir"
 }
 
 function convert_skorionos_icon() {
