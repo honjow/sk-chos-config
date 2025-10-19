@@ -720,7 +720,7 @@ function copy_efi_drivers() {
         sudo mkdir -p "$dst_efi_drivers_dir"
     fi
 
-    cp -rf "$efi_drivers_dir"/* "$dst_efi_drivers_dir"
+    sudo cp -rf "$efi_drivers_dir"/* "$dst_efi_drivers_dir"
 }
 
 case $ACTION in
