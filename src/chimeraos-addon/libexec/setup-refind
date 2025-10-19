@@ -116,6 +116,7 @@ function setup_refind_tool() {
 
 function setup_refind() {
     copy_refind_theme_regular
+    convert_skorionos_icon
     setup_refind_tool
 
     refind_dir="$boot_mountpoint/EFI/refind"
@@ -124,11 +125,19 @@ function setup_refind() {
         exit 1
     fi
 
+    refind_icon_dir="$boot_mountpoint/EFI/refind/themes/refind-theme-regular/icons"
+
+
     # Set the theme
     theme_conf_option=""
     icon_option=""
     if [ -f "$dst_theme_path/theme_dark.conf" ]; then
         theme_conf_option="themes/refind-theme-regular/theme_dark.conf"
+        # icon_option="EFI/refind/themes/refind-theme-regular/icons/128-48/os_steam.png"
+    fi
+    if [ -f "$refind_icon_dir/128-48/os_skorion.png" ]; then
+        icon_option="EFI/refind/themes/refind-theme-regular/icons/128-48/os_skorion.png"
+    else
         icon_option="EFI/refind/themes/refind-theme-regular/icons/128-48/os_steam.png"
     fi
 
@@ -160,6 +169,37 @@ font themes/refind-theme-regular/fonts/source-code-pro-extralight-14.png
 EOF
 
 }
+
+function convert_skorionos_icon() {
+    svg_path="/usr/share/plymouth/themes/bgrt-skorion/watermark.svg"
+    refind_icon_dir="$boot_mountpoint/EFI/refind/themes/refind-theme-regular/icons"
+    png_128_path="$refind_icon_dir/128-48/os_skorion.png"
+    png_256_path="$refind_icon_dir/256-96/os_skorion.png"
+    png_384_path="$refind_icon_dir/384-144/os_skorion.png"
+    png_512_path="$refind_icon_dir/512-192/os_skorion.png"
+    
+    # Scale factor for icon size
+    local scale_factor=0.7
+    
+    if [[ -x "$(command -v rsvg-convert)" && -x "$(command -v magick)" && -f "$svg_path" ]]; then
+        # Convert with transparent background and scale image to specified percentage of canvas size
+        local size_128
+        local size_256
+        local size_384
+        local size_512
+        size_128=$(printf "%.0f" "$(echo "128 * $scale_factor" | bc)")
+        size_256=$(printf "%.0f" "$(echo "256 * $scale_factor" | bc)")
+        size_384=$(printf "%.0f" "$(echo "384 * $scale_factor" | bc)")
+        size_512=$(printf "%.0f" "$(echo "512 * $scale_factor" | bc)")
+        
+        # Use rsvg-convert for better SVG transparency handling, then extend canvas with magick
+        rsvg-convert --background-color=none -w "$size_128" -h "$size_128" "$svg_path" | magick - -gravity center -background none -extent 128x128 "$png_128_path"
+        rsvg-convert --background-color=none -w "$size_256" -h "$size_256" "$svg_path" | magick - -gravity center -background none -extent 256x256 "$png_256_path"
+        rsvg-convert --background-color=none -w "$size_384" -h "$size_384" "$svg_path" | magick - -gravity center -background none -extent 384x384 "$png_384_path"
+        rsvg-convert --background-color=none -w "$size_512" -h "$size_512" "$svg_path" | magick - -gravity center -background none -extent 512x512 "$png_512_path"
+    fi
+}
+
 
 case $ACTION in
 install)
