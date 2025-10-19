@@ -116,7 +116,7 @@ function enable_inputplumber_allyx() {
 function gamepad_fix_for_allyx() {
     echo "gamepad fix for allyx"
 
-    if [[ ! "$PRODUCT" =~ "ROG Ally X" ]]; then
+    if [[ ! "$PRODUCT" =~ "ROG Ally X" && ! "$PRODUCT" =~ "ROG Xbox Ally" ]]; then
         return
     fi
 
@@ -132,64 +132,6 @@ function gamepad_fix_for_allyx() {
             enable_inputplumber_allyx
         fi
     fi
-}
-
-function gamepad_fix_for_allyx_old() {
-    echo "gamepad fix for allyx"
-    local IS_ENABLE_ASUS_ALLY_HID=""
-    IS_ENABLE_ASUS_ALLY_HID=$(is_exist_mod "$ASUS_ALLY_HID_MOD_NAME")
-
-    if [[ "$PRODUCT" =~ "ROG Ally X" ]]; then
-        # 如果声明了启用模块黑名单，并且模块存在
-        if [[ "$BLACKLIST_HID_ALLY" == "Y" && -n "$IS_ENABLE_ASUS_ALLY_HID" ]]; then
-            echo "Force blacklist $ASUS_ALLY_HID_MOD_NAME"
-            if [ ! -f "$ASUS_ALLY_HID_BLACKLIST" ]; then
-                # 如果黑名单文件不存在，则创建黑名单文件，并禁用模块，并启用 hhd
-                echo "blacklist $ASUS_ALLY_HID_MOD_NAME" >$ASUS_ALLY_HID_BLACKLIST
-                depmod -a
-                modprobe -r $ASUS_ALLY_HID_MOD_NAME
-                enable_hhd
-            else
-                # 如果名单文件存在，则检查模块是否存在黑名单中。如果不存在，添加到黑名单，并禁用模块，并启用 hhd
-                check=$(cat $ASUS_ALLY_HID_BLACKLIST | grep "blacklist ${ASUS_ALLY_HID_MOD_NAME}")
-                if [ -z "$check" ]; then
-                    echo "blacklist $ASUS_ALLY_HID_MOD_NAME" >$ASUS_ALLY_HID_BLACKLIST
-                    depmod -a
-                    modprobe -r ASUS_ALLY_HID_MOD_NAME
-                    enable_hhd
-                fi
-            fi
-        else
-            # 其它情况
-            if [ -f "$ASUS_ALLY_HID_BLACKLIST" ]; then
-                # 如果名单文件存在，则删除黑名单，并启用模块
-                echo "Remove blacklist $ASUS_ALLY_HID_MOD_NAME"
-                rm -f "$ASUS_ALLY_HID_BLACKLIST"
-                depmod -a
-                modprobe $ASUS_ALLY_HID_MOD_NAME
-            fi
-
-            IS_ENABLE_ASUS_ALLY_HID=$(is_exist_mod "$ASUS_ALLY_HID_MOD_NAME")
-
-            if [ -n "$IS_ENABLE_ASUS_ALLY_HID" ]; then
-                echo "Start Enable inputplumber"
-                enable_inputplumber
-            else
-                echo "Start Enable hhd"
-                # hhd flag file
-                hhd_flag_file="/etc/.hhd_flag"
-                kernel_version=$(uname -r)
-                if [[ ! -f "$hhd_flag_file" || "$(cat $hhd_flag_file)" != "$kernel_version" ]]; then
-                    echo "Flag file not found or kernel version changed"
-                    enable_hhd
-                    echo "$kernel_version" >$hhd_flag_file
-                else
-                    echo "Flag file found and kernel version not changed, skip enable hhd"
-                fi
-            fi
-        fi
-    fi
-    echo "gamepad fix for allyx finished"
 }
 
 # 检查 hhd 是否启用，如果启用，则禁用 inputplumber
