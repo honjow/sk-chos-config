@@ -431,11 +431,12 @@ function apply_default_config() {
 
     # 使用 jq 的深度合并：现有配置 * 默认配置
     echo "$default_config" | jq -s '.[1] * .[0]' "$config_file" - | tee "$config_file.tmp" >/dev/null &&
-        mv "$config_file.tmp" "$config_file"
+        sudo mv "$config_file.tmp" "$config_file"
 }
 
 function setup_decky_plugins() {
     log_warning "Setting up decky plugins..."
+    sudo systemctl daemon-reload
     sudo systemctl stop plugin_loader
     # 初始化部分 decky 插件的配置
     SETTINGS_PATH="${HOMEBREW_FOLDER}/settings"
@@ -455,18 +456,19 @@ function setup_decky_plugins() {
         plugin_name=$(echo "$plugin_config" | cut -d'|' -f1)
         config_file=$(echo "$plugin_config" | cut -d'|' -f2)
 
-        mkdir -p "${SETTINGS_PATH}/$plugin_name"
+        settings_dir="${SETTINGS_PATH}/$plugin_name"
+        mkdir -p "$settings_dir"
 
-        if [[ ! -f "$config_file" ]]; then
+        if [[ ! -f "$settings_dir/$config_file" ]]; then
             log_info "Setting up $plugin_name..."
-            echo "${plugin_defaults[$plugin_config]}" | tee "$config_file" >/dev/null
+            echo "${plugin_defaults[$plugin_config]}" | tee "$settings_dir/$config_file" >/dev/null
         else
             log_info "Updating $plugin_name with defaults..."
-            apply_default_config "$config_file" "${plugin_defaults[$plugin_config]}"
+            apply_default_config "$settings_dir/$config_file" "${plugin_defaults[$plugin_config]}"
         fi
     done
-    sudo systemctl daemon-reload
-    sudo systemctl restart plugin_loader
+
+    sudo systemctl start plugin_loader
     log_success "Decky plugins setup completed"
 }
 
