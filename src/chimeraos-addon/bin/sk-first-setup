@@ -456,7 +456,7 @@ function setup_decky_plugins() {
 
         if [[ ! -f "$config_file" ]]; then
             log_info "Setting up $plugin_name..."
-            echo "${plugin_defaults[$plugin_config]}" >"$config_file"
+            echo "${plugin_defaults[$plugin_config]}" | sudo tee "$config_file" >/dev/null
         else
             log_info "Updating $plugin_name with defaults..."
             apply_default_config "$config_file" "${plugin_defaults[$plugin_config]}"
@@ -502,6 +502,7 @@ function ignore_handheld_powerkey() {
         log_info "Ignoring hand power key..."
         echo -e "[Login]\nHandlePowerKey=ignore" | sudo tee $file_path >/dev/null
     fi
+    sudo systemctl daemon-reload
     sudo systemctl restart systemd-logind
 }
 
@@ -621,6 +622,7 @@ function device_quirks() {
 
 function restart_plugin_loader() {
     log_info "restarting plugin_loader..."
+    sudo systemctl daemon-reload
     sudo systemctl restart plugin_loader
 }
 
@@ -692,6 +694,7 @@ function set_hostname() {
     log_info "Setting hostname to $hostname..."
     sudo hostnamectl set-hostname "$hostname"
     if [[ "$current_hostname" != "$hostname" ]]; then
+        sudo systemctl daemon-reload
         sudo systemctl restart systemd-hostnamed
     fi
 }
@@ -711,10 +714,10 @@ function update_udev_rules() {
 }
 
 function copy_efi_drivers() {
-    efi_drivers_dir="/usr/local/share/sk-pre/drivers"
+    efi_drivers_dir="/usr/local/share/sk-pre/efi-drivers"
     dst_efi_drivers_dir="${boot_mountpoint}/EFI/systemd/drivers"
     if [ ! -d "$dst_efi_drivers_dir" ]; then
-        mkdir -p "$dst_efi_drivers_dir"
+        sudo mkdir -p "$dst_efi_drivers_dir"
     fi
 
     cp -rf "$efi_drivers_dir"/* "$dst_efi_drivers_dir"

@@ -172,10 +172,10 @@ EOF
 }
 
 function copy_efi_drivers() {
-    efi_drivers_dir="/usr/local/share/sk-pre/drivers"
+    efi_drivers_dir="/usr/local/share/sk-pre/efi-drivers"
     dst_efi_drivers_dir="$boot_mountpoint/EFI/refind/drivers_x64"
     if [ ! -d "$dst_efi_drivers_dir" ]; then
-        mkdir -p "$dst_efi_drivers_dir"
+        sudo mkdir -p "$dst_efi_drivers_dir"
     fi
 
     cp -rf "$efi_drivers_dir"/* "$dst_efi_drivers_dir"
