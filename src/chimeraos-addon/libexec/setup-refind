@@ -9,6 +9,7 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+VENDOR_NAME=$(cat "/sys/class/dmi/id/sys_vendor")
 PRODUCT_NAME=$(cat "/sys/class/dmi/id/product_name")
 BOARD_NAME=$(cat "/sys/class/dmi/id/board_name")
 
@@ -71,14 +72,19 @@ function set_all_config() {
         mv "$refind_dir/refind.conf" "$refind_dir/refind.conf.bak"
     fi
 
+    ENABLE_MOUSE=""
+    if [ "$VENDOR_NAME" == "Micro-Star International Co., Ltd." ]; then
+        ENABLE_MOUSE="enable_mouse"
+    fi
+
     cat >"$refind_dir/refind.conf" <<-EOF
-timeout 5
+timeout 3
 use_nvram false
 dont_scan_dirs frzr_efi:EFI/boot,EFI/systemd,EFI/UMAF,EFI/Shell/
 dont_scan_files DisplayEngine.efi,SetupBrowser.efi,UiApp.efi,umaf.efi,modelist.efi
 scan_all_linux_kernels false
 write_systemd_vars true
-enable_mouse
+$ENABLE_MOUSE
 
 include skorionos.conf
 $theme_option
