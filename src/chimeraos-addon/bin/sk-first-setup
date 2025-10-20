@@ -726,9 +726,14 @@ function copy_efi_drivers() {
         sudo mkdir -p "$dst_efi_drivers_dir"
     fi
 
+    refind_drivers_dir="${boot_mountpoint}/EFI/refind/drivers_x64"
+
     for file in "$efi_drivers_dir"/*; do
         if [[ -f "$file" && $(file -b "$file") == *"executable"* ]]; then
             sudo cp -f "$file" "$dst_efi_drivers_dir"
+            if [[ -d "$refind_drivers_dir" ]]; then
+                sudo cp -f "$file" "$refind_drivers_dir"
+            fi
         fi
     done
 }
