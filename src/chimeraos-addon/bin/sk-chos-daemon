@@ -24,9 +24,11 @@ function is_exist_mod() {
 }
 
 function toggle_mcu_powersave() {
-    local ENABLE_MCU_POWERSAVE=""
+    local ENABLE_MCU_POWERSAVE
 
-    # 默认禁用 mcu powersave。 启用会导致 ROG Ally 睡眠唤醒后 N-Key 丢失
+    ENABLE_MCU_POWERSAVE="1"
+
+    # ally 设备默认禁用 mcu powersave。 启用会导致睡眠唤醒后 N-Key 丢失
     if [[ "$PRODUCT" =~ "ROG Ally RC71L" ]]; then
         ENABLE_MCU_POWERSAVE="0"
 
@@ -34,8 +36,6 @@ function toggle_mcu_powersave() {
         if [[ "$(uname -r)" =~ -sk.*-.*chimeraos || "$(uname -r)" =~ -skchos ]]; then
             ENABLE_MCU_POWERSAVE="1"
         fi
-    elif [[ "$PRODUCT" =~ "ROG Ally X" ]]; then
-        ENABLE_MCU_POWERSAVE="1"
     fi
 
     echo "Enable MCU powersave: $ENABLE_MCU_POWERSAVE"
