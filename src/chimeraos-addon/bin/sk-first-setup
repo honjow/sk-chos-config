@@ -22,6 +22,9 @@ cpu_keywords=(
     "AMD Eng Sample"
 )
 
+# Get kernel version and compare
+KERNEL_VERSION=$(uname -r | cut -d'-' -f1)
+
 boot_mountpoint=""
 if mountpoint -q /efi; then
     boot_mountpoint="/efi"
@@ -62,6 +65,32 @@ function kernel_options_manager() {
     fi
 }
 
+# Function to compare kernel versions
+# Returns 0 if $1 >= $2, 1 otherwise
+kernel_version_ge() {
+    local ver1="$1"
+    local ver2="$2"
+    
+    # Split versions by dots
+    IFS='.' read -ra VER1 <<< "$ver1"
+    IFS='.' read -ra VER2 <<< "$ver2"
+    
+    # Compare each part
+    for i in {0..2}; do
+        local v1="${VER1[$i]:-0}"
+        local v2="${VER2[$i]:-0}"
+        
+        if (( v1 > v2 )); then
+            return 0
+        elif (( v1 < v2 )); then
+            return 1
+        fi
+    done
+    
+    # Versions are equal
+    return 0
+}
+
 pre_path=/usr/local/share/sk-pre
 
 decky_path=$pre_path/decky
@@ -80,14 +109,6 @@ PRODUCT=$(cat /sys/devices/virtual/dmi/id/product_name)
 VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
 
 LED_PATH="/sys/class/leds/multicolor:chassis/"
-LED_MATCH_LIST=(
-    "AYANEO 2"
-    "GEEK"
-    "AIR"
-    "SLIDE"
-    "ROG Ally RC71L"
-    "ROG Ally X"
-)
 
 LED_VENDOR_LIST="ONE-NETBOOK:ONE-NETBOOK TECHNOLOGY CO., LTD.:AOKZOE"
 
@@ -122,6 +143,14 @@ ROG_MATCH_LIST=(
     "ROG Ally RC71L"
 )
 
+# Add additional ROG models for kernel >= 6.17.4
+if kernel_version_ge "$KERNEL_VERSION" "6.17.4"; then
+    ROG_MATCH_LIST+=(
+        "ROG Ally X"
+        "ROG Xbox Ally"
+    )
+fi
+
 AOKZOE_MATCH_LIST=(
     "AOKZOE A1"
     "AOKZOE A2"
@@ -132,6 +161,7 @@ ONEXPLAYER_MATCH_LIST=(
     "ONEXPLAYER mini"
     "ONEXPLAYER F1"
     "ONEXPLAYER 2"
+    "ONEXPLAYER X1"
 )
 
 LOKI_MATCH_LIST=(
@@ -164,6 +194,15 @@ HHD_MATCH_LIST=(
     "${MSI_MATCH_LIST[@]}"
 )
 
+LED_MATCH_LIST=(
+    "${ROG_MATCH_LIST[@]}"
+    "${ONEXPLAYER_MATCH_LIST[@]}"
+    "${LGO_MATCH_LIST[@]}"
+    "${LOKI_MATCH_LIST[@]}"
+    "${AYA_MATCH_LIST[@]}"
+    "${AOKZOE_MATCH_LIST[@]}"
+)
+
 function hhd_support() {
     local item
 
@@ -189,12 +228,6 @@ function led_support() {
 
     for item in "${LED_MATCH_LIST[@]}"; do
         if [[ "$PRODUCT" =~ "$item" ]]; then
-            return 0
-        fi
-    done
-
-    for product_name in "${MSI_MATCH_LIST[@]}"; do
-        if [[ "$PRODUCT" =~ "$product_name" ]]; then
             return 0
         fi
     done
@@ -738,6 +771,12 @@ function copy_efi_drivers() {
     done
 }
 
+function run_sk-chos-daemon() {
+    log_info "Running sk-chos-daemon..."
+    sudo systemctl daemon-reload
+    sudo systemctl restart sk-chos-daemon
+}
+
 case $ACTION in
 "--update")
     copy_efi_drivers
@@ -750,6 +789,7 @@ case $ACTION in
     update_udev_rules
     user_setup_after_update
     copy_rime_config
+    run_sk-chos-daemon
     ;;
 *)
     set_kernel_options
@@ -767,5 +807,6 @@ case $ACTION in
     user_setup_after_update
     copy_rime_config
     flatpak_auto_repo
+    run_sk-chos-daemon
     ;;
 esac
