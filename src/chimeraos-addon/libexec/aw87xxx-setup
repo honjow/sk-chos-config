@@ -2,59 +2,137 @@
 
 set -e
 
-if [ "$EUID" -ne 0 ]; then
-    echo "This script must be run as root or with sudo."
-    exit 1
-fi
+# ============================================================
+# AW87xxx Audio Firmware Setup Script
+# Sets up symbolic links for AW87xxx audio chip firmware
+# ============================================================
 
-PRODUCT=$(cat "/sys/class/dmi/id/product_name")
+# --- Configuration ---
+readonly FIRMWARE_DIR="/usr/lib/firmware"
+readonly QUIRKS_FIRMWARE_DIR="/etc/device-quirks/firmware"
+readonly SYSTEM_FIRMWARE_LINK="$FIRMWARE_DIR/aw87xxx_acf.bin"
+readonly USER_FIRMWARE_LINK="$QUIRKS_FIRMWARE_DIR/aw87xxx_acf.bin"
 
-AIR_1S_LIST="AIR 1S:AIR 1S Limited"
-AIR_PLUS_LIST="AIR Plus"
+# Supported devices and their firmware mappings
+declare -A DEVICE_FIRMWARE_MAP=(
+    ["AIR 1S"]="/usr/lib/firmware/aw87xxx/aw87559/awinic_smartk_acf.bin"
+    ["AIR 1S Limited"]="/usr/lib/firmware/aw87xxx/aw87559/awinic_smartk_acf.bin"
+    ["AIR Plus"]="/usr/lib/firmware/aw87xxx/aw87559/awinic_smartk_acf.bin"
+)
 
-AW87559_LIST="$AIR_1S_LIST:$AIR_PLUS_LIST"
+# --- Helper Functions ---
 
-sys_symbolic="/usr/lib/firmware/aw87xxx_acf.bin"
-user_symbolic="/etc/device-quirks/firmware/aw87xxx_acf.bin"
+log_info() {
+    echo "[INFO] $*"
+}
 
-if [ ! -d "/etc/device-quirks/firmware/" ]; then
-    mkdir -p "/etc/device-quirks/firmware/"
-fi
+log_error() {
+    echo "[ERROR] $*" >&2
+}
 
-aw87559_firmware="/usr/lib/firmware/aw87xxx/aw87559/awinic_smartk_acf.bin"
-if [[ ":$AW87559_LIST:" =~ ":$PRODUCT:" && -e "$aw87559_firmware" ]]; then
-    real_path="$aw87559_firmware"
-fi
-
-if [ -z "$real_path" ]; then
-    echo "Not need to create link"
-    exit 0
-fi
-
-if [[ -L "$user_symbolic" ]]; then
-    current_real_path=$(readlink -f "$user_symbolic")
-    if [[ "$current_real_path" != "$real_path" ]]; then
-        echo "Remove old link $user_symbolic, and create new link to $real_path"
-        rm -f "$user_symbolic"
-        ln -sf "$real_path" "$user_symbolic"
+# Check if script is run as root
+check_root_permission() {
+    if [ "$EUID" -ne 0 ]; then
+        log_error "This script must be run as root or with sudo."
+        exit 1
     fi
-else
-    echo "Create link $user_symbolic to $real_path"
-    ln -sf "$real_path" "$user_symbolic"
-fi
+}
 
-if [ ! -e "$sys_symbolic" ]; then
-    echo "Create link $sys_symbolic to $user_symbolic"
-    ln -sf "$user_symbolic" "$sys_symbolic"
-elif [ -L "$sys_symbolic" ]; then
-    dest_path=$(readlink "$sys_symbolic")
-    if [ "$dest_path" != "$user_symbolic" ]; then
-        echo "Remove old link $sys_symbolic, and create new link to $user_symbolic"
-        rm -f "$sys_symbolic"
-        ln -sf "$user_symbolic" "$sys_symbolic"
+# Get current device product name
+get_product_name() {
+    cat "/sys/class/dmi/id/product_name" 2>/dev/null || echo "Unknown"
+}
+
+# Find firmware file for current device
+find_firmware_for_device() {
+    local product="$1"
+    
+    if [[ -n "${DEVICE_FIRMWARE_MAP[$product]}" ]]; then
+        local firmware="${DEVICE_FIRMWARE_MAP[$product]}"
+        if [[ -e "$firmware" ]]; then
+            echo "$firmware"
+            return 0
+        else
+            log_error "Firmware file not found: $firmware"
+            return 1
+        fi
     fi
-else
-    echo "Remove old file $sys_symbolic, and create new link to $user_symbolic"
-    rm -f "$sys_symbolic"
-    ln -sf "$user_symbolic" "$sys_symbolic"
-fi
+    
+    return 1
+}
+
+# Create or update symbolic link
+# Args: $1=link_path, $2=target_path
+create_or_update_symlink() {
+    local link_path="$1"
+    local target_path="$2"
+    
+    # If link exists and points to correct target, nothing to do
+    if [[ -L "$link_path" ]]; then
+        local current_target
+        current_target=$(readlink -f "$link_path")
+        if [[ "$current_target" == "$target_path" ]]; then
+            log_info "Link already correct: $link_path -> $target_path"
+            return 0
+        else
+            log_info "Updating link: $link_path"
+            log_info "  Old target: $current_target"
+            log_info "  New target: $target_path"
+            rm -f "$link_path"
+        fi
+    elif [[ -e "$link_path" ]]; then
+        # Regular file exists, remove it
+        log_info "Removing existing file: $link_path"
+        rm -f "$link_path"
+    fi
+    
+    # Create the symbolic link
+    log_info "Creating link: $link_path -> $target_path"
+    ln -sf "$target_path" "$link_path"
+}
+
+# Ensure directory exists
+ensure_directory() {
+    local dir="$1"
+    if [[ ! -d "$dir" ]]; then
+        log_info "Creating directory: $dir"
+        mkdir -p "$dir"
+    fi
+}
+
+# --- Main Logic ---
+
+main() {
+    check_root_permission
+    
+    local product
+    product=$(get_product_name)
+    log_info "Detected product: $product"
+    
+    # Find firmware for current device
+    local firmware_path
+    if ! firmware_path=$(find_firmware_for_device "$product"); then
+        log_info "Device '$product' does not require AW87xxx firmware setup"
+        exit 0
+    fi
+    
+    log_info "Using firmware: $firmware_path"
+    
+    # Ensure quirks firmware directory exists
+    ensure_directory "$QUIRKS_FIRMWARE_DIR"
+    
+    # Setup two-level symbolic link structure:
+    # 1. User-level link: /etc/device-quirks/firmware/aw87xxx_acf.bin -> actual firmware
+    # 2. System-level link: /usr/lib/firmware/aw87xxx_acf.bin -> user-level link
+    
+    log_info "Setting up user-level firmware link..."
+    create_or_update_symlink "$USER_FIRMWARE_LINK" "$firmware_path"
+    
+    log_info "Setting up system-level firmware link..."
+    create_or_update_symlink "$SYSTEM_FIRMWARE_LINK" "$USER_FIRMWARE_LINK"
+    
+    log_info "AW87xxx firmware setup completed successfully"
+}
+
+# Execute main function
+main "$@"
