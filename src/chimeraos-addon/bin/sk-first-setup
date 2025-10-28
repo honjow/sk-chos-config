@@ -46,7 +46,7 @@ function power_control_support() {
     local cpu
     for cpu in "${cpu_keywords[@]}"; do
         echo ">>> [${cpu_id}] [${cpu}"]
-        if [[ "$cpu_id" == *"$cpu"* ]]; then
+        if [[ "${cpu_id^^}" == *"${cpu^^}"* ]]; then
             echo ">>> [${cpu_id}] [${cpu}] match"
             return 0
         fi
