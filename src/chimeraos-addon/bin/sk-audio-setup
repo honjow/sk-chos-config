@@ -35,5 +35,5 @@ function alsactl_init() {
     fi
 }
 
-alsactl_init
-set_volume
+# alsactl_init
+# set_volume
