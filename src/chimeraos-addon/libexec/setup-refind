@@ -14,7 +14,7 @@ PRODUCT_NAME=$(cat "/sys/class/dmi/id/product_name")
 BOARD_NAME=$(cat "/sys/class/dmi/id/board_name")
 
 if [[ -f "/usr/libexec/screen-rotate" ]]; then
-    source "/usr/libexec/screen-rotate"
+    source "/usr/libexec/screen-rotate" || true
 fi
 
 boot_mountpoint=""
