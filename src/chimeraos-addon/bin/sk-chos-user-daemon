@@ -183,8 +183,8 @@ if pacman -Q | grep -q gnome-shell-extension-screen-autorotate; then
     log_info "gnome-shell-extension-screen-autorotate is installed, set orientation-offset..."
     # check gsettings is installed
     if [[ -x $(command -v gsettings) ]]; then
-        if [[ -f /etc/sk-chos/screen-rotate ]]; then
-            source /etc/sk-chos/screen-rotate
+        if [[ -f /usr/libexec/screen-rotate ]]; then
+            source /usr/libexec/screen-rotate
             log_info "set orientation-offset ${ROTATE_OFFSET}"
             gsettings set org.gnome.shell.extensions.screen-rotate orientation-offset "${ROTATE_OFFSET}"
             log_info "set manual-flip true"

@@ -3,7 +3,46 @@
 # Device specific configs
 DEVICENAME=$(cat /sys/devices/virtual/dmi/id/product_name)
 VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
-SCREEN_MODEL_NAME=$(cat /sys/class/drm/card*-eDP-1/edid | parse-edid 2>/dev/null | grep "ModelName" | cut -d \" -f 2 | sed 's/[^a-zA-Z0-9_-]//g')
+
+# Detect the currently active/connected screen and get its EDID
+# Priority: eDP > LVDS > DSI > other connected displays
+get_screen_edid_path() {
+    local edid_path=""
+    local priority_connectors=("eDP" "LVDS" "DSI")
+
+    # First, try to find internal display (eDP, LVDS, DSI)
+    for connector_type in "${priority_connectors[@]}"; do
+        for drm_path in /sys/class/drm/card*-${connector_type}-*/status; do
+            if [[ -f "$drm_path" ]] && [[ "$(cat "$drm_path")" == "connected" ]]; then
+                edid_path="${drm_path%/status}/edid"
+                if [[ -f "$edid_path" ]] && [[ -s "$edid_path" ]]; then
+                    echo "$edid_path"
+                    return 0
+                fi
+            fi
+        done
+    done
+
+    # If no internal display found, use any connected display
+    for drm_path in /sys/class/drm/card*/status; do
+        if [[ -f "$drm_path" ]] && [[ "$(cat "$drm_path")" == "connected" ]]; then
+            edid_path="${drm_path%/status}/edid"
+            if [[ -f "$edid_path" ]] && [[ -s "$edid_path" ]]; then
+                echo "$edid_path"
+                return 0
+            fi
+        fi
+    done
+
+    return 1
+}
+
+EDID_PATH=$(get_screen_edid_path)
+if [[ -n "$EDID_PATH" ]]; then
+    SCREEN_MODEL_NAME=$(cat "$EDID_PATH" | parse-edid 2>/dev/null | grep "ModelName" | cut -d \" -f 2 | sed 's/[^a-zA-Z0-9_-]//g')
+else
+    SCREEN_MODEL_NAME=""
+fi
 
 X11_ROTATION="normal"
 video=""

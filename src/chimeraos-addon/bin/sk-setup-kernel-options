@@ -51,7 +51,7 @@ if [[ "${1:-}" == "--force" ]]; then
 fi
 
 get_fbcon() {
-    local fbcon_file="/etc/sk-chos/screen-rotate"
+    local fbcon_file="/usr/libexec/screen-rotate"
     if [[ -f "$fbcon_file" ]]; then
         source "$fbcon_file"
         if [[ -n "${FBCON_PARA:-}" ]]; then
@@ -62,7 +62,7 @@ get_fbcon() {
 }
 
 get_video() {
-    local video_file="/etc/sk-chos/screen-rotate"
+    local video_file="/usr/libexec/screen-rotate"
     if [[ -f "$video_file" ]]; then
         source "$video_file"
         if [[ -n "${VIDEO_PARA:-}" ]]; then
