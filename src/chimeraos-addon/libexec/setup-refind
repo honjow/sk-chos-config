@@ -216,7 +216,7 @@ function convert_skorionos_icon() {
     png_512_path="$refind_icon_dir/512-192/os_skorion.png"
     
     # Scale factor for icon size
-    local scale_factor=0.7
+    local scale_factor=0.78
     
     if [[ -x "$(command -v rsvg-convert)" && -x "$(command -v magick)" && -f "$svg_path" ]]; then
         # Convert with transparent background and scale image to specified percentage of canvas size
