@@ -3,6 +3,26 @@
 # Device specific configs
 DEVICENAME=$(cat /sys/devices/virtual/dmi/id/product_name)
 VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
+SCREEN_WIDTH=$(cat /sys/class/graphics/fb0/virtual_size 2>/dev/null | cut -d ',' -f 1 || echo "0")
+SCREEN_HEIGHT=$(cat /sys/class/graphics/fb0/virtual_size 2>/dev/null | cut -d ',' -f 2 || echo "0")
+
+source /usr/bin/sk-utils.sh
+
+log_info() {
+    echo -e "${GRAY}[$(get_timestamp)]${NC} ${BLUE}INFO: $1${NC}" >&2
+}
+
+log_success() {
+    echo -e "${GRAY}[$(get_timestamp)]${NC} ${GREEN}SUCCESS: $1${NC}" >&2
+}
+
+log_warning() {
+    echo -e "${GRAY}[$(get_timestamp)]${NC} ${YELLOW}WARNING: $1${NC}" >&2
+}
+
+log_error() {
+    echo -e "${GRAY}[$(get_timestamp)]${NC} ${RED}ERROR: $1${NC}" >&2
+}
 
 # Detect the currently active/connected screen and get its EDID
 # Priority: eDP > LVDS > DSI > other connected displays
@@ -18,7 +38,8 @@ get_screen_edid_path() {
             for drm_path in /sys/class/drm/card*-${connector_type}-*/status; do
                 if [[ -f "$drm_path" ]] && [[ "$(cat "$drm_path")" == "connected" ]]; then
                     local edid_path="${drm_path%/status}/edid"
-                    if [[ -f "$edid_path" ]] && [[ -s "$edid_path" ]]; then
+                    # log_info "drm_path: $drm_path, edid_path: $edid_path"
+                    if [[ -f "$edid_path" ]]; then
                         echo "$edid_path"
                         return 0
                     fi
@@ -30,7 +51,8 @@ get_screen_edid_path() {
         for drm_path in /sys/class/drm/card*/status; do
             if [[ -f "$drm_path" ]] && [[ "$(cat "$drm_path")" == "connected" ]]; then
                 local edid_path="${drm_path%/status}/edid"
-                if [[ -f "$edid_path" ]] && [[ -s "$edid_path" ]]; then
+                # log_info "drm_path: $drm_path, edid_path: $edid_path"
+                if [[ -f "$edid_path" ]]; then
                     echo "$edid_path"
                     return 0
                 fi
@@ -42,6 +64,7 @@ get_screen_edid_path() {
 }
 
 EDID_PATH=$(get_screen_edid_path)
+log_info "EDID_PATH: $EDID_PATH"
 if [[ -n "$EDID_PATH" ]]; then
     SCREEN_MODEL_NAME=$(cat "$EDID_PATH" | parse-edid 2>/dev/null | grep "ModelName" | cut -d \" -f 2 | sed 's/[^a-zA-Z0-9_-]//g')
 else
@@ -143,15 +166,27 @@ for product in "${RIGHT_LIST[@]}"; do
     fi
 done
 
+FORCE_NOT_ROTATE=false
+
 # 不进行旋转的屏幕
 for model in "${NORMAL_MODEL_LIST[@]}"; do
     if [[ "$SCREEN_MODEL_NAME" =~ "$model" ]]; then
-        ROTATE_OFFSET="0"
-        X11_ROTATION="normal"
-        unset video
+        FORCE_NOT_ROTATE=true
         break
     fi
 done
+
+if [[ "$FORCE_NOT_ROTATE" == true || "$SCREEN_WIDTH" -ge "$SCREEN_HEIGHT" ]]; then
+    ROTATE_OFFSET="0"
+    X11_ROTATION="normal"
+    unset video
+fi
+
+log_info "Sceeen size: $SCREEN_WIDTH x $SCREEN_HEIGHT"
+log_info "SCREEN_MODEL_NAME: $SCREEN_MODEL_NAME"
+log_info "ROTATE_OFFSET: $ROTATE_OFFSET"
+log_info "X11_ROTATION: $X11_ROTATION"
+log_info "video: $video"
 
 export FBCON_PARA="rotate:$ROTATE_OFFSET"
 export VIDEO_PARA="$video"
