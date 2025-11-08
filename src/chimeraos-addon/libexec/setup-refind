@@ -77,7 +77,7 @@ function set_all_config() {
     fi
 
     local _enable_mouse=""
-    if [ "$VENDOR_NAME" == "Micro-Star International Co., Ltd." ]; then
+    if [[ "$VENDOR_NAME" == "Micro-Star International Co., Ltd." && "$BOARD_NAME" == "MS-1T"* ]]; then
         _enable_mouse="enable_mouse"
     fi
 
