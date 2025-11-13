@@ -32,7 +32,7 @@ class SkHoloisoConfigApp(Gtk.Application):
         # 创建主窗口
         window = Gtk.ApplicationWindow(application=app)
         window.set_default_size(700, 500)
-        window.set_title("Sk ChimeraOS 配置")
+        window.set_title("SkorionOS 配置")
 
         # window.set_icon_name("logisim")
         window.set_icon_name("sk-chos-tool")

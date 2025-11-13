@@ -62,7 +62,7 @@ class PanedScrolledWindow(Gtk.ScrolledWindow):
 
 class ColumnedWindow(Gtk.ApplicationWindow):
     def __init__(self, app):
-        Gtk.Window.__init__(self, application=app, title="Sk ChimeraOS 配置")
+        Gtk.Window.__init__(self, application=app, title="SkorionOS 配置")
         self.set_default_size(800, 500)
 
         # 检查必须依赖

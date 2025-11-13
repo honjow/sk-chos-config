@@ -87,13 +87,13 @@ class SoftManagerPage(Gtk.Box):
         # self.pack_start(item_noto_fonts_cjk, False, False, 0)
 
         item_this_app = ManagerItem(
-            "本程序", "Sk ChimeraOS Tool", True, installs.this_app_install
+            "本程序", "SkorionOS Tool", True, installs.this_app_install
         )
         self.pack_start(item_this_app, False, False, 0)
 
         item_this_app_cn = ManagerItem(
             "本程序(备用国内地址)",
-            "Sk ChimeraOS Tool",
+            "SkorionOS Tool",
             True,
             installs.this_app_cn_install,
         )

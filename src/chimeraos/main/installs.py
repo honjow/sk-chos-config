@@ -230,7 +230,7 @@ def tomoon_install():
 
 def this_app_install():
     command = 'yay -Sy sk-chos-tool sk-chos-addon --noconfirm --overwrite "*"'
-    success, ret_msg = run_command(command, "Sk ChimeraOS Tool")
+    success, ret_msg = run_command(command, "SkorionOS Tool")
     if success:
         ret_msg = "更新完成, 请重新启动应用"
     return success, ret_msg
@@ -238,7 +238,7 @@ def this_app_install():
 
 def this_app_cn_install():
     command = "curl -L https://gitee.com/honjow/sk-chos-scripts/raw/master/install/install-sk-chos-tool.sh | sh"
-    success, ret_msg = run_command(command, "Sk ChimeraOS Tool (CN)")
+    success, ret_msg = run_command(command, "SkorionOS Tool (CN)")
     if success:
         ret_msg = "更新完成, 请重新启动应用"
     return success, ret_msg

@@ -39,7 +39,7 @@ class AboutPage(Gtk.Box):
 
         # 应用程序名称
         name_label = Gtk.Label()
-        name_label.set_text("Sk ChimeraOS Config")
+        name_label.set_text("SkorionOS Config")
         name_label.set_halign(Gtk.Align.CENTER)
         name_label.set_valign(Gtk.Align.CENTER)
         name_label.set_hexpand(True)
