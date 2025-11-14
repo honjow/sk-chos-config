@@ -41,27 +41,27 @@ VALID_ADDON_FLAGS=(
   "full"
 )
 
-function load_addon_config() {
-  # 如果配置文件中有新格式，优先使用
-  if [[ -n "$REPO_ADDON_FLAG" ]]; then
-    return
-  fi
+# function load_addon_config() {
+#   # 如果配置文件中有新格式，优先使用
+#   if [[ -n "$REPO_ADDON_FLAG" ]]; then
+#     return
+#   fi
 
-  # 兼容旧格式：从 NV_BRANCH_FLG 转换到 REPO_ADDON_FLAG
-  if [[ "$NV_BRANCH_FLG" == "1" ]]; then
-    REPO_ADDON_FLAG="nv"
-  else
-    REPO_ADDON_FLAG=""
-  fi
-}
+#   # 兼容旧格式：从 NV_BRANCH_FLG 转换到 REPO_ADDON_FLAG
+#   if [[ "$NV_BRANCH_FLG" == "1" ]]; then
+#     REPO_ADDON_FLAG="nv"
+#   else
+#     REPO_ADDON_FLAG=""
+#   fi
+# }
 
-function sync_ui_from_addon() {
-  if [[ "$REPO_ADDON_FLAG" == "nv" ]]; then
-    NV_BRANCH_FLG="1"
-  else
-    NV_BRANCH_FLG="0"
-  fi
-}
+# function sync_ui_from_addon() {
+#   if [[ "$REPO_ADDON_FLAG" == "nv" ]]; then
+#     NV_BRANCH_FLG="1"
+#   else
+#     NV_BRANCH_FLG="0"
+#   fi
+# }
 
 function parse_branch_conf() {
   local source_file=$BRANCH_PATH
@@ -126,19 +126,15 @@ function parse_branch_conf() {
     ;;
   esac
 
-  case "$build_addon" in
-  "none")
+  # Check if build_addon is in VALID_ADDON_FLAGS
+  if [[ "$build_addon" == "none" ]]; then
     REPO_ADDON_FLAG=""
-    ;;
-  "${VALID_ADDON_FLAGS[@]}")
-    # echo "build_addon: $build_addon" >&2
+  elif [[ " ${VALID_ADDON_FLAGS[*]} " == *" $build_addon "* ]]; then
     REPO_ADDON_FLAG="$build_addon"
-    ;;
-  *)
-    echo "not supported build_addon: $build_addon" >&2
+  else
+    [[ -n "$build_addon" ]] && echo "not supported build_addon: $build_addon" >&2
     REPO_ADDON_FLAG=""
-    ;;
-  esac
+  fi
 }
 
 function is_supported_nv_branch() {
@@ -160,6 +156,8 @@ function generate_branch_list() {
   local branch_type="$1"
   local desktop="$2"
   local repo_addon_flag="$3"
+
+  echo "generate_branch_list >> branch_type: $branch_type, desktop: $desktop, repo_addon_flag: $repo_addon_flag" >&2
 
   branch_list=("${VALID_BRANCHES[@]}")
 
@@ -312,11 +310,11 @@ function get_repo_from_branch_conf() {
 
 parse_branch_conf || echo >&2 "Error: Failed to parse branch conf"
 
-# echo "BRANCH_FLG=$BRANCH_FLG, DESKTOP=$DESKTOP, REPO_ADDON_FLAG=$REPO_ADDON_FLAG" >&2
+echo "BRANCH_FLG=$BRANCH_FLG, DESKTOP=$DESKTOP, REPO_ADDON_FLAG=$REPO_ADDON_FLAG" >&2
 
 # 处理配置文件兼容性和UI同步
-load_addon_config
-sync_ui_from_addon
+# load_addon_config
+# sync_ui_from_addon
 
 case "$1" in
 "-c")
