@@ -112,11 +112,11 @@ function apply_hhd_patch_orangepi_neo() {
             echo "Apply HHD patch for OrangePi NEO"
 
             # Define patch URLs
-            local path_base_url="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs/"
+            local path_base_url="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs"
             local patch_urls=(
-                "${path_base_url}hhd-orangepi-neo-touchpad.patch"
-                "${path_base_url}hhd-orangepi-neo-touchpad-new.patch"
-                "${path_base_url}hhd-orangepi-neo-touchpad-new2.patch"
+                "${path_base_url}/hhd-orangepi-neo-touchpad.patch"
+                "${path_base_url}/hhd-orangepi-neo-touchpad-new.patch"
+                "${path_base_url}/hhd-orangepi-neo-touchpad-new2.patch"
             )
 
             # Try patches in order using the new function
@@ -144,9 +144,9 @@ function apply_hhd_patch_aokzoe_a1x() {
 }
 
 function apply_hhd_patch() {
-    local path_base_url="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs/"
-    local path_01=("${path_base_url}hhd-fix-ungrab-failure.patch")
-    local path_02=("${path_base_url}hhd-fix-restore-device-permissions.patch")
+    local path_base_url="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs"
+    local path_01=("${path_base_url}/hhd-fix-ungrab-failure.patch")
+    local path_02=("${path_base_url}/hhd-fix-restore-device-permissions.patch")
 
     try_patches_in_order "$HHD_PATH" path_01
     local result1=$?
@@ -157,9 +157,9 @@ function apply_hhd_patch() {
 }
 
 function apply_hhd_claw() {
-    local path_base_url="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs/"
+    local path_base_url="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs"
     # local path_powerbtn=("${path_base_url}hhd-clawa8-fix-powerbutton.patch")
-    local path_dynamic_grabbing=("${path_base_url}hhd-claw-dynamic-grabbing.patch")
+    local path_dynamic_grabbing=("${path_base_url}/hhd-claw-dynamic-grabbing.patch")
 
     if [[ "$VENDOR" == "Micro-Star International Co., Ltd." ]]; then
         if try_patches_in_order "$HHD_PATH" path_dynamic_grabbing; then
@@ -173,8 +173,8 @@ function apply_hhd_claw() {
 }
 
 function apply_hhd_gpd() {
-    local path_base_url="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs/"
-    local path_dynamic_grabbing=("${path_base_url}hhd-orangepi-neo-touchpad-new2.patch")
+    local path_base_url="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs"
+    local path_dynamic_grabbing=("${path_base_url}/hhd-orangepi-neo-touchpad-new2.patch")
 
     if [[ "$VENDOR" == "GPD" ]]; then
         if try_patches_in_order "$HHD_PATH" path_dynamic_grabbing; then
@@ -187,6 +187,19 @@ function apply_hhd_gpd() {
     return 1
 }
 
+function apply_hhd_patch_win5() {
+    local path_base_url="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs"
+    local path_win5=("${path_base_url}/hhd-win5.patch")
+    if [[ "$PRODUCT" == "G1618-05" ]]; then
+        if try_patches_in_order "$HHD_PATH" path_win5; then
+            echo "Win5 hhd patches applied"
+        else
+            echo "All Win5 hhd patches failed"
+            return 1
+        fi
+    fi
+}
+
 # Execute all applicable patch functions independently
 patch_applied=false
 
@@ -195,6 +208,7 @@ apply_hhd_patch_orangepi_neo && patch_applied=true
 apply_hhd_patch_aokzoe_a1x && patch_applied=true
 apply_hhd_claw && patch_applied=true
 apply_hhd_gpd && patch_applied=true
+apply_hhd_patch_win5 && patch_applied=true
 
 if [[ "$patch_applied" == true ]]; then
     echo "Some hhd patches applied successfully"
