@@ -189,14 +189,24 @@ function apply_hhd_gpd() {
 
 function apply_hhd_patch_win5() {
     local path_base_url="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs"
-    local path_win5=("${path_base_url}/hhd-win5.patch")
+    local path_win5_g1=(
+        "${path_base_url}/hhd-win5.patch"
+        )
+    local path_win5_g2=(
+        # "${path_base_url}/hhd-win5-02.patch"
+        "${path_base_url}/hhd-win5-02-rev.patch"
+        )
+    local path_win5_g3=(
+        "${path_base_url}/hhd-win5-03.patch"
+        )
+    local path_win5_g4=(
+        "${path_base_url}/hhd-win5-04.patch"
+        )
     if [[ "$PRODUCT" == "G1618-05" ]]; then
-        if try_patches_in_order "$HHD_PATH" path_win5; then
-            echo "Win5 hhd patches applied"
-        else
-            echo "All Win5 hhd patches failed"
-            return 1
-        fi
+        try_patches_in_order "$HHD_PATH" path_win5_g1
+        try_patches_in_order "$HHD_PATH" path_win5_g2
+        try_patches_in_order "$HHD_PATH" path_win5_g3
+        try_patches_in_order "$HHD_PATH" path_win5_g4
     fi
 }
 
