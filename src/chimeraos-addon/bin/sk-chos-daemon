@@ -1,20 +1,11 @@
 #!/bin/bash
 
-if [ "$EUID" -ne 0 ]; then
-    echo "This script must be run as root or with sudo."
-    exit 1
-fi
+# ChimeraOS System Daemon
+# Performs various system initialization and configuration tasks
 
-PRODUCT=$(cat /sys/class/dmi/id/product_name)
-VENDOR=$(cat /sys/class/dmi/id/sys_vendor)
-
-if [ -x "$(command -v sk-unlock-pacman)" ]; then
-    sk-unlock-pacman
-fi
-
-# 启用内核模块黑名单
-BLACKLIST_HID_ALLY=""
-
+# Global variables (initialized in main)
+PRODUCT=""
+VENDOR=""
 ASUS_ALLY_HID_BLACKLIST="/etc/modprobe.d/asus_ally_hid.conf"
 ASUS_ALLY_HID_MOD_NAME="asus_ally_hid"
 
@@ -247,84 +238,149 @@ function cleanup_efi_boot_entry() {
     fi
 }
 
-toggle_mcu_powersave
+# 初始化系统目录和基础服务
+function setup_system_services() {
+    # Create atd directory
+    mkdir -p /var/spool/atd
 
-gamepad_fix_for_allyx
-
-check_hhd_enable &
-
-# 为 atd 创建目录
-mkdir -p /var/spool/atd
-
-# frzr-unlock
-if [ -x "$(command -v frzr-unlock)" ]; then
-    frzr-unlock
-fi
-
-# /var/lib/boltd/version
-if [[ -z "$(cat /var/lib/boltd/version 2>/dev/null)" ]]; then
-    echo "1" >/var/lib/boltd/version
-fi
-
-# asusctl
-shortcut_path="/usr/share/applications/rog-control-center.desktop"
-no_display="false"
-if [[ "$VENDOR" != "ASUSTeK COMPUTER INC." ]]; then
-    no_display="true"
-fi
-
-if [[ -f "$shortcut_path" ]]; then
-    if grep -q "NoDisplay=" "$shortcut_path"; then
-        sed -i "s/NoDisplay=.*/NoDisplay=$no_display/" "$shortcut_path"
-    else
-        echo "NoDisplay=$no_display" >>"$shortcut_path"
+    # frzr-unlock
+    if [ -x "$(command -v frzr-unlock)" ]; then
+        frzr-unlock
     fi
-fi
 
-# WAYDROID FIX
-if [[ -f "/var/lib/waydroid/lxc/waydroid/config" ]]; then
-    # echo "Removing unneeded apparmor entry from Waydroid LXC"
-    # sed -i '/lxc\.apparmor\.profile\s*=\s*unconfined/d' "/var/lib/waydroid/lxc/waydroid/config"
-    if grep -q "lxc.apparmor.profile" "/var/lib/waydroid/lxc/waydroid/config"; then
-        echo "Removing unneeded apparmor entry from Waydroid LXC"
-        sed -i '/lxc\.apparmor\.profile\s*=\s*unconfined/d' "/var/lib/waydroid/lxc/waydroid/config"
+    # Initialize boltd version if not set
+    if [[ -z "$(cat /var/lib/boltd/version 2>/dev/null)" ]]; then
+        echo "1" >/var/lib/boltd/version
     fi
-fi
+}
 
-# set hibernatemode
-sleep_conf_dir="/etc/systemd/sleep.conf.d"
-hibernatemode_config="${sleep_conf_dir}/hibernatemode.conf"
-config=$(cat $hibernatemode_config | grep "HibernateMode")
-if [[ ! -f "$hibernatemode_config" || -z $config ]]; then
-    mkdir -p "$sleep_conf_dir"
-    echo "[Sleep]" >"$hibernatemode_config"
-    echo "HibernateMode=shutdown" >>"$hibernatemode_config"
-fi
-
-# setup aw87xxx
-if [ -x "/usr/libexec/aw87xxx-setup" ]; then
-    /usr/libexec/aw87xxx-setup
-fi
-
-# fstab
-DEPLOYMENT=$(frzr-release)
-fstab_path="/frzr_root/etc/fstab"
-deployment_fstab_path="/frzr_root/deployments/${DEPLOYMENT}/etc/fstab"
-# 如果内容相同 删除 fstab_path
-if [[ -f "$fstab_path" && -f "$deployment_fstab_path" ]]; then
-    if grep -q "$(cat "$fstab_path" 2>/dev/null)" "$deployment_fstab_path" 2>/dev/null; then
-        rm -f "$fstab_path"
+# 根据厂商设置 ROG Control Center 的显示状态
+function setup_asusctl_visibility() {
+    local shortcut_path="/usr/share/applications/rog-control-center.desktop"
+    local no_display="false"
+    
+    if [[ "$VENDOR" != "ASUSTeK COMPUTER INC." ]]; then
+        no_display="true"
     fi
-fi
 
-# sk-quirks
-if [ -x "$(command -v sk-quirks)" ]; then
-    sk-quirks
-fi
+    if [[ -f "$shortcut_path" ]]; then
+        if grep -q "NoDisplay=" "$shortcut_path"; then
+            sed -i "s/NoDisplay=.*/NoDisplay=$no_display/" "$shortcut_path"
+        else
+            echo "NoDisplay=$no_display" >>"$shortcut_path"
+        fi
+    fi
+}
 
-# setcap mangohud
-if [ -x "$(command -v mangohud)" ]; then
-    setcap cap_perfmon=+ep "$(command -v mangohud)"
-fi
+# 修复 Waydroid LXC 配置中的 apparmor 问题
+function fix_waydroid_config() {
+    local waydroid_config="/var/lib/waydroid/lxc/waydroid/config"
+    
+    if [[ -f "$waydroid_config" ]]; then
+        if grep -q "lxc.apparmor.profile" "$waydroid_config"; then
+            echo "Removing unneeded apparmor entry from Waydroid LXC"
+            sed -i '/lxc\.apparmor\.profile\s*=\s*unconfined/d' "$waydroid_config"
+        fi
+    fi
+}
 
-cleanup_efi_boot_entry
+# 配置系统休眠模式
+function setup_hibernate_mode() {
+    local sleep_conf_dir="/etc/systemd/sleep.conf.d"
+    local hibernatemode_config="${sleep_conf_dir}/hibernatemode.conf"
+    local config
+    
+    config=$(cat "$hibernatemode_config" 2>/dev/null | grep "HibernateMode" || true)
+    
+    if [[ ! -f "$hibernatemode_config" || -z "$config" ]]; then
+        mkdir -p "$sleep_conf_dir"
+        echo "[Sleep]" >"$hibernatemode_config"
+        echo "HibernateMode=shutdown" >>"$hibernatemode_config"
+    fi
+}
+
+# 清理重复的 fstab 配置
+function cleanup_fstab_duplicates() {
+    local DEPLOYMENT
+    DEPLOYMENT=$(frzr-release 2>/dev/null || echo "")
+    
+    if [[ -z "$DEPLOYMENT" ]]; then
+        return 0
+    fi
+    
+    local fstab_path="/frzr_root/etc/fstab"
+    local deployment_fstab_path="/frzr_root/deployments/${DEPLOYMENT}/etc/fstab"
+    
+    # 如果内容相同 删除 fstab_path
+    if [[ -f "$fstab_path" && -f "$deployment_fstab_path" ]]; then
+        local fstab_content
+        fstab_content=$(cat "$fstab_path" 2>/dev/null || echo "")
+        if [[ -n "$fstab_content" ]] && grep -qF "$fstab_content" "$deployment_fstab_path" 2>/dev/null; then
+            rm -f "$fstab_path"
+        fi
+    fi
+}
+
+# 执行硬件相关的设置脚本
+function run_hardware_setup() {
+    # Setup aw87xxx audio hardware
+    if [ -x "/usr/libexec/aw87xxx-setup" ]; then
+        /usr/libexec/aw87xxx-setup
+    fi
+
+    # Run device-specific quirks
+    if [ -x "$(command -v sk-quirks)" ]; then
+        sk-quirks
+    fi
+}
+
+# 为特定程序设置 Linux capabilities
+function setup_capabilities() {
+    # Set cap_perfmon for mangohud
+    if [ -x "$(command -v mangohud)" ]; then
+        setcap cap_perfmon=+ep "$(command -v mangohud)" 2>/dev/null || true
+    fi
+}
+
+# Main function
+function main() {
+    # Check root privileges
+    if [ "$EUID" -ne 0 ]; then
+        echo "This script must be run as root or with sudo."
+        exit 1
+    fi
+
+    # Initialize global variables
+    PRODUCT=$(cat /sys/class/dmi/id/product_name 2>/dev/null || echo "")
+    VENDOR=$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null || echo "")
+
+    # Unlock pacman if available
+    if [ -x "$(command -v sk-unlock-pacman)" ]; then
+        sk-unlock-pacman
+    fi
+
+    # Core device fixes
+    toggle_mcu_powersave
+    gamepad_fix_for_allyx
+    check_hhd_enable &
+
+    # System setup
+    setup_system_services
+    setup_asusctl_visibility
+    fix_waydroid_config
+    setup_hibernate_mode
+    cleanup_fstab_duplicates
+
+    # Hardware and capabilities
+    run_hardware_setup
+    setup_capabilities
+
+    # Cleanup tasks
+    cleanup_efi_boot_entry
+}
+
+# Script entry point
+# Only run main if script is executed directly (not sourced)
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi
