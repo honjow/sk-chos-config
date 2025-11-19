@@ -145,6 +145,108 @@ function check_hhd_enable() {
     fi
 }
 
+# 清理无效的efi启动项
+function cleanup_efi_boot_entry() {
+    # Check if efibootmgr is available
+    if ! command -v efibootmgr &>/dev/null; then
+        echo "efibootmgr not found, skip cleanup"
+        return 0
+    fi
+    
+    # Check if system supports UEFI
+    if [[ ! -d "/sys/firmware/efi" ]]; then
+        echo "System is not UEFI, skip cleanup"
+        return 0
+    fi
+    
+    echo "Checking for invalid EFI boot entries..."
+    
+    local cleaned=0
+    local efi_output
+    efi_output=$(efibootmgr)
+    
+    # Extract all boot entry numbers (Boot####)
+    while read -r line; do
+        # Extract boot number (e.g., 0005 from Boot0005)
+        local boot_num
+        if [[ $line =~ ^Boot([0-9A-F]{4}) ]]; then
+            boot_num="${BASH_REMATCH[1]}"
+        else
+            continue
+        fi
+        
+        # Extract boot entry name and description
+        local boot_name
+        boot_name="${line#Boot[0-9A-F][0-9A-F][0-9A-F][0-9A-F]* }"
+        boot_name="${boot_name#Boot[0-9A-F][0-9A-F][0-9A-F][0-9A-F] }"
+        
+        # Check if entry is disabled (no asterisk)
+        local is_disabled=false
+        if [[ ! $line =~ ^Boot[0-9A-F]{4}\* ]]; then
+            is_disabled=true
+        fi
+        
+        # Flag to track if we should delete this entry
+        local should_delete=false
+        local delete_reason=""
+        
+        # Check 1: auto_created_boot_option entries
+        if [[ $line =~ auto_created_boot_option ]]; then
+            should_delete=true
+            delete_reason="auto-created placeholder"
+        fi
+        
+        # Check 2: VenHw() entries that are disabled
+        if [[ "$is_disabled" = true ]] && [[ $line =~ VenHw\( ]]; then
+            should_delete=true
+            delete_reason="disabled VenHw entry"
+        fi
+        
+        # Check 3: Entries with invalid device paths (BBS entries that are disabled)
+        # BBS entries are legacy boot entries, usually safe to remove if disabled
+        if [[ "$is_disabled" = true ]] && [[ $line =~ BBS\( ]]; then
+            # Skip common useful BBS entries even if disabled
+            if [[ ! $line =~ (CD/DVD|Removable\ Device|Network\ Device|USB) ]]; then
+                should_delete=true
+                delete_reason="disabled legacy BBS entry"
+            fi
+        fi
+        
+        # Check 4: Duplicate disabled entries (same name as an enabled one)
+        if [[ "$is_disabled" = true ]]; then
+            # Extract the simple name part for comparison
+            local simple_name
+            simple_name="${boot_name%%$'\t'*}"
+            simple_name="${simple_name%% *}"
+            
+            # Check if there's an enabled entry with the same name
+            if grep -qE "^Boot[0-9A-F]{4}\*.*${simple_name}" <<< "$efi_output"; then
+                should_delete=true
+                delete_reason="duplicate of enabled entry"
+            fi
+        fi
+        
+        # Perform deletion if flagged
+        if [[ "$should_delete" = true ]]; then
+            echo "Removing invalid boot entry Boot$boot_num: $delete_reason"
+            echo "  Description: $boot_name"
+            
+            if efibootmgr -b "$boot_num" -B &>/dev/null; then
+                echo "  ✓ Successfully removed"
+                cleaned=$((cleaned + 1))
+            else
+                echo "  ✗ Failed to remove"
+            fi
+        fi
+    done < <(echo "$efi_output" | grep "^Boot[0-9A-F]\{4\}")
+    
+    if [[ $cleaned -gt 0 ]]; then
+        echo "Cleaned up $cleaned invalid EFI boot entries"
+    else
+        echo "No invalid EFI boot entries found"
+    fi
+}
+
 toggle_mcu_powersave
 
 gamepad_fix_for_allyx
@@ -224,3 +326,5 @@ fi
 if [ -x "$(command -v mangohud)" ]; then
     setcap cap_perfmon=+ep "$(command -v mangohud)"
 fi
+
+cleanup_efi_boot_entry
