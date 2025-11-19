@@ -1,13 +1,17 @@
 #!/bin/bash
 
+# ChimeraOS User Daemon
+# User-level initialization and configuration tasks
+
 set -o pipefail
 
 source /usr/bin/sk-utils.sh
 
-VENDOR=$(cat "/sys/class/dmi/id/sys_vendor")
-PRODUCT=$(cat "/sys/class/dmi/id/product_name")
-USER_DIR=$HOME
-HOMEBREW_FOLDER="${USER_DIR}/homebrew"
+# Global variables (initialized in main)
+VENDOR=""
+PRODUCT=""
+USER_DIR=""
+HOMEBREW_FOLDER=""
 
 function fix_games() {
     if [ -x "$(command -v sk-fix-games)" ]; then
@@ -30,8 +34,10 @@ function get_compare_desc() {
 function compare_version() {
     local version_a=$1
     local version_b=$2
-    local version_a_arr=(${version_a//./ })
-    local version_b_arr=(${version_b//./ })
+    local version_a_arr
+    local version_b_arr
+    IFS='.' read -ra version_a_arr <<< "$version_a"
+    IFS='.' read -ra version_b_arr <<< "$version_b"
 
     #
     log_info ">>> Compare version: ${version_a} and ${version_b}" >&2
@@ -133,7 +139,7 @@ function update_decky() {
     else
         log_info "Decky is not installed, skip update"
     fi
-    exit 0
+    return 0
 }
 
 # 在解决 gpio-keys 电源键问题前, 先屏蔽 steamos-powerbuttond.service
@@ -162,169 +168,250 @@ function handle_steamos_powerbutton() {
     fi
 }
 
-log_info "Auto set shell"
-if [[ -f /usr/bin/sk-auto-set-shell ]]; then
-    /usr/bin/sk-auto-set-shell
-fi
+# 自动设置shell和环境
+function setup_shell_and_environment() {
+    log_info "Auto set shell"
+    if [[ -f /usr/bin/sk-auto-set-shell ]]; then
+        /usr/bin/sk-auto-set-shell
+    fi
+}
 
-log_info "reset Internal screen"
-sed -i '/Internal screen/d' "${HOME}/.config/gamescope/modes.cfg"
+# 重置Gamescope屏幕模式
+function reset_gamescope_modes() {
+    log_info "Reset Internal screen"
+    sed -i '/Internal screen/d' "${HOME}/.config/gamescope/modes.cfg"
+}
 
-# check gpdconfig and hhd is installed
-if [[ -x "$(command -v gpdconfig)" && "$VENDOR" == "GPD" && -x "$(command -v hhd)" ]]; then
-    gpdconfig l41=SYSRQ r41=PAUSE \
-        l42=NONE r42=NONE l43=NONE r43=NONE l44=NONE r44=NONE \
-        l4delay1=0 r4delay1=0 l4delay2=0 r4delay2=0 \
-        l4delay3=0 r4delay3=0 l4delay4=20 r4delay4=20
-fi
+# GPD设备特定配置
+function setup_gpd_device() {
+    # Check gpdconfig and hhd installation
+    if [[ -x "$(command -v gpdconfig)" && "$VENDOR" == "GPD" && -x "$(command -v hhd)" ]]; then
+        log_info "Configuring GPD device"
+        gpdconfig l41=SYSRQ r41=PAUSE \
+            l42=NONE r42=NONE l43=NONE r43=NONE l44=NONE r44=NONE \
+            l4delay1=0 r4delay1=0 l4delay2=0 r4delay2=0 \
+            l4delay3=0 r4delay3=0 l4delay4=20 r4delay4=20
+    fi
+}
 
-# pacman -Q , check install gnome-shell-extension-screen-autorotate
-if pacman -Q | grep -q gnome-shell-extension-screen-autorotate; then
+# GNOME屏幕旋转扩展配置
+function setup_gnome_screen_rotation() {
+    if ! pacman -Q | grep -q gnome-shell-extension-screen-autorotate; then
+        return 0
+    fi
+    
     log_info "gnome-shell-extension-screen-autorotate is installed, set orientation-offset..."
-    # check gsettings is installed
-    if [[ -x $(command -v gsettings) ]]; then
-        if [[ -f /usr/libexec/screen-rotate ]]; then
-            source /usr/libexec/screen-rotate
-            log_info "set orientation-offset ${ROTATE_OFFSET}"
-            gsettings set org.gnome.shell.extensions.screen-rotate orientation-offset "${ROTATE_OFFSET}"
-            log_info "set manual-flip true"
-            gsettings set org.gnome.shell.extensions.screen-rotate manual-flip true
-        fi
+    
+    if [[ ! -x $(command -v gsettings) ]]; then
+        return 0
     fi
-fi
+    
+    if [[ -f /usr/libexec/screen-rotate ]]; then
+        source /usr/libexec/screen-rotate
+        log_info "set orientation-offset ${ROTATE_OFFSET}"
+        gsettings set org.gnome.shell.extensions.screen-rotate orientation-offset "${ROTATE_OFFSET}"
+        log_info "set manual-flip true"
+        gsettings set org.gnome.shell.extensions.screen-rotate manual-flip true
+    fi
+}
 
-# install pre download oh-my-zsh
-pre_path=/usr/local/share/sk-pre
-zsh_path=$pre_path/zsh
-pre_zsh_dir=$pre_path/zsh/ohmyzsh
-pre_zshrc=$pre_path/zsh/.zshrc
+# 安装预下载的oh-my-zsh
+function install_ohmyzsh() {
+    local pre_path=/usr/local/share/sk-pre
+    local zsh_path=$pre_path/zsh
+    local pre_zsh_dir=$pre_path/zsh/ohmyzsh
+    local pre_zshrc=$pre_path/zsh/.zshrc
+    local zshrc_path="${HOME}/.zshrc"
 
-if [[ -d $pre_zsh_dir ]]; then
-    log_info "Installing oh-my-zsh..."
-    mkdir -p "${HOME}/.oh-my-zsh"
-    rsync -av "${pre_zsh_dir}/" "${HOME}/.oh-my-zsh/"
-fi
+    if [[ -d $pre_zsh_dir ]]; then
+        log_info "Installing oh-my-zsh..."
+        mkdir -p "${HOME}/.oh-my-zsh"
+        rsync -av "${pre_zsh_dir}/" "${HOME}/.oh-my-zsh/"
+    fi
 
-zshrc_path="${HOME}/.zshrc"
-if [[ -f $pre_zshrc ]]; then
-    if [[ ! -f "$zshrc_path" ]]; then
-        log_info ">> Installing .zshrc..."
-        cp $pre_zshrc "${HOME}/.zshrc"
-    else
-        # 获取 $zshrc_path 行数
-        zshrc_line=$(wc -l $zshrc_path | awk '{print $1}')
-        # 如果行数小于 xx 行, 则覆盖
-        if [[ $zshrc_line -lt 110 ]]; then
-            log_info ">>> Installing .zshrc..."
+    if [[ -f $pre_zshrc ]]; then
+        if [[ ! -f "$zshrc_path" ]]; then
+            log_info ">> Installing .zshrc..."
             cp $pre_zshrc "${HOME}/.zshrc"
-            rsync -av "${pre_zsh_dir}/" "${HOME}/.oh-my-zsh/"
         else
-            cp $pre_zshrc "${HOME}/.zshrc.new"
+            local zshrc_line
+            zshrc_line=$(wc -l $zshrc_path | awk '{print $1}')
+            if [[ $zshrc_line -lt 110 ]]; then
+                log_info ">>> Installing .zshrc..."
+                cp $pre_zshrc "${HOME}/.zshrc"
+                rsync -av "${pre_zsh_dir}/" "${HOME}/.oh-my-zsh/"
+            else
+                cp $pre_zshrc "${HOME}/.zshrc.new"
+            fi
         fi
     fi
-fi
+}
 
-# after update run
-after_update_flag=/.after-update
-flag_file=/etc/sk-first-setup-done
-if [[ ! -f "$after_update_flag" && -f "$flag_file" ]]; then
-    log_info "after update run first-run..."
-    /usr/bin/sk-first-setup --update
-    sudo touch $after_update_flag
-fi
-
-# user auto start
-script_dir="$HOME/.config/sk-chos-tool/startup"
-if [[ ! -d $script_dir ]]; then
-    mkdir -p $script_dir
-fi
-
-for script_path in "$script_dir"/*; do
-    if [[ -f "$script_path" && -x "$script_path" ]]; then
-        script_name=$(basename "$script_path")
-        log_info "Running startup script: $script_name"
-
-        # Run script and capture output to log
-        {
-            echo "=== $script_name output start ==="
-            "$script_path" 2>&1
-            echo "=== $script_name output end ==="
-        } | while IFS= read -r line; do
-            log_info "[$script_name] $line"
-        done &
+# 系统更新后的首次运行
+function run_after_update_setup() {
+    local after_update_flag=/.after-update
+    local flag_file=/etc/sk-first-setup-done
+    
+    if [[ ! -f "$after_update_flag" && -f "$flag_file" ]]; then
+        log_info "after update run first-run..."
+        /usr/bin/sk-first-setup --update
+        sudo touch $after_update_flag
     fi
-done
+}
 
-# 如果安装了kde桌面, 根据 $HOME/.config/plasma-localerc 更新 locale.conf
-if pacman -Q | grep -q plasma-desktop; then
-    if [[ -f $HOME/.config/plasma-localerc ]]; then
-        # 读取 plasma-localerc 中 LANG= 的值
-        LANG=$(grep LANG= $HOME/.config/plasma-localerc | cut -d= -f2)
-        ORIG_LANG=$LANG
-        # 去掉.后面的内容
-        LANG=${LANG%%.*}
-
-        if [[ "${ORIG_LANG}" != "${LANG}.UTF-8" ]]; then
-            log_info "update plasma-localerc LANG=${LANG}.UTF-8"
-            sed -i "s/LANG=.*/LANG=${LANG}.UTF-8/" $HOME/.config/plasma-localerc
-        fi
-
-        # 读取 /etc/locale.conf 中 LANG= 的值
-        E_LANG=$(grep LANG= /etc/locale.conf | cut -d= -f2)
-        if [[ "${E_LANG}" != "${LANG}.UTF-8" ]]; then
-            log_info "update locale.conf LANG=${LANG}.UTF-8"
-            echo "LANG=${LANG}.UTF-8" | sudo tee /etc/locale.conf
-            sudo locale-gen
-        fi
+# 执行用户自定义启动脚本
+function run_user_startup_scripts() {
+    local script_dir="$HOME/.config/sk-chos-tool/startup"
+    
+    if [[ ! -d $script_dir ]]; then
+        mkdir -p $script_dir
     fi
+
+    for script_path in "$script_dir"/*; do
+        if [[ -f "$script_path" && -x "$script_path" ]]; then
+            local script_name
+            script_name=$(basename "$script_path")
+            log_info "Running startup script: $script_name"
+
+            {
+                echo "=== $script_name output start ==="
+                "$script_path" 2>&1
+                echo "=== $script_name output end ==="
+            } | while IFS= read -r line; do
+                log_info "[$script_name] $line"
+            done &
+        fi
+    done
+}
+
+# KDE桌面locale配置
+function setup_kde_locale() {
+    if ! pacman -Q | grep -q plasma-desktop; then
+        return 0
+    fi
+    
+    if [[ ! -f $HOME/.config/plasma-localerc ]]; then
+        return 0
+    fi
+
+    local LANG
+    local ORIG_LANG
+    local E_LANG
+    
+    LANG=$(grep LANG= $HOME/.config/plasma-localerc | cut -d= -f2)
+    ORIG_LANG=$LANG
+    LANG=${LANG%%.*}
+
+    if [[ "${ORIG_LANG}" != "${LANG}.UTF-8" ]]; then
+        log_info "update plasma-localerc LANG=${LANG}.UTF-8"
+        sed -i "s/LANG=.*/LANG=${LANG}.UTF-8/" $HOME/.config/plasma-localerc
+    fi
+
+    E_LANG=$(grep LANG= /etc/locale.conf | cut -d= -f2)
+    if [[ "${E_LANG}" != "${LANG}.UTF-8" ]]; then
+        log_info "update locale.conf LANG=${LANG}.UTF-8"
+        echo "LANG=${LANG}.UTF-8" | sudo tee /etc/locale.conf
+        sudo locale-gen
+    fi
+}
+
+# 字体配置复制
+function setup_fontconfig() {
+    local fontconfig_dir="$HOME/.config/fontconfig/conf.d"
+    mkdir -p $fontconfig_dir
+
+    local noto_cjk_conf="75-noto-cjk.conf"
+    local sarasa_conf="90-sarasa-gothic.conf"
+    
+    local noto_cjk_path="/etc/fonts/conf.d/${noto_cjk_conf}"
+    local sarasa_path="/etc/fonts/conf.d/${sarasa_conf}"
+    
+    local user_noto_cjk_path="$fontconfig_dir/${noto_cjk_conf}"
+    local user_sarasa_path="$fontconfig_dir/${sarasa_conf}"
+
+    if [[ -f $noto_cjk_path && ! -f $user_noto_cjk_path ]]; then
+        log_info "copy $noto_cjk_path to $fontconfig_dir"
+        cp $noto_cjk_path $fontconfig_dir
+    fi
+
+    if [[ -f $sarasa_path && ! -f $user_sarasa_path ]]; then
+        log_info "copy $sarasa_path to $fontconfig_dir"
+        cp $sarasa_path $fontconfig_dir
+    fi
+}
+
+# Gamescope手势禁用
+function setup_gamescope_gestures() {
+    local gamescope_gestures_conf="$HOME/.config/environment.d/chos-disable-gamescope-gestures.conf"
+    
+    if [ ! -f $gamescope_gestures_conf ]; then
+        /usr/bin/cjust disable-swipe-gestures || true
+    fi
+}
+
+# 音频和Wireplumber设置
+function setup_audio_and_wireplumber() {
+    # Audio Fix
+    if [ -x "$(command -v sk-audio-setup)" ]; then
+        sk-audio-setup
+    fi
+
+    # Copy wireplumber config
+    if [ -x "/usr/libexec/user-wireplumber" ]; then
+        /usr/libexec/user-wireplumber
+    fi
+}
+
+# 启动后台任务
+function start_background_tasks() {
+    # Handle steamos powerbutton
+    handle_steamos_powerbutton &
+    disown
+
+    # Fix games
+    fix_games &
+    disown
+
+    # Decky update
+    nohup bash -c "update_decky" >/dev/null 2>&1 &
+    disown
+}
+
+# Main function
+function main() {
+    # Initialize global variables
+    VENDOR=$(cat "/sys/class/dmi/id/sys_vendor" 2>/dev/null || echo "")
+    PRODUCT=$(cat "/sys/class/dmi/id/product_name" 2>/dev/null || echo "")
+    USER_DIR=$HOME
+    HOMEBREW_FOLDER="${USER_DIR}/homebrew"
+
+    # Shell and environment setup
+    setup_shell_and_environment
+    reset_gamescope_modes
+
+    # Device-specific configurations
+    setup_gpd_device
+    setup_gnome_screen_rotation
+
+    # User environment setup
+    install_ohmyzsh
+    run_after_update_setup
+    run_user_startup_scripts
+
+    # Desktop environment configurations
+    setup_kde_locale
+    setup_fontconfig
+    setup_gamescope_gestures
+
+    # Audio and media setup
+    setup_audio_and_wireplumber
+
+    # Start background tasks (must be last)
+    start_background_tasks
+}
+
+# Script entry point
+# Only run main if script is executed directly (not sourced)
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
 fi
-
-# fontconfig
-fontconfig_dir="$HOME/.config/fontconfig/conf.d"
-mkdir -p $fontconfig_dir
-
-noto_cjk_conf="75-noto-cjk.conf"
-sarasa_conf="90-sarasa-gothic.conf"
-
-noto_cjk_path="/etc/fonts/conf.d/${noto_cjk_conf}"
-sarasa_path="/etc/fonts/conf.d/${sarasa_conf}"
-
-user_noto_cjk_path="$fontconfig_dir/${noto_cjk_conf}"
-user_sarasa_path="$fontconfig_dir/${sarasa_conf}"
-
-if [[ -f $noto_cjk_path && ! -f $user_noto_cjk_path ]]; then
-    log_info "copy $noto_cjk_path to $fontconfig_dir"
-    cp $noto_cjk_path $fontconfig_dir
-fi
-
-if [[ -f $sarasa_path && ! -f $user_sarasa_path ]]; then
-    log_info "copy $sarasa_path to $fontconfig_dir"
-    cp $sarasa_path $fontconfig_dir
-fi
-
-# gamescope-gestures
-gamescope_gestures_conf="$HOME/.config/environment.d/chos-disable-gamescope-gestures.conf"
-if [ ! -f $gamescope_gestures_conf ]; then
-    /usr/bin/cjust disable-swipe-gestures || true
-fi
-
-# Audio Fix
-if [ -x "$(command -v sk-audio-setup)" ]; then
-    sk-audio-setup
-fi
-
-# copy wireplumber config
-if [ -x "/usr/libexec/user-wireplumber" ]; then
-    /usr/libexec/user-wireplumber
-fi
-
-# handle steamos powerbutton
-handle_steamos_powerbutton &
-disown
-
-fix_games &
-disown
-
-# Decky update
-nohup bash -c "update_decky" >/dev/null 2>&1 &
-disown
