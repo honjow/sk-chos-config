@@ -28,5 +28,5 @@ echo "New hostname: $new_hostname"
 if [[ "$current_hostname" != "$new_hostname" ]]; then
     # 通知系统更新主机名
     systemctl restart systemd-hostnamed
-    systemctl restart lightdm
+    systemctl restart avahi-daemon
 fi

@@ -724,17 +724,154 @@ function recopy_skel() {
 }
 
 function set_hostname() {
+    # Define hostname mappings for specific devices
+    declare -A hostname_mappings=(
+        # MSI Claw Series
+        ["Claw 7"]="Claw7"
+        ["Claw 8"]="Claw8"
+        ["Claw 8 AI+ A2VM"]="Claw8"
+        ["Claw A8"]="ClawA8"
+        ["Claw A1M"]="Claw"
+        
+        # ASUS ROG Ally Series
+        ["ROG Ally RC71L_RC71L"]="ROGAlly"
+        ["ROG Ally RC71L"]="ROGAlly"
+        ["RC71L"]="ROGAlly"
+        ["ROG Ally X RC72LA"]="ROGAllyX"
+        ["RC72L"]="ROGAllyX"
+        ["RC73XA"]="XboxAllyX"
+        ["RC73YA"]="XboxAlly"
+        
+        # Lenovo Legion Go Series
+        ["83E1"]="LegionGo"
+        ["83N0"]="LegionGo2"
+        ["83N1"]="LegionGo2"
+        ["83L3"]="LegionGoS"
+        ["83N6"]="LegionGoS"
+        ["83Q2"]="LegionGoS"
+        ["83Q3"]="LegionGoS"
+        
+        # GPD Devices
+        ["G1618-03"]="Win3"
+        ["G1618-04"]="Win4"
+        ["G1618-05"]="Win5"
+        ["G1619-04"]="WinMax2"
+        ["G1617-01"]="WinMini"
+        ["G1617-02"]="WinMini"
+        ["MicroPC"]="MicroPC"
+        
+        # ONEXPLAYER Series
+        ["ONE XPLAYER"]="OXP"
+        ["ONEXPLAYER 1 T08"]="OXP-1"
+        ["ONEXPLAYER 1S A08"]="OXP-1S"
+        ["ONEXPLAYER 1S T08"]="OXP-1S"
+        ["ONEXPLAYER mini A07"]="OXP-Mini"
+        ["ONEXPLAYER mini GA72"]="OXP-Mini"
+        ["ONEXPLAYER mini GT72"]="OXP-Mini"
+        ["ONEXPLAYER Mini Pro"]="OXP-MiniPro"
+        ["ONEXPLAYER GUNDAM GA72"]="OXP-Gundam"
+        ["ONEXPLAYER 2 ARP23"]="OXP-2"
+        ["ONEXPLAYER 2 PRO ARP23H"]="OXP-2Pro"
+        ["ONEXPLAYER 2 PRO ARP23P"]="OXP-2Pro"
+        ["ONEXPLAYER 2 PRO ARP23P EVA-01"]="OXP-2ProEVA"
+        ["ONEXPLAYER F1"]="OXP-F1"
+        ["ONEXPLAYER F1 EVA-01"]="OXP-F1EVA"
+        ["ONEXPLAYER F1 EVA-02"]="OXP-F1EVA2"
+        ["ONEXPLAYER F1Pro"]="OXP-F1Pro"
+        ["ONEXPLAYER F1 OLED"]="OXP-F1OLED"
+        ["ONEXPLAYER X1"]="OXP-X1"
+        ["ONEXPLAYER X1 i"]="OXP-X1i"
+        ["ONEXPLAYER X1 A"]="OXP-X1A"
+        ["ONEXPLAYER X1Pro EVA-02"]="OXP-X1ProEVA"
+        ["ONEXPLAYER X1Air"]="OXP-X1Air"
+        ["ONEXPLAYER X1 mini"]="OXP-X1Mini"
+        ["ONEXPLAYER G1 A"]="OXP-G1A"
+        ["ONEXPLAYER G1 i"]="OXP-G1i"
+        
+        # AOKZOE Series
+        ["AOKZOE A1 AR07"]="AOK-A1"
+        ["AOKZOE A1 Pro"]="AOK-A1Pro"
+        ["AOKZOE A1X"]="AOK-A1X"
+        ["AOKZOE A2 Pro"]="AOK-A2Pro"
+        
+        # AYANEO Series
+        # ["AIR"]="AyaAir"
+        # ["AIR Pro"]="AyaAirPro"
+        # ["AIR Plus"]="AyaAirPlus"
+        # ["AIR 1S"]="AyaAir1S"
+        # ["AIR 1S Limited"]="AyaAir1SLtd"
+        # ["SLIDE"]="AyaSlide"
+        # ["FLIP DS"]="AyaFlipDS"
+        # ["FLIP KB"]="AyaFlipKB"
+        
+        # AYN Series
+        ["Loki Max"]="LokiMax"
+        ["Loki Zero"]="LokiZero"
+        ["Loki MiniPro"]="LokiMiniPro"
+        
+        # Steam Deck
+        # ["Jupiter"]="SteamDeck"
+        # ["Galileo"]="SteamDeckOLED"
+        
+        # ZOTAC
+        ["ZOTAC GAMING ZONE"]="ZotacZone"
+        
+        # Minisforum
+        ["V3"]="MiniV3"
+        
+        # ASUS Flow
+        ["ROG Flow Z13"]="ROGFlowZ13"
+    )
+    
     local current_hostname
     local product_name
     local hostname
+    
     current_hostname=$(hostnamectl --static)
-    product_name=$(cat /sys/devices/virtual/dmi/id/product_name)
-    hostname=$(echo "$product_name" | sed 's/ /-/g;s/:/-/g')
-    log_info "Setting hostname to $hostname..."
+    product_name=$(cat /sys/devices/virtual/dmi/id/product_name 2>/dev/null || echo "")
+    
+    # Check if product_name is empty
+    if [[ -z "$product_name" ]]; then
+        log_info "Product name is empty, keeping current hostname"
+        return
+    fi
+    
+    # Try exact match first (case-insensitive)
+    for key in "${!hostname_mappings[@]}"; do
+        if [[ "${product_name,,}" == "${key,,}" ]]; then
+            hostname="${hostname_mappings[$key]}"
+            break
+        fi
+    done
+    
+    # Try fuzzy match if no exact match found (case-insensitive)
+    # Sort keys by length (longest first) to match more specific patterns first
+    if [[ -z "$hostname" ]]; then
+        for key in $(printf '%s\n' "${!hostname_mappings[@]}" | awk '{ print length, $0 }' | sort -rn | cut -d' ' -f2-); do
+            if [[ "${product_name,,}" == *"${key,,}"* ]]; then
+                hostname="${hostname_mappings[$key]}"
+                break
+            fi
+        done
+    fi
+    
+    # If no mapping found, use safe default processing
+    if [[ -z "$hostname" ]]; then
+        # Replace non-alphanumeric chars with hyphens, remove leading/trailing hyphens, collapse multiple hyphens
+        hostname=$(echo "$product_name" | sed 's/[^a-zA-Z0-9-]/-/g; s/^-*//; s/-*$//; s/--*/-/g')
+    fi
+    
+    # Fallback to default if still empty
+    if [[ -z "$hostname" ]]; then
+        hostname="SkorionOS"
+    fi
+    
+    log_info "Setting hostname to $hostname (from: $product_name)..."
     sudo hostnamectl set-hostname "$hostname"
     if [[ "$current_hostname" != "$hostname" ]]; then
         sudo systemctl daemon-reload
         sudo systemctl restart systemd-hostnamed
+        sudo systemctl restart avahi-daemon
     fi
 }
 
