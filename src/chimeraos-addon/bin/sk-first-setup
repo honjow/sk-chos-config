@@ -729,7 +729,6 @@ function set_hostname() {
         # MSI Claw Series
         ["Claw 7"]="Claw7"
         ["Claw 8"]="Claw8"
-        ["Claw 8 AI+ A2VM"]="Claw8"
         ["Claw A8"]="ClawA8"
         ["Claw A1M"]="Claw"
         
@@ -847,12 +846,12 @@ function set_hostname() {
     # Try fuzzy match if no exact match found (case-insensitive)
     # Sort keys by length (longest first) to match more specific patterns first
     if [[ -z "$hostname" ]]; then
-        for key in $(printf '%s\n' "${!hostname_mappings[@]}" | awk '{ print length, $0 }' | sort -rn | cut -d' ' -f2-); do
+        while IFS= read -r key; do
             if [[ "${product_name,,}" == *"${key,,}"* ]]; then
                 hostname="${hostname_mappings[$key]}"
                 break
             fi
-        done
+        done < <(printf '%s\n' "${!hostname_mappings[@]}" | awk '{ print length, $0 }' | sort -rn | cut -d' ' -f2-)
     fi
     
     # If no mapping found, use safe default processing
