@@ -110,7 +110,14 @@ VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor)
 
 LED_PATH="/sys/class/leds/multicolor:chassis/"
 
-LED_VENDOR_LIST="ONE-NETBOOK:ONE-NETBOOK TECHNOLOGY CO., LTD.:AOKZOE"
+LED_VENDOR_LIST=(
+    "ONE-NETBOOK"
+    "ONE-NETBOOK TECHNOLOGY CO., LTD."
+    "AOKZOE"
+    "ASUSTeK COMPUTER INC."
+    "Micro-Star International Co., Ltd."
+    "LENOVO"
+)
 
 AYA_MATCH_LIST=(
     "AYA NEO FOUNDER"
@@ -123,6 +130,7 @@ AYA_MATCH_LIST=(
     "AIR"
     "SLIDE"
     "FLIP"
+    "KUN"
 )
 
 LGO_MATCH_LIST=(
@@ -216,18 +224,18 @@ function hhd_support() {
 }
 
 function led_support() {
-    local product_name
-    local item
-    if [[ ":${LED_VENDOR_LIST}:" =~ ":${VENDOR}:" ]]; then
-        return 0
-    fi
+    for vendor in "${LED_VENDOR_LIST[@]}"; do
+        if [[ "$VENDOR" == "$vendor" ]]; then
+            return 0
+        fi
+    done
 
     if [[ -d "${LED_PATH}" ]]; then
         return 0
     fi
 
-    for item in "${LED_MATCH_LIST[@]}"; do
-        if [[ "$PRODUCT" =~ "$item" ]]; then
+    for product in "${LED_MATCH_LIST[@]}"; do
+        if [[ "$PRODUCT" =~ "$product" ]]; then
             return 0
         fi
     done
