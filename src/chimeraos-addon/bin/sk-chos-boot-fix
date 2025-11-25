@@ -30,7 +30,7 @@ if [ -n "$boot_device" ]; then
 fi
 
 if [ -n "$boot_device" ]; then
-    bootctl install --path=/frzr_root/boot
+    bootctl install --path=/frzr_root/boot --graceful
 else
-    bootctl install
+    bootctl install --graceful
 fi
