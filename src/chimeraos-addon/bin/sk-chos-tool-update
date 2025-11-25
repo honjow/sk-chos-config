@@ -106,11 +106,11 @@ if [[ "$update_sk_chos_tool" != "false" ]]; then
     /usr/bin/__sk-chos-tool-update
 fi
 
-handycon_status=$(systemctl is-enabled handycon.service 2>/dev/null)
-if [[ "$handycon_status" == "enabled" && "$update_handygccs" != "false" ]]; then
-    echo "update handygccs"
-    /usr/bin/__handygccs-update
-fi
+# handycon_status=$(systemctl is-enabled handycon.service 2>/dev/null)
+# if [[ "$handycon_status" == "enabled" && "$update_handygccs" != "false" ]]; then
+#     echo "update handygccs"
+#     /usr/bin/__handygccs-update
+# fi
 
 hhd_status=$(systemctl is-enabled "hhd@${USER}.service" 2>/dev/null)
 if [[ "$hhd_status" == "enabled" && "$update_hhd" != "false" ]]; then
