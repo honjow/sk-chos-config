@@ -202,11 +202,13 @@ function apply_hhd_patch_win5() {
     local path_win5_g4=(
         "${path_base_url}/hhd-win5-04.patch"
         )
+	local patch_win5_extra_button=("${path_base_url}/hhd-win5-extra-button.patch")
     if [[ "$PRODUCT" == "G1618-05" ]]; then
         try_patches_in_order "$HHD_PATH" path_win5_g1
         try_patches_in_order "$HHD_PATH" path_win5_g2
         try_patches_in_order "$HHD_PATH" path_win5_g3
         try_patches_in_order "$HHD_PATH" path_win5_g4
+        try_patches_in_order "$HHD_PATH" patch_win5_extra_button
     fi
 }
 
