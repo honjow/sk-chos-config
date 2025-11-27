@@ -89,7 +89,7 @@ function set_all_config() {
     touch "$refind_dir/override.conf"
 
     cat >"$refind_dir/refind.conf" <<-EOF
-timeout 3
+timeout 5
 use_nvram false
 dont_scan_dirs frzr_efi:EFI/boot,EFI/systemd,EFI/UMAF,EFI/Shell/
 dont_scan_files DisplayEngine.efi,SetupBrowser.efi,UiApp.efi,umaf.efi,modelist.efi
