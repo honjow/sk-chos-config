@@ -40,11 +40,16 @@ function retry() {
 }
 
 function restart_hhd_gamer() {
-    status=$(systemctl is-enabled hhd@gamer 2>/dev/null)
-    if [[ "$status" == "enabled" ]]; then
+    status_hhd_gamer=$(systemctl is-enabled hhd@gamer 2>/dev/null)
+	status_hhd=$(systemctl is-enabled hhd 2>/dev/null)
+    if [[ "$status_hhd_gamer" == "enabled" ]]; then
         echo "Restart hhd@gamer"
         systemctl restart hhd@gamer
     fi
+	if [[ "$status_hhd" == "enabled" ]]; then
+		echo "Restart hhd"
+		systemctl restart hhd
+	fi
 }
 
 # Try patches in order until one succeeds

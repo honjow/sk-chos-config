@@ -514,10 +514,10 @@ function setup_decky_plugins() {
 }
 
 function setup_gamepad() {
-    hhd_enable=$(systemctl is-enabled "hhd@${USER}" 2>/dev/null || echo "disabled")
-    hhd_global_enable=$(systemctl is-enabled hhd 2>/dev/null || echo "disabled")
-    if [[ "$hhd_enable" == "enabled" ]] ||
-        [[ "$hhd_global_enable" == "enabled" ]] ||
+    hhd_gamer_enable=$(systemctl is-enabled "hhd@${USER}" 2>/dev/null || echo "disabled")
+    hhd_enable=$(systemctl is-enabled hhd 2>/dev/null || echo "disabled")
+    if [[ "$hhd_gamer_enable" == "enabled" ]] ||
+        [[ "$hhd_enable" == "enabled" ]] ||
         hhd_support 2>/dev/null; then
         log_info "disabling handycon/inputplumber and enabling hhd..."
         sudo systemctl disable --now handycon || true
@@ -529,9 +529,9 @@ function setup_gamepad() {
 
         # ignore_handheld_powerkey
 
-        if [[ "$hhd_enable" != "enabled" ]] && [[ "$hhd_global_enable" != "enabled" ]]; then
-            log_info "hhd@${USER} is not enabled, enabling..."
-            sudo systemctl enable --now "hhd@${USER}"
+        if [[ "$hhd_gamer_enable" != "enabled" ]] && [[ "$hhd_enable" != "enabled" ]]; then
+            log_info "hhd is not enabled, enabling..."
+            sudo systemctl enable --now hhd
         fi
     else
         # ignore_handheld_powerkey --reset

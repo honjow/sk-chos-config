@@ -52,12 +52,18 @@ function enable_hhd() {
     systemctl disable --now inputplumber || true
     # systemctl disable --now steam-powerbuttond || true
 
+	systemctl disable --now hhd@gamer || true
+
     # check hhd@gamer is masked
-    is_masked=$(systemctl is-enabled hhd@gamer)
-    if [[ "$is_masked" == "masked" ]]; then
+    is_hhd_masked=$(systemctl is-enabled hhd)
+	is_hhd_gamer_masked=$(systemctl is-enabled hhd@gamer)
+    if [[ "$is_hhd_masked" == "masked" ]]; then
+        systemctl unmask hhd
+    fi
+	if [[ "$is_hhd_gamer_masked" == "masked" ]]; then
         systemctl unmask hhd@gamer
     fi
-    systemctl enable --now hhd@gamer
+    systemctl enable --now hhd
     echo "Enable hhd finished"
 }
 
@@ -65,6 +71,7 @@ function enable_inputplumber() {
     echo "enable inputplumber, and disable hhd"
 
     systemctl disable --now hhd@gamer || true
+	systemctl disable --now hhd || true
 
     # check inputplumber is masked
     is_masked=$(systemctl is-enabled inputplumber)
@@ -111,13 +118,15 @@ function gamepad_fix_for_allyx() {
         return
     fi
 
-    hhd_status=$(systemctl is-enabled hhd@gamer)
-    inputplumber_status=$(systemctl is-enabled inputplumber)
-    if [[ "$hhd_status" == "enabled" && "$inputplumber_status" == "enabled" ]]; then
+    hhd_gamer_status=$(systemctl is-enabled hhd@gamer 2>/dev/null || echo "disabled")
+    hhd_status=$(systemctl is-enabled hhd 2>/dev/null || echo "disabled")
+
+    inputplumber_status=$(systemctl is-enabled inputplumber 2>/dev/null || echo "disabled")
+    if [[ "$hhd_gamer_status" == "enabled" || "$hhd_status" == "enabled" ]] && [[ "$inputplumber_status" == "enabled" ]]; then
         echo "hhd and inputplumber both enabled, should be only enable hhd"
         enable_hhd_allyx
     else
-        if [[ "$hhd_status" == "enabled" ]]; then
+        if [[ "$hhd_gamer_status" == "enabled" || "$hhd_status" == "enabled" ]]; then
             enable_hhd_allyx
         else
             enable_inputplumber_allyx
@@ -127,9 +136,9 @@ function gamepad_fix_for_allyx() {
 
 # 检查 hhd 是否启用，如果启用，则禁用 inputplumber
 function check_hhd_enable() {
-    hhd_enable=$(systemctl is-enabled "hhd@${USER}" 2>/dev/null || echo "disabled")
-    hhd_global_enable=$(systemctl is-enabled hhd 2>/dev/null || echo "disabled")
-    if [[ "$hhd_enable" == "enabled" ]] || [[ "$hhd_global_enable" == "enabled" ]]; then
+    hhd_gamer_enable=$(systemctl is-enabled "hhd@${USER}" 2>/dev/null || echo "disabled")
+    hhd_enable=$(systemctl is-enabled hhd 2>/dev/null || echo "disabled")
+    if [[ "$hhd_gamer_enable" == "enabled" ]] || [[ "$hhd_enable" == "enabled" ]]; then
         systemctl disable --now inputplumber || true
         systemctl mask inputplumber || true
         pkill inputplumber || true

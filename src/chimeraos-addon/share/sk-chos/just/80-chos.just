@@ -38,13 +38,13 @@ _hhd-fast-qam-toggle:
 [group("system")]
 hhd-enable:
     #!/bin/bash
-    sudo systemctl enable --now hhd@$(whoami).service
+    sudo systemctl enable --now hhd.service
 
 # Handheld Daemon disable / 停用 Handheld Daemon
 [group("system")]
 hhd-disable:
     #!/bin/bash
-    sudo systemctl disable --now hhd@$(whoami).service
+    sudo systemctl disable --now hhd.service
 
 # InputPlumber enable / 启用 InputPlumber
 [group("system")]
