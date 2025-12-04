@@ -39,21 +39,38 @@ fi
 SIZE=$1
 
 source /etc/sk-chos/sk-chos.conf
-swapfile_size=${4:-$SWAP_FILE_SIZE}
+default_swapfile_size=${4:-$SWAP_FILE_SIZE}
 
 # 检查并获取RAM信息
 ram_info=$(sudo dmidecode -t 17 | tr -d '\t' | grep "^Size: [0-9]* [MG]B" | awk '{print $2}')
 ram_size_num=$(echo "$ram_info" | awk '{sum += $1} END {print sum}')
 
+custom_swapfile_size="$SIZE"
+
 if [ -f "$SUSPEND_SERVICE" ]; then
     if cat "$SUSPEND_SERVICE" | grep -q "systemd-sleep hibernate" || \
        cat "$SUSPEND_SERVICE" | grep -q "systemd-sleep suspend-then-hibernate"; then
-        swapfile_size=$ram_size_num
+        default_swapfile_size=$ram_size_num
     fi
 fi
 
-# 使用用户提供的参数或默认值
-swapfile_size=${SIZE:-$swapfile_size}
+if [ -n "$custom_swapfile_size" ]; then
+    if [ "$custom_swapfile_size" -lt 0 ]; then
+        echo "SIZE 小于 0, 使用 RAM 大小: $ram_size_num GiB"
+        swapfile_size=$ram_size_num
+    elif [ "$custom_swapfile_size" -gt "$ram_size_num" ]; then
+        echo "SIZE 大于 RAM 大小, 使用 RAM 大小: $ram_size_num GiB"
+        swapfile_size=$ram_size_num
+    elif [ "$custom_swapfile_size" -eq 0 ]; then
+        echo "SIZE 等于 0, 使用默认大小: $default_swapfile_size GiB"
+        swapfile_size=$default_swapfile_size
+    else
+        echo "SIZE 等于 $custom_swapfile_size GiB"
+        swapfile_size=$custom_swapfile_size
+    fi
+else
+    swapfile_size=$default_swapfile_size
+fi
 
 echo "交换文件大小: $swapfile_size GiB"
 
