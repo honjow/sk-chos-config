@@ -207,7 +207,15 @@ function apply_hhd_patch_win5() {
     local path_win5_g4=(
         "${path_base_url}/hhd-win5-04.patch"
         )
-	local patch_win5_extra_button=("${path_base_url}/hhd-win5-extra-button.patch")
+	# v4.1.4 版本之后 g1到g4的补丁应该都会失败（hhd已合并补丁）
+
+	# v4.1.4 hhd-win5-extra-button 失败, 应该能使用 hhd-win5-extra-button-414.patch 成功
+	local patch_win5_extra_button=(
+		"${path_base_url}/hhd-win5-extra-button.patch"
+		"${path_base_url}/hhd-win5-extra-button-414.patch"
+		)
+
+	# 暂不受到影响
 	local patch_win5_gyro_map=("${path_base_url}/hhd-win5-gyro-map.patch")
 
     if [[ "$PRODUCT" == "G1618-05" ]]; then
