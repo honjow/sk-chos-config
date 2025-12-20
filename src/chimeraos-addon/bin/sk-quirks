@@ -228,6 +228,17 @@ function apply_hhd_patch_win5() {
     fi
 }
 
+function apply_hhd_patch_handle5() {
+	local path_base_url="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs"
+    local path_handle5=(
+        "${path_base_url}/hhd-tf-handle5.patch"
+        )
+
+	if [[ "$PRODUCT" == "Handle 5" ]]; then
+		try_patches_in_order "$HHD_PATH" path_handle5
+	fi
+}
+
 # Execute all applicable patch functions independently
 patch_applied=false
 
@@ -237,6 +248,7 @@ apply_hhd_patch_aokzoe_a1x && patch_applied=true
 apply_hhd_claw && patch_applied=true
 apply_hhd_gpd && patch_applied=true
 apply_hhd_patch_win5 && patch_applied=true
+apply_hhd_patch_handle5 && patch_applied=true
 
 if [[ "$patch_applied" == true ]]; then
     echo "Some hhd patches applied successfully"
