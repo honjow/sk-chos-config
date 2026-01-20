@@ -146,8 +146,11 @@ function update_decky() {
 function handle_steamos_powerbutton() {
     local service_name="steamos-powerbuttond.service"
 
+	# 是否检查 gpio-keys 设备
+	local check_gpio_keys=false
+
     # 检查是否存在 gpio-keys 设备
-    if grep -q "gpio-keys" /proc/bus/input/devices 2>/dev/null; then
+    if [[ "$check_gpio_keys" == "true" ]] && grep -q "gpio-keys" /proc/bus/input/devices 2>/dev/null; then
         log_info "Found gpio-keys device, disabling $service_name"
         systemctl --user stop "$service_name" 2>/dev/null || true
         systemctl --user mask "$service_name" 2>/dev/null || true
