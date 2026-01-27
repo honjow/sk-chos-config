@@ -39,13 +39,8 @@ function retry() {
     return 1
 }
 
-function restart_hhd_gamer() {
-    status_hhd_gamer=$(systemctl is-enabled hhd@gamer 2>/dev/null)
+function restart_hhd() {
 	status_hhd=$(systemctl is-enabled hhd 2>/dev/null)
-    if [[ "$status_hhd_gamer" == "enabled" ]]; then
-        echo "Restart hhd@gamer"
-        systemctl restart hhd@gamer
-    fi
 	if [[ "$status_hhd" == "enabled" ]]; then
 		echo "Restart hhd"
 		systemctl restart hhd
@@ -252,7 +247,7 @@ apply_hhd_patch_handle5 && patch_applied=true
 
 if [[ "$patch_applied" == true ]]; then
     echo "Some hhd patches applied successfully"
-    restart_hhd_gamer
+    restart_hhd
 else
     echo "No hhd patches were applied"
 fi

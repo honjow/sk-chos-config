@@ -112,9 +112,8 @@ fi
 #     /usr/bin/__handygccs-update
 # fi
 
-hhd_gamer_status=$(systemctl is-enabled "hhd@${USER}.service" 2>/dev/null || echo "disabled")
 hhd_status=$(systemctl is-enabled hhd 2>/dev/null || echo "disabled")
-if [[ "$hhd_gamer_status" == "enabled" || "$hhd_status" == "enabled" ]] && [[ "$update_hhd" != "false" ]]; then
+if [[ "$hhd_status" == "enabled" ]] && [[ "$update_hhd" != "false" ]]; then
     echo "update hhd"
     /usr/bin/__hhd-update
 fi

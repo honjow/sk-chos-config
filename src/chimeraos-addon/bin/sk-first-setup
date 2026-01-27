@@ -514,40 +514,42 @@ function setup_decky_plugins() {
 }
 
 function setup_gamepad() {
-    hhd_gamer_enable=$(systemctl is-enabled "hhd@${USER}" 2>/dev/null || echo "disabled")
     hhd_enable=$(systemctl is-enabled hhd 2>/dev/null || echo "disabled")
-    if [[ "$hhd_gamer_enable" == "enabled" ]] ||
-        [[ "$hhd_enable" == "enabled" ]] ||
-        hhd_support 2>/dev/null; then
+    if [[ "$hhd_enable" == "enabled" ]] || hhd_support 2>/dev/null; then
         log_info "disabling handycon/inputplumber and enabling hhd..."
         sudo systemctl disable --now handycon || true
         sudo systemctl mask handycon || true
         sudo systemctl disable --now inputplumber || true
         sudo systemctl mask inputplumber || true
         sudo pkill inputplumber || true
-        sudo systemctl disable --now steam-powerbuttond || true
+        # sudo systemctl disable --now steam-powerbuttond || true
 
-        # ignore_handheld_powerkey
+        ignore_handheld_powerkey --reset
 
-        if [[ "$hhd_gamer_enable" != "enabled" ]] && [[ "$hhd_enable" != "enabled" ]]; then
+        if [[ "$hhd_enable" != "enabled" ]]; then
             log_info "hhd is not enabled, enabling..."
             sudo systemctl enable --now hhd
         fi
     else
-        # ignore_handheld_powerkey --reset
-        :
+        ignore_handheld_powerkey
+        # check inputplumber is masked
+        is_masked=$(systemctl is-enabled inputplumber 2>/dev/null || echo "not-found")
+        if [[ "$is_masked" == "masked" ]]; then
+            sudo systemctl unmask inputplumber
+        fi
+        sudo systemctl enable --now inputplumber
     fi
 }
 
 function ignore_handheld_powerkey() {
     local param=$1
-    file_path="/etc/systemd/logind.conf.d/zzz-power_off.conf"
+    file_path="/etc/systemd/logind.conf.d/zzz-handle-power-key-ignore.conf"
     if [[ "$param" == "--reset" ]]; then
         log_info "Resetting hand power key..."
         [[ -f $file_path ]] && sudo rm -f $file_path
-    else
+    elif [[ ! -f $file_path ]]; then
         log_info "Ignoring hand power key..."
-        echo -e "[Login]\nHandlePowerKey=ignore" | sudo tee $file_path >/dev/null
+        echo -e "[Login]\nHandlePowerKey=ignore\n" | sudo tee $file_path >/dev/null
     fi
     sudo systemctl daemon-reload
     sudo systemctl restart systemd-logind
