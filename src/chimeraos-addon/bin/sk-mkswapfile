@@ -42,8 +42,54 @@ source /etc/sk-chos/sk-chos.conf
 default_swapfile_size=${4:-$SWAP_FILE_SIZE}
 
 # 检查并获取RAM信息
-ram_info=$(sudo dmidecode -t 17 | tr -d '\t' | grep "^Size: [0-9]* [MG]B" | awk '{print $2}')
-ram_size_num=$(echo "$ram_info" | awk '{sum += $1} END {print sum}')
+# Note: dmidecode may output "GiB" (IEC binary) or "GB" (SI decimal), need to match both
+get_ram_size() {
+    local ram_size=0
+    
+    if command -v dmidecode &>/dev/null; then
+        # Method 1: dmidecode -t 19 (Memory Array Mapped Address) - most reliable, direct total
+        local range_size
+        range_size=$(dmidecode -t 19 2>/dev/null | grep -E "Range Size:" | head -1 | grep -oE "[0-9]+" | head -1)
+        if [ -n "$range_size" ] && [ "$range_size" -gt 0 ] 2>/dev/null; then
+            ram_size=$range_size
+        fi
+        
+        # Method 2: dmidecode -t 17 (Memory Device) - sum all modules
+        if [ -z "$ram_size" ] || [ "$ram_size" -eq 0 ] 2>/dev/null; then
+            local ram_info
+            ram_info=$(dmidecode -t 17 2>/dev/null | tr -d '\t' | grep -E "^Size: [0-9]+ [MG]i?B" | awk '{print $2}')
+            if [ -n "$ram_info" ]; then
+                ram_size=$(echo "$ram_info" | awk '{sum += $1} END {print sum}')
+            fi
+        fi
+    fi
+    
+    # Method 3: lshw as secondary fallback
+    if [ -z "$ram_size" ] || [ "$ram_size" -eq 0 ] 2>/dev/null; then
+        if command -v lshw &>/dev/null; then
+            local lshw_size
+            # Use -short format and look for "System Memory" line
+            lshw_size=$(lshw -class memory -short 2>/dev/null | grep -E "System Memory" | grep -oE "[0-9]+GiB" | grep -oE "[0-9]+")
+            if [ -n "$lshw_size" ] && [ "$lshw_size" -gt 0 ] 2>/dev/null; then
+                ram_size=$lshw_size
+            fi
+        fi
+    fi
+    
+    # Method 4: /proc/meminfo as final fallback (returns available memory, not physical)
+    if [ -z "$ram_size" ] || [ "$ram_size" -eq 0 ] 2>/dev/null; then
+        echo "警告: 无法获取物理内存大小，使用 /proc/meminfo 作为兜底" >&2
+        local mem_kb
+        mem_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+        # Convert KB to GB (round up to ensure sufficient swap)
+        ram_size=$(( (mem_kb + 1048575) / 1048576 ))
+    fi
+    
+    echo "$ram_size"
+}
+
+ram_size_num=$(get_ram_size)
+echo "检测到 RAM 大小: $ram_size_num GiB"
 
 custom_swapfile_size="$SIZE"
 
