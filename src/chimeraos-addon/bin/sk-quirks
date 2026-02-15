@@ -158,11 +158,22 @@ function apply_hhd_patch() {
 
 function apply_hhd_claw() {
     local path_base_url="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs"
-    # local path_powerbtn=("${path_base_url}hhd-clawa8-fix-powerbutton.patch")
+    local path_powerbtn=("${path_base_url}hhd-clawa8-fix-powerbutton.patch")
     local path_xinput=("${path_base_url}/hhd-claw-xinput.patch")
 
     if [[ "$VENDOR" == "Micro-Star International Co., Ltd." ]]; then
-        if try_patches_in_order "$HHD_PATH" path_xinput; then
+        # if try_patches_in_order "$HHD_PATH" path_xinput; then
+        #     echo "claw hhd patches applied"
+        # else
+        #     echo "All claw hhd patches failed"
+        #     return 1
+        # fi
+        try_patches_in_order "$HHD_PATH" path_powerbtn
+        local result=$?
+        try_patches_in_order "$HHD_PATH" path_xinput
+        local result2=$?
+        # [[ $result -eq 0 || $result2 -eq 0 ]]
+        if [[ $result -eq 0 || $result2 -eq 0 ]]; then
             echo "claw hhd patches applied"
         else
             echo "All claw hhd patches failed"
