@@ -1,1 +1,389 @@
-sk-chos-daemon
+#!/bin/bash
+
+# ChimeraOS System Daemon
+# Performs various system initialization and configuration tasks
+
+# Global variables (initialized in main)
+PRODUCT=""
+VENDOR=""
+ASUS_ALLY_HID_BLACKLIST="/etc/modprobe.d/asus_ally_hid.conf"
+ASUS_ALLY_HID_MOD_NAME="asus_ally_hid"
+
+function is_exist_mod() {
+    local MOD_NAME=$1
+    lsmod | grep "$MOD_NAME" >/dev/null 2>&1
+}
+
+function toggle_mcu_powersave() {
+    local ENABLE_MCU_POWERSAVE
+
+    ENABLE_MCU_POWERSAVE="1"
+
+    # ally 设备默认禁用 mcu powersave。 启用会导致睡眠唤醒后 N-Key 丢失
+    if [[ "$PRODUCT" =~ "ROG Ally RC71L" ]]; then
+        ENABLE_MCU_POWERSAVE="0"
+
+        # 如果内核名称包含 -sk -chimeraos 或者 -skchos ,启用 mcu powersave
+        if [[ "$(uname -r)" =~ -sk.*-.*chimeraos || "$(uname -r)" =~ -skchos ]]; then
+            ENABLE_MCU_POWERSAVE="1"
+        fi
+    fi
+
+    echo "Enable MCU powersave: $ENABLE_MCU_POWERSAVE"
+    if [ -n "$ENABLE_MCU_POWERSAVE" ]; then
+        for i in /sys/devices/platform/*/mcu_powersave; do
+            if [ -f "$i" ]; then
+                if [ "$(cat $i)" != "$ENABLE_MCU_POWERSAVE" ]; then
+                    echo "$ENABLE_MCU_POWERSAVE" >$i
+                fi
+            fi
+        done
+        ASUS_ARMOR_PATH="/sys/class/firmware-attributes/asus-armoury/attributes/mcu_powersave"
+        if [ -f "$ASUS_ARMOR_PATH/current_value" ]; then
+            if [ "$(cat $ASUS_ARMOR_PATH/current_value)" != "$ENABLE_MCU_POWERSAVE" ]; then
+                echo "$ENABLE_MCU_POWERSAVE" >$ASUS_ARMOR_PATH/current_value
+            fi
+        fi
+    fi
+}
+
+function enable_hhd() {
+    echo "enable hhd, and disable inputplumber"
+    systemctl disable --now inputplumber || true
+    # systemctl disable --now steam-powerbuttond || true
+
+	systemctl disable --now hhd@gamer || true
+
+    # check hhd@gamer is masked
+    is_hhd_masked=$(systemctl is-enabled hhd)
+    if [[ "$is_hhd_masked" == "masked" ]]; then
+        systemctl unmask hhd
+    fi
+    systemctl enable --now hhd
+    echo "Enable hhd finished"
+}
+
+function enable_inputplumber() {
+    echo "enable inputplumber, and disable hhd"
+
+    systemctl disable --now hhd@gamer || true
+	systemctl disable --now hhd || true
+
+    # check inputplumber is masked
+    is_masked=$(systemctl is-enabled inputplumber)
+    if [[ "$is_masked" == "masked" ]]; then
+        systemctl unmask inputplumber
+    fi
+    systemctl enable --now inputplumber
+    # systemctl enable --now steam-powerbuttond || true
+    echo "Enable inputplumber finished"
+}
+
+function enable_hhd_allyx() {
+    if [[ "$PRODUCT" =~ "ROG Ally X" ]]; then
+        if [[ -n "$(is_exist_mod "$ASUS_ALLY_HID_MOD_NAME")" ]]; then
+            echo "mod $ASUS_ALLY_HID_MOD_NAME is exist, disable it"
+            echo "blacklist $ASUS_ALLY_HID_MOD_NAME" >$ASUS_ALLY_HID_BLACKLIST
+            depmod -a
+            modprobe -r $ASUS_ALLY_HID_MOD_NAME
+        fi
+    fi
+    enable_hhd
+}
+
+function enable_inputplumber_allyx() {
+    if [[ "$PRODUCT" =~ "ROG Ally X" ]]; then
+        if [[ -z "$(is_exist_mod "$ASUS_ALLY_HID_MOD_NAME")" ]]; then
+            echo "mod $ASUS_ALLY_HID_MOD_NAME is not exist, enable it"
+            depmod -a
+            modprobe $ASUS_ALLY_HID_MOD_NAME
+            if [[ -f "$ASUS_ALLY_HID_BLACKLIST" ]]; then
+                echo "Remove blacklist $ASUS_ALLY_HID_MOD_NAME"
+                rm -f "$ASUS_ALLY_HID_BLACKLIST"
+                depmod -a
+            fi
+        fi
+    fi
+    enable_inputplumber
+}
+
+function gamepad_fix_for_allyx() {
+    echo "gamepad fix for allyx"
+
+    if [[ ! "$PRODUCT" =~ "ROG Ally X" && ! "$PRODUCT" =~ "ROG Xbox Ally" ]]; then
+        return
+    fi
+
+    hhd_status=$(systemctl is-enabled hhd 2>/dev/null || echo "disabled")
+    inputplumber_status=$(systemctl is-enabled inputplumber 2>/dev/null || echo "disabled")
+	
+    if [[ "$hhd_status" == "enabled" ]] && [[ "$inputplumber_status" == "enabled" ]]; then
+        echo "hhd and inputplumber both enabled, should be only enable hhd"
+        enable_hhd_allyx
+    else
+        if [[ "$hhd_status" == "enabled" ]]; then
+            enable_hhd_allyx
+        else
+            enable_inputplumber_allyx
+        fi
+    fi
+}
+
+# 检查 hhd 是否启用，如果启用，则禁用 inputplumber
+function check_hhd_enable() {
+    hhd_enable=$(systemctl is-enabled hhd 2>/dev/null || echo "disabled")
+    if [[ "$hhd_enable" == "enabled" ]]; then
+        systemctl disable --now inputplumber || true
+        systemctl mask inputplumber || true
+        pkill inputplumber || true
+    fi
+}
+
+# 清理无效的efi启动项
+function cleanup_efi_boot_entry() {
+    # Check if efibootmgr is available
+    if ! command -v efibootmgr &>/dev/null; then
+        echo "efibootmgr not found, skip cleanup"
+        return 0
+    fi
+    
+    # Check if system supports UEFI
+    if [[ ! -d "/sys/firmware/efi" ]]; then
+        echo "System is not UEFI, skip cleanup"
+        return 0
+    fi
+    
+    echo "Checking for invalid EFI boot entries..."
+    
+    local cleaned=0
+    local efi_output
+    efi_output=$(efibootmgr)
+    
+    # Extract all boot entry numbers (Boot####)
+    while read -r line; do
+        # Extract boot number (e.g., 0005 from Boot0005)
+        local boot_num
+        if [[ $line =~ ^Boot([0-9A-F]{4}) ]]; then
+            boot_num="${BASH_REMATCH[1]}"
+        else
+            continue
+        fi
+        
+        # Extract boot entry name and description
+        local boot_name
+        boot_name="${line#Boot[0-9A-F][0-9A-F][0-9A-F][0-9A-F]* }"
+        boot_name="${boot_name#Boot[0-9A-F][0-9A-F][0-9A-F][0-9A-F] }"
+        
+        # Check if entry is disabled (no asterisk)
+        local is_disabled=false
+        if [[ ! $line =~ ^Boot[0-9A-F]{4}\* ]]; then
+            is_disabled=true
+        fi
+        
+        # Flag to track if we should delete this entry
+        local should_delete=false
+        local delete_reason=""
+        
+        # Check 1: auto_created_boot_option entries
+        if [[ $line =~ auto_created_boot_option ]]; then
+            should_delete=true
+            delete_reason="auto-created placeholder"
+        fi
+        
+        # Check 2: VenHw() entries that are disabled
+        if [[ "$is_disabled" = true ]] && [[ $line =~ VenHw\( ]]; then
+            should_delete=true
+            delete_reason="disabled VenHw entry"
+        fi
+        
+        # Check 3: Entries with invalid device paths (BBS entries that are disabled)
+        # BBS entries are legacy boot entries, usually safe to remove if disabled
+        if [[ "$is_disabled" = true ]] && [[ $line =~ BBS\( ]]; then
+            # Skip common useful BBS entries even if disabled
+            if [[ ! $line =~ (CD/DVD|Removable\ Device|Network\ Device|USB) ]]; then
+                should_delete=true
+                delete_reason="disabled legacy BBS entry"
+            fi
+        fi
+        
+        # Check 4: Duplicate disabled entries (same name as an enabled one)
+        if [[ "$is_disabled" = true ]]; then
+            # Extract the simple name part for comparison
+            local simple_name
+            simple_name="${boot_name%%$'\t'*}"
+            simple_name="${simple_name%% *}"
+            
+            # Check if there's an enabled entry with the same name
+            if grep -qE "^Boot[0-9A-F]{4}\*.*${simple_name}" <<< "$efi_output"; then
+                should_delete=true
+                delete_reason="duplicate of enabled entry"
+            fi
+        fi
+        
+        # Perform deletion if flagged
+        if [[ "$should_delete" = true ]]; then
+            echo "Removing invalid boot entry Boot$boot_num: $delete_reason"
+            echo "  Description: $boot_name"
+            
+            if efibootmgr -b "$boot_num" -B &>/dev/null; then
+                echo "  ✓ Successfully removed"
+                cleaned=$((cleaned + 1))
+            else
+                echo "  ✗ Failed to remove"
+            fi
+        fi
+    done < <(echo "$efi_output" | grep "^Boot[0-9A-F]\{4\}")
+    
+    if [[ $cleaned -gt 0 ]]; then
+        echo "Cleaned up $cleaned invalid EFI boot entries"
+    else
+        echo "No invalid EFI boot entries found"
+    fi
+}
+
+# 初始化系统目录和基础服务
+function setup_system_services() {
+    # Create atd directory
+    mkdir -p /var/spool/atd
+
+    # frzr-unlock
+    if [ -x "$(command -v frzr-unlock)" ]; then
+        frzr-unlock
+    fi
+
+    # Initialize boltd version if not set
+    if [[ -z "$(cat /var/lib/boltd/version 2>/dev/null)" ]]; then
+        echo "1" >/var/lib/boltd/version
+    fi
+}
+
+# 根据厂商设置 ROG Control Center 的显示状态
+function setup_asusctl_visibility() {
+    local shortcut_path="/usr/share/applications/rog-control-center.desktop"
+    local no_display="false"
+    
+    if [[ "$VENDOR" != "ASUSTeK COMPUTER INC." ]]; then
+        no_display="true"
+    fi
+
+    if [[ -f "$shortcut_path" ]]; then
+        if grep -q "NoDisplay=" "$shortcut_path"; then
+            sed -i "s/NoDisplay=.*/NoDisplay=$no_display/" "$shortcut_path"
+        else
+            echo "NoDisplay=$no_display" >>"$shortcut_path"
+        fi
+    fi
+}
+
+# 修复 Waydroid LXC 配置中的 apparmor 问题
+function fix_waydroid_config() {
+    local waydroid_config="/var/lib/waydroid/lxc/waydroid/config"
+    
+    if [[ -f "$waydroid_config" ]]; then
+        if grep -q "lxc.apparmor.profile" "$waydroid_config"; then
+            echo "Removing unneeded apparmor entry from Waydroid LXC"
+            sed -i '/lxc\.apparmor\.profile\s*=\s*unconfined/d' "$waydroid_config"
+        fi
+    fi
+}
+
+# 配置系统休眠模式
+function setup_hibernate_mode() {
+    local sleep_conf_dir="/etc/systemd/sleep.conf.d"
+    local hibernatemode_config="${sleep_conf_dir}/hibernatemode.conf"
+    local config
+    
+    config=$(cat "$hibernatemode_config" 2>/dev/null | grep "HibernateMode" || true)
+    
+    if [[ ! -f "$hibernatemode_config" || -z "$config" ]]; then
+        mkdir -p "$sleep_conf_dir"
+        echo "[Sleep]" >"$hibernatemode_config"
+        echo "HibernateMode=shutdown" >>"$hibernatemode_config"
+    fi
+}
+
+# 清理重复的 fstab 配置
+function cleanup_fstab_duplicates() {
+    local DEPLOYMENT
+    DEPLOYMENT=$(frzr-release 2>/dev/null || echo "")
+    
+    if [[ -z "$DEPLOYMENT" ]]; then
+        return 0
+    fi
+    
+    local fstab_path="/frzr_root/etc/fstab"
+    local deployment_fstab_path="/frzr_root/deployments/${DEPLOYMENT}/etc/fstab"
+    
+    # 如果内容相同 删除 fstab_path
+    if [[ -f "$fstab_path" && -f "$deployment_fstab_path" ]]; then
+        local fstab_content
+        fstab_content=$(cat "$fstab_path" 2>/dev/null || echo "")
+        if [[ -n "$fstab_content" ]] && grep -qF "$fstab_content" "$deployment_fstab_path" 2>/dev/null; then
+            rm -f "$fstab_path"
+        fi
+    fi
+}
+
+# 执行硬件相关的设置脚本
+function run_hardware_setup() {
+    # Setup aw87xxx audio hardware
+    if [ -x "/usr/libexec/aw87xxx-setup" ]; then
+        /usr/libexec/aw87xxx-setup
+    fi
+
+    # Run device-specific quirks
+    if [ -x "$(command -v sk-quirks)" ]; then
+        sk-quirks
+    fi
+}
+
+# 为特定程序设置 Linux capabilities
+function setup_capabilities() {
+    # Set cap_perfmon for mangohud
+    if [ -x "$(command -v mangohud)" ]; then
+        setcap cap_perfmon=+ep "$(command -v mangohud)" 2>/dev/null || true
+    fi
+}
+
+# Main function
+function main() {
+    # Check root privileges
+    if [ "$EUID" -ne 0 ]; then
+        echo "This script must be run as root or with sudo."
+        exit 1
+    fi
+
+    # Initialize global variables
+    PRODUCT=$(cat /sys/class/dmi/id/product_name 2>/dev/null || echo "")
+    VENDOR=$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null || echo "")
+
+    # Unlock pacman if available
+    if [ -x "$(command -v sk-unlock-pacman)" ]; then
+        sk-unlock-pacman
+    fi
+
+    # Core device fixes
+    toggle_mcu_powersave
+    gamepad_fix_for_allyx
+    check_hhd_enable &
+
+    # System setup
+    setup_system_services
+    setup_asusctl_visibility
+    fix_waydroid_config
+    setup_hibernate_mode
+    cleanup_fstab_duplicates
+
+    # Hardware and capabilities
+    run_hardware_setup
+    setup_capabilities
+
+    # Cleanup tasks
+    cleanup_efi_boot_entry
+}
+
+# Script entry point
+# Only run main if script is executed directly (not sourced)
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi
