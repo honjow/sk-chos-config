@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# ChimeraOS System Daemon
+# SkorionOS Setup Script
 # Performs various system initialization and configuration tasks
+
+set -o pipefail
+
+# source /usr/bin/sk-utils.sh
 
 # Global variables (initialized in main)
 PRODUCT=""
@@ -80,7 +84,7 @@ function enable_inputplumber() {
 }
 
 function enable_hhd_allyx() {
-    if [[ "$PRODUCT" =~ "ROG Ally X" ]]; then
+    if [[ "$PRODUCT" =~ "Ally X" ]]; then
         if [[ -n "$(is_exist_mod "$ASUS_ALLY_HID_MOD_NAME")" ]]; then
             echo "mod $ASUS_ALLY_HID_MOD_NAME is exist, disable it"
             echo "blacklist $ASUS_ALLY_HID_MOD_NAME" >$ASUS_ALLY_HID_BLACKLIST
@@ -92,7 +96,7 @@ function enable_hhd_allyx() {
 }
 
 function enable_inputplumber_allyx() {
-    if [[ "$PRODUCT" =~ "ROG Ally X" ]]; then
+    if [[ "$PRODUCT" =~ "Ally X" ]]; then
         if [[ -z "$(is_exist_mod "$ASUS_ALLY_HID_MOD_NAME")" ]]; then
             echo "mod $ASUS_ALLY_HID_MOD_NAME is not exist, enable it"
             depmod -a
@@ -118,8 +122,8 @@ function gamepad_fix_for_allyx() {
     inputplumber_status=$(systemctl is-enabled inputplumber 2>/dev/null || echo "disabled")
 	
     if [[ "$hhd_status" == "enabled" ]] && [[ "$inputplumber_status" == "enabled" ]]; then
-        echo "hhd and inputplumber both enabled, should be only enable hhd"
-        enable_hhd_allyx
+        echo "hhd and inputplumber both enabled, should be only enable inputplumber"
+        enable_inputplumber_allyx
     else
         if [[ "$hhd_status" == "enabled" ]]; then
             enable_hhd_allyx
