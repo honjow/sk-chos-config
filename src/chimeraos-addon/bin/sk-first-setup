@@ -517,21 +517,21 @@ function setup_gamepad() {
     hhd_enable=$(systemctl is-enabled hhd 2>/dev/null || echo "disabled")
     if [[ "$hhd_enable" == "enabled" ]] || hhd_support 2>/dev/null; then
         log_info "disabling handycon/inputplumber and enabling hhd..."
-        sudo systemctl disable --now handycon || true
-        sudo systemctl mask handycon || true
+
         sudo systemctl disable --now inputplumber || true
         sudo systemctl mask inputplumber || true
         sudo pkill inputplumber || true
+
         # sudo systemctl disable --now steam-powerbuttond || true
 
-        ignore_handheld_powerkey --reset
+        ignore_handheld_powerkey --off
 
         if [[ "$hhd_enable" != "enabled" ]]; then
             log_info "hhd is not enabled, enabling..."
             sudo systemctl enable --now hhd
         fi
     else
-        ignore_handheld_powerkey
+        ignore_handheld_powerkey --on
         # check inputplumber is masked
         is_masked=$(systemctl is-enabled inputplumber 2>/dev/null || echo "not-found")
         if [[ "$is_masked" == "masked" ]]; then
@@ -544,12 +544,16 @@ function setup_gamepad() {
 function ignore_handheld_powerkey() {
     local param=$1
     file_path="/etc/systemd/logind.conf.d/zzz-handle-power-key-ignore.conf"
-    if [[ "$param" == "--reset" ]]; then
-        log_info "Resetting hand power key..."
+    if [[ "$param" == "--off" ]]; then
+        log_info "Disabling hand power key..."
         [[ -f $file_path ]] && sudo rm -f $file_path
-    elif [[ ! -f $file_path ]]; then
-        log_info "Ignoring hand power key..."
-        echo -e "[Login]\nHandlePowerKey=ignore\n" | sudo tee $file_path >/dev/null
+    elif [[ "$param" == "--on" ]]; then
+        if [[ ! -f $file_path ]]; then
+            log_info "Ignoring hand power key..."
+            echo -e "[Login]\nHandlePowerKey=ignore\n" | sudo tee $file_path >/dev/null
+        else
+            log_info "Hand power key is already enabled"
+        fi
     fi
     sudo systemctl daemon-reload
     sudo systemctl restart systemd-logind
@@ -923,6 +927,17 @@ function run_sk-chos-daemon() {
     sudo systemctl restart sk-chos-daemon
 }
 
+function auto_reset_etc() {
+    local reset_etc_flag=/.reset-etc
+    if [[ -f "$reset_etc_flag" ]]; then
+        log_info "Resetting /etc..."
+        sudo /usr/share/sk-chos-tool/scripts/etc_repair.sh
+        sudo rm -f $reset_etc_flag
+        sleep 10
+        sudo reboot
+    fi
+}
+
 case $ACTION in
 "--update")
     copy_efi_drivers
@@ -936,6 +951,7 @@ case $ACTION in
     user_setup_after_update
     copy_rime_config
     run_sk-chos-daemon
+    auto_reset_etc
     ;;
 *)
     set_kernel_options
