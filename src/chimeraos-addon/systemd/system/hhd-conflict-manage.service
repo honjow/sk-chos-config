@@ -1,0 +1,10 @@
+[Unit]
+Description=Manage resources conflicting with hhd
+BindsTo=hhd.service
+After=hhd.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/hhd-conflict-manage start
+ExecStop=/usr/bin/hhd-conflict-manage stop

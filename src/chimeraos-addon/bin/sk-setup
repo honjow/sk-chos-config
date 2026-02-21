@@ -10,13 +10,6 @@ set -o pipefail
 # Global variables (initialized in main)
 PRODUCT=""
 VENDOR=""
-ASUS_ALLY_HID_BLACKLIST="/etc/modprobe.d/asus_ally_hid.conf"
-ASUS_ALLY_HID_MOD_NAME="asus_ally_hid"
-
-function is_exist_mod() {
-    local MOD_NAME=$1
-    lsmod | grep "$MOD_NAME" >/dev/null 2>&1
-}
 
 function toggle_mcu_powersave() {
     local ENABLE_MCU_POWERSAVE
@@ -81,66 +74,6 @@ function enable_inputplumber() {
     systemctl enable --now inputplumber
     # systemctl enable --now steam-powerbuttond || true
     echo "Enable inputplumber finished"
-}
-
-function enable_hhd_allyx() {
-    if [[ "$PRODUCT" =~ "Ally X" ]]; then
-        if [[ -n "$(is_exist_mod "$ASUS_ALLY_HID_MOD_NAME")" ]]; then
-            echo "mod $ASUS_ALLY_HID_MOD_NAME is exist, disable it"
-            echo "blacklist $ASUS_ALLY_HID_MOD_NAME" >$ASUS_ALLY_HID_BLACKLIST
-            depmod -a
-            modprobe -r $ASUS_ALLY_HID_MOD_NAME
-        fi
-    fi
-    enable_hhd
-}
-
-function enable_inputplumber_allyx() {
-    if [[ "$PRODUCT" =~ "Ally X" ]]; then
-        if [[ -z "$(is_exist_mod "$ASUS_ALLY_HID_MOD_NAME")" ]]; then
-            echo "mod $ASUS_ALLY_HID_MOD_NAME is not exist, enable it"
-            depmod -a
-            modprobe $ASUS_ALLY_HID_MOD_NAME
-            if [[ -f "$ASUS_ALLY_HID_BLACKLIST" ]]; then
-                echo "Remove blacklist $ASUS_ALLY_HID_MOD_NAME"
-                rm -f "$ASUS_ALLY_HID_BLACKLIST"
-                depmod -a
-            fi
-        fi
-    fi
-    enable_inputplumber
-}
-
-function gamepad_fix_for_allyx() {
-    echo "gamepad fix for allyx"
-
-    if [[ ! "$PRODUCT" =~ "ROG Ally X" && ! "$PRODUCT" =~ "ROG Xbox Ally" ]]; then
-        return
-    fi
-
-    hhd_status=$(systemctl is-enabled hhd 2>/dev/null || echo "disabled")
-    inputplumber_status=$(systemctl is-enabled inputplumber 2>/dev/null || echo "disabled")
-	
-    if [[ "$hhd_status" == "enabled" ]] && [[ "$inputplumber_status" == "enabled" ]]; then
-        echo "hhd and inputplumber both enabled, should be only enable inputplumber"
-        enable_inputplumber_allyx
-    else
-        if [[ "$hhd_status" == "enabled" ]]; then
-            enable_hhd_allyx
-        else
-            enable_inputplumber_allyx
-        fi
-    fi
-}
-
-# 检查 hhd 是否启用，如果启用，则禁用 inputplumber
-function check_hhd_enable() {
-    hhd_enable=$(systemctl is-enabled hhd 2>/dev/null || echo "disabled")
-    if [[ "$hhd_enable" == "enabled" ]]; then
-        systemctl disable --now inputplumber || true
-        systemctl mask inputplumber || true
-        pkill inputplumber || true
-    fi
 }
 
 # 清理无效的efi启动项
@@ -368,8 +301,6 @@ function main() {
 
     # Core device fixes
     toggle_mcu_powersave
-    gamepad_fix_for_allyx
-    check_hhd_enable &
 
     # System setup
     setup_system_services

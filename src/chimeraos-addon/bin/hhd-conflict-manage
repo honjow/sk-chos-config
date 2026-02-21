@@ -1,0 +1,131 @@
+#!/bin/bash
+
+# Manage resources that conflict with hhd (kernel modules, services).
+# Companion service: follows hhd lifecycle via BindsTo=hhd.service
+#
+# - start: blacklist conflicting modules, unload them, stop conflicting services
+# - stop:  remove blacklist, reload modules, unmask conflicting services
+
+set -o pipefail
+
+HHD_BLACKLIST_DIR="/run/modprobe.d"
+HHD_BLACKLIST_FILE="${HHD_BLACKLIST_DIR}/hhd-conflicts.conf"
+
+CONFLICT_MODULES=(
+    asus_ally_hid
+    hid_lenovo_go
+    hid_lenovo_go_s
+)
+
+CONFLICT_SERVICES=(
+    inputplumber
+)
+
+log() {
+    echo "[hhd-conflict-manage] $*"
+}
+
+is_module_loaded() {
+    lsmod | grep -q "^${1}[[:space:]]"
+}
+
+# --- Module management ---
+
+start_modules() {
+    local blacklist_entries=()
+    local loaded_modules=()
+
+    for mod in "${CONFLICT_MODULES[@]}"; do
+        if is_module_loaded "$mod"; then
+            blacklist_entries+=("blacklist ${mod}")
+            loaded_modules+=("$mod")
+        fi
+    done
+
+    if [[ ${#loaded_modules[@]} -eq 0 ]]; then
+        log "No conflicting modules loaded"
+        return 0
+    fi
+
+    mkdir -p "$HHD_BLACKLIST_DIR"
+    printf '%s\n' "${blacklist_entries[@]}" > "$HHD_BLACKLIST_FILE"
+    log "Blacklisted: ${loaded_modules[*]}"
+
+    for mod in "${loaded_modules[@]}"; do
+        log "Unloading: ${mod}"
+        modprobe -r "$mod" 2>/dev/null || log "Warning: failed to unload ${mod}"
+    done
+}
+
+stop_modules() {
+    if [[ ! -f "$HHD_BLACKLIST_FILE" ]]; then
+        log "No blacklist file found, nothing to restore"
+        return 0
+    fi
+
+    local modules=()
+    while IFS= read -r line; do
+        if [[ "$line" =~ ^blacklist[[:space:]]+(.+) ]]; then
+            modules+=("${BASH_REMATCH[1]}")
+        fi
+    done < "$HHD_BLACKLIST_FILE"
+
+    rm -f "$HHD_BLACKLIST_FILE"
+    log "Removed blacklist file"
+
+    for mod in "${modules[@]}"; do
+        if ! is_module_loaded "$mod"; then
+            log "Reloading: ${mod}"
+            modprobe "$mod" 2>/dev/null || log "Warning: failed to reload ${mod}"
+        fi
+    done
+}
+
+# --- Service management ---
+
+start_services() {
+    for svc in "${CONFLICT_SERVICES[@]}"; do
+        if systemctl is-active --quiet "$svc" 2>/dev/null; then
+            log "Stopping conflicting service: ${svc}"
+            systemctl stop "$svc" 2>/dev/null || true
+        fi
+        if systemctl is-enabled --quiet "$svc" 2>/dev/null; then
+            log "Masking conflicting service: ${svc}"
+            systemctl mask "$svc" 2>/dev/null || true
+        fi
+    done
+}
+
+stop_services() {
+    for svc in "${CONFLICT_SERVICES[@]}"; do
+        if systemctl is-enabled "$svc" 2>/dev/null | grep -q "masked"; then
+            log "Unmasking service: ${svc}"
+            systemctl unmask "$svc" 2>/dev/null || true
+        fi
+    done
+}
+
+# --- Entry points ---
+
+do_start() {
+    start_modules
+    start_services
+}
+
+do_stop() {
+    stop_modules
+    stop_services
+}
+
+case "${1}" in
+    start)
+        do_start
+        ;;
+    stop)
+        do_stop
+        ;;
+    *)
+        echo "Usage: $(basename "$0") {start|stop}"
+        exit 1
+        ;;
+esac
