@@ -20,6 +20,11 @@ CONFLICT_SERVICES=(
     inputplumber
 )
 
+# Services to restart when hhd stops (e.g. services that depend on restored modules)
+RESTART_ON_STOP_SERVICES=(
+    inputplumber
+)
+
 log() {
     echo "[hhd-conflict-manage] $*"
 }
@@ -104,6 +109,15 @@ stop_services() {
         if [[ "$svc_state" == "masked" ]]; then
             log "Unmasking service: ${svc}"
             systemctl unmask "$svc" 2>/dev/null || true
+        fi
+    done
+
+    for svc in "${RESTART_ON_STOP_SERVICES[@]}"; do
+        local svc_state
+        svc_state=$(systemctl is-enabled "$svc" 2>/dev/null || true)
+        if [[ "$svc_state" == "enabled" ]]; then
+            log "Restarting service: ${svc}"
+            systemctl restart "$svc" 2>/dev/null || true
         fi
     done
 }
