@@ -116,22 +116,16 @@ stop_services() {
     done
 
     for svc in "${RESTART_ON_STOP_SERVICES[@]}"; do
-        # local svc_state
-        # svc_state=$(systemctl is-enabled "$svc" 2>/dev/null || true)
-        # if [[ "$svc_state" == "enabled" ]]; then
-        #     log "Restarting service: ${svc}"
-        #     systemctl restart "$svc" 2>/dev/null || true
-        # fi
-        log "Restarting service: ${svc}"
-        systemctl restart "$svc" 2>/dev/null || true
+        log "Scheduling deferred restart: ${svc}"
+        systemd-run --no-block --on-active=2 --unit="restart-${svc}" \
+            systemctl restart "$svc" 2>/dev/null || true
     done
 }
 
 # --- Power key management ---
 
 reload_logind() {
-    systemctl daemon-reload
-    systemctl restart systemd-logind 2>/dev/null || true
+    systemctl kill -s HUP systemd-logind 2>/dev/null || true
 }
 
 start_powerkey() {
