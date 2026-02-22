@@ -513,34 +513,6 @@ function setup_decky_plugins() {
     log_success "Decky plugins setup completed"
 }
 
-function setup_gamepad() {
-    hhd_enable=$(systemctl is-enabled hhd 2>/dev/null || echo "disabled")
-    if [[ "$hhd_enable" == "enabled" ]] || hhd_support 2>/dev/null; then
-        log_info "disabling handycon/inputplumber and enabling hhd..."
-
-        sudo systemctl disable --now inputplumber || true
-        sudo systemctl mask inputplumber || true
-        sudo pkill inputplumber || true
-
-        # sudo systemctl disable --now steam-powerbuttond || true
-
-        ignore_handheld_powerkey --off
-
-        if [[ "$hhd_enable" != "enabled" ]]; then
-            log_info "hhd is not enabled, enabling..."
-            sudo systemctl enable --now hhd
-        fi
-    else
-        ignore_handheld_powerkey --on
-        # check inputplumber is masked
-        is_masked=$(systemctl is-enabled inputplumber 2>/dev/null || echo "not-found")
-        if [[ "$is_masked" == "masked" ]]; then
-            sudo systemctl unmask inputplumber
-        fi
-        sudo systemctl enable --now inputplumber
-    fi
-}
-
 function ignore_handheld_powerkey() {
     local param=$1
     file_path="/etc/systemd/logind.conf.d/zzz-handle-power-key-ignore.conf"
@@ -960,7 +932,6 @@ case $ACTION in
     copy_efi_drivers
     install_decky
     install_decky_plugins
-    setup_gamepad
     install_css_theme
     setup_decky_plugins
     restart_plugin_loader
