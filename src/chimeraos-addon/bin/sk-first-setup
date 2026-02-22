@@ -513,24 +513,6 @@ function setup_decky_plugins() {
     log_success "Decky plugins setup completed"
 }
 
-function ignore_handheld_powerkey() {
-    local param=$1
-    file_path="/etc/systemd/logind.conf.d/zzz-handle-power-key-ignore.conf"
-    if [[ "$param" == "--off" ]]; then
-        log_info "Disabling hand power key..."
-        [[ -f $file_path ]] && sudo rm -f $file_path
-    elif [[ "$param" == "--on" ]]; then
-        if [[ ! -f $file_path ]]; then
-            log_info "Ignoring hand power key..."
-            echo -e "[Login]\nHandlePowerKey=ignore\n" | sudo tee $file_path >/dev/null
-        else
-            log_info "Hand power key is already enabled"
-        fi
-    fi
-    sudo systemctl daemon-reload
-    sudo systemctl restart systemd-logind
-}
-
 function set_ps5_theme_default() {
     local PROFILE=$1
     if [[ -d "${THEME_FOLDER}/SBP-PS5-to-Handheld" ]]; then

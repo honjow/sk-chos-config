@@ -3,12 +3,15 @@
 # Manage resources that conflict with hhd (kernel modules, services).
 # Companion service: follows hhd lifecycle via BindsTo=hhd.service
 #
-# - start: blacklist conflicting modules, unload them, stop conflicting services
-# - stop:  remove blacklist, reload modules, unmask conflicting services
+# - start: blacklist conflicting modules, unload them, stop conflicting services,
+#          remove power key ignore (hhd handles it)
+# - stop:  remove blacklist, reload modules, unmask conflicting services,
+#          restore power key ignore
 
 
 HHD_BLACKLIST_DIR="/run/modprobe.d"
 HHD_BLACKLIST_FILE="${HHD_BLACKLIST_DIR}/hhd-conflicts.conf"
+POWERKEY_IGNORE_CONF="/etc/systemd/logind.conf.d/zzz-handle-power-key-ignore.conf"
 
 CONFLICT_MODULES=(
     asus_ally_hid
@@ -122,16 +125,42 @@ stop_services() {
     done
 }
 
+# --- Power key management ---
+
+reload_logind() {
+    systemctl daemon-reload
+    systemctl restart systemd-logind 2>/dev/null || true
+}
+
+start_powerkey() {
+    if [[ -f "$POWERKEY_IGNORE_CONF" ]]; then
+        log "Removing power key ignore (hhd handles power key)"
+        rm -f "$POWERKEY_IGNORE_CONF"
+        reload_logind
+    fi
+}
+
+stop_powerkey() {
+    if [[ ! -f "$POWERKEY_IGNORE_CONF" ]]; then
+        log "Restoring power key ignore"
+        mkdir -p "$(dirname "$POWERKEY_IGNORE_CONF")"
+        printf '[Login]\nHandlePowerKey=ignore\n' > "$POWERKEY_IGNORE_CONF"
+        reload_logind
+    fi
+}
+
 # --- Entry points ---
 
 do_start() {
     start_modules
     start_services
+    start_powerkey
 }
 
 do_stop() {
     stop_modules
     stop_services
+    stop_powerkey
 }
 
 case "${1}" in
