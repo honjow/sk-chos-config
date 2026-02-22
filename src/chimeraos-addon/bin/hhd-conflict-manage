@@ -6,7 +6,6 @@
 # - start: blacklist conflicting modules, unload them, stop conflicting services
 # - stop:  remove blacklist, reload modules, unmask conflicting services
 
-set -o pipefail
 
 HHD_BLACKLIST_DIR="/run/modprobe.d"
 HHD_BLACKLIST_FILE="${HHD_BLACKLIST_DIR}/hhd-conflicts.conf"
@@ -85,11 +84,13 @@ stop_modules() {
 
 start_services() {
     for svc in "${CONFLICT_SERVICES[@]}"; do
+        local svc_state
+        svc_state=$(systemctl is-enabled "$svc" 2>/dev/null || true)
         if systemctl is-active --quiet "$svc" 2>/dev/null; then
             log "Stopping conflicting service: ${svc}"
             systemctl stop "$svc" 2>/dev/null || true
         fi
-        if systemctl is-enabled --quiet "$svc" 2>/dev/null; then
+        if [[ "$svc_state" == "enabled" ]]; then
             log "Masking conflicting service: ${svc}"
             systemctl mask "$svc" 2>/dev/null || true
         fi
@@ -98,7 +99,9 @@ start_services() {
 
 stop_services() {
     for svc in "${CONFLICT_SERVICES[@]}"; do
-        if systemctl is-enabled "$svc" 2>/dev/null | grep -q "masked"; then
+        local svc_state
+        svc_state=$(systemctl is-enabled "$svc" 2>/dev/null || true)
+        if [[ "$svc_state" == "masked" ]]; then
             log "Unmasking service: ${svc}"
             systemctl unmask "$svc" 2>/dev/null || true
         fi
