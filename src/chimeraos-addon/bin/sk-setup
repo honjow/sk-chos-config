@@ -44,37 +44,37 @@ function toggle_mcu_powersave() {
     fi
 }
 
-function enable_hhd() {
-    echo "enable hhd, and disable inputplumber"
-    systemctl disable --now inputplumber || true
-    # systemctl disable --now steam-powerbuttond || true
+# function enable_hhd() {
+#     echo "enable hhd, and disable inputplumber"
+#     systemctl disable --now inputplumber || true
+#     # systemctl disable --now steam-powerbuttond || true
 
-	systemctl disable --now hhd@gamer || true
+# 	systemctl disable --now hhd@gamer || true
 
-    # check hhd@gamer is masked
-    is_hhd_masked=$(systemctl is-enabled hhd)
-    if [[ "$is_hhd_masked" == "masked" ]]; then
-        systemctl unmask hhd
-    fi
-    systemctl enable --now hhd
-    echo "Enable hhd finished"
-}
+#     # check hhd@gamer is masked
+#     is_hhd_masked=$(systemctl is-enabled hhd)
+#     if [[ "$is_hhd_masked" == "masked" ]]; then
+#         systemctl unmask hhd
+#     fi
+#     systemctl enable --now hhd
+#     echo "Enable hhd finished"
+# }
 
-function enable_inputplumber() {
-    echo "enable inputplumber, and disable hhd"
+# function enable_inputplumber() {
+#     echo "enable inputplumber, and disable hhd"
 
-    systemctl disable --now hhd@gamer || true
-	systemctl disable --now hhd || true
+#     systemctl disable --now hhd@gamer || true
+# 	systemctl disable --now hhd || true
 
-    # check inputplumber is masked
-    is_masked=$(systemctl is-enabled inputplumber)
-    if [[ "$is_masked" == "masked" ]]; then
-        systemctl unmask inputplumber
-    fi
-    systemctl enable --now inputplumber
-    # systemctl enable --now steam-powerbuttond || true
-    echo "Enable inputplumber finished"
-}
+#     # check inputplumber is masked
+#     is_masked=$(systemctl is-enabled inputplumber)
+#     if [[ "$is_masked" == "masked" ]]; then
+#         systemctl unmask inputplumber
+#     fi
+#     systemctl enable --now inputplumber
+#     # systemctl enable --now steam-powerbuttond || true
+#     echo "Enable inputplumber finished"
+# }
 
 # 清理无效的efi启动项
 function cleanup_efi_boot_entry() {
