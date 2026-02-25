@@ -73,10 +73,18 @@ restart_service_now() {
         local uid="${entry#user:}"
         uid="${uid%%:*}"
         local svc="${entry#user:${uid}:}"
+        if [[ "$(run_user_systemctl "$uid" is-enabled "$svc" 2>/dev/null)" == "masked" ]]; then
+            log "Unmasking user service (uid=${uid}): ${svc}"
+            run_user_systemctl "$uid" unmask "$svc" 2>/dev/null || true
+        fi
         log "Restarting user service (uid=${uid}): ${svc}"
         run_user_systemctl "$uid" restart "$svc" 2>/dev/null \
             || log "Warning: failed to restart user service ${svc}"
     else
+        if [[ "$(systemctl is-enabled "$entry" 2>/dev/null)" == "masked" ]]; then
+            log "Unmasking service: ${entry}"
+            systemctl unmask "$entry" 2>/dev/null || true
+        fi
         log "Restarting service: ${entry}"
         systemctl restart "$entry" 2>/dev/null \
             || log "Warning: failed to restart ${entry}"
@@ -100,15 +108,21 @@ restart_service_deferred() {
         fi
         log "Scheduling deferred user service restart (uid=${uid}): ${svc}"
         systemd-run --no-block --on-active=2 --unit="$unit_name" \
-            /bin/bash -c "XDG_RUNTIME_DIR=/run/user/${uid} \
-DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${uid}/bus \
+            /bin/bash -c "export XDG_RUNTIME_DIR=/run/user/${uid}
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${uid}/bus
+[[ \"\$(runuser -u '${username}' -- systemctl --user is-enabled '${svc}' 2>/dev/null)\" == masked ]] \
+    && runuser -u '${username}' -- systemctl --user unmask '${svc}'
 runuser -u '${username}' -- systemctl --user restart '${svc}'" \
             2>/dev/null || true
     else
         local unit_name="restart-${entry%.service}"
         log "Scheduling deferred restart: ${entry}"
         systemd-run --no-block --on-active=2 --unit="$unit_name" \
-            systemctl restart "$entry" 2>/dev/null || true
+            /bin/bash -c "
+[[ \"\$(systemctl is-enabled '${entry}' 2>/dev/null)\" == masked ]] \
+    && systemctl unmask '${entry}'
+systemctl restart '${entry}'" \
+            2>/dev/null || true
     fi
 }
 
