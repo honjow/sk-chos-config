@@ -75,24 +75,25 @@ restart_service_now() {
         local svc="${entry#user:${uid}:}"
         if [[ "$(run_user_systemctl "$uid" is-enabled "$svc" 2>/dev/null)" == "masked" ]]; then
             log "Unmasking user service (uid=${uid}): ${svc}"
-            run_user_systemctl "$uid" unmask "$svc" 2>/dev/null || true
+            run_user_systemctl "$uid" unmask "$svc" || true
         fi
         log "Restarting user service (uid=${uid}): ${svc}"
-        run_user_systemctl "$uid" restart "$svc" 2>/dev/null \
+        run_user_systemctl "$uid" restart "$svc" \
             || log "Warning: failed to restart user service ${svc}"
     else
         if [[ "$(systemctl is-enabled "$entry" 2>/dev/null)" == "masked" ]]; then
             log "Unmasking service: ${entry}"
-            systemctl unmask "$entry" 2>/dev/null || true
+            systemctl unmask "$entry" || true
         fi
         log "Restarting service: ${entry}"
-        systemctl restart "$entry" 2>/dev/null \
+        systemctl restart "$entry" \
             || log "Warning: failed to restart ${entry}"
     fi
 }
 
 # Schedule a deferred restart (2s delay) for a service entry.
 # Entry format: "servicename" or "user:UID:servicename"
+# The actual restart logic runs via a self-call to avoid inline bash -c strings.
 restart_service_deferred() {
     local entry="$1"
     if [[ "$entry" == user:*:* ]]; then
@@ -100,30 +101,46 @@ restart_service_deferred() {
         uid="${uid%%:*}"
         local svc="${entry#user:${uid}:}"
         local unit_name="restart-user${uid}-${svc%.service}"
-        local username
-        username=$(getent passwd "$uid" | cut -d: -f1)
-        if [[ -z "$username" ]]; then
+        if [[ -z "$(getent passwd "$uid")" ]]; then
             log "Warning: no user found for uid ${uid}, skipping deferred restart of ${svc}"
             return 0
         fi
         log "Scheduling deferred user service restart (uid=${uid}): ${svc}"
-        systemd-run --no-block --on-active=2 --unit="$unit_name" \
-            /bin/bash -c "export XDG_RUNTIME_DIR=/run/user/${uid}
-export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${uid}/bus
-[[ \"\$(runuser -u '${username}' -- systemctl --user is-enabled '${svc}' 2>/dev/null)\" == masked ]] \
-    && runuser -u '${username}' -- systemctl --user unmask '${svc}'
-runuser -u '${username}' -- systemctl --user restart '${svc}'" \
-            2>/dev/null || true
+        systemd-run --no-block --on-active=2 --collect --unit="$unit_name" \
+            "$0" _deferred-restart-user "$uid" "$svc" \
+            || true
     else
         local unit_name="restart-${entry%.service}"
         log "Scheduling deferred restart: ${entry}"
-        systemd-run --no-block --on-active=2 --unit="$unit_name" \
-            /bin/bash -c "
-[[ \"\$(systemctl is-enabled '${entry}' 2>/dev/null)\" == masked ]] \
-    && systemctl unmask '${entry}'
-systemctl restart '${entry}'" \
-            2>/dev/null || true
+        systemd-run --no-block --on-active=2 --collect --unit="$unit_name" \
+            "$0" _deferred-restart-system "$entry" \
+            || true
     fi
+}
+
+# Deferred restart handlers (invoked via systemd-run self-call).
+
+_deferred_restart_user() {
+    local uid="$1"
+    local svc="$2"
+    if [[ "$(run_user_systemctl "$uid" is-enabled "$svc" 2>/dev/null)" == "masked" ]]; then
+        log "Unmasking user service (uid=${uid}): ${svc}"
+        run_user_systemctl "$uid" unmask "$svc" || true
+    fi
+    log "Restarting user service (uid=${uid}): ${svc}"
+    run_user_systemctl "$uid" restart "$svc" \
+        || log "Warning: failed to restart user service ${svc}"
+}
+
+_deferred_restart_system() {
+    local svc="$1"
+    if [[ "$(systemctl is-enabled "$svc" 2>/dev/null)" == "masked" ]]; then
+        log "Unmasking service: ${svc}"
+        systemctl unmask "$svc" || true
+    fi
+    log "Restarting service: ${svc}"
+    systemctl restart "$svc" \
+        || log "Warning: failed to restart ${svc}"
 }
 
 # --- Module management ---
@@ -257,6 +274,12 @@ case "${1}" in
         ;;
     stop)
         do_stop
+        ;;
+    _deferred-restart-user)
+        _deferred_restart_user "${2}" "${3}"
+        ;;
+    _deferred-restart-system)
+        _deferred_restart_system "${2}"
         ;;
     *)
         echo "Usage: $(basename "$0") {start|stop}"
