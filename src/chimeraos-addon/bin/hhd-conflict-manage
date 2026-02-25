@@ -54,9 +54,15 @@ is_module_loaded() {
 run_user_systemctl() {
     local uid="$1"
     shift
+    local username
+    username=$(getent passwd "$uid" | cut -d: -f1)
+    if [[ -z "$username" ]]; then
+        log "Warning: no user found for uid ${uid}"
+        return 1
+    fi
     XDG_RUNTIME_DIR="/run/user/${uid}" \
     DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/${uid}/bus" \
-    runuser -u "#${uid}" -- systemctl --user "$@"
+    runuser -u "$username" -- systemctl --user "$@"
 }
 
 # Restart a service entry immediately.
@@ -86,11 +92,17 @@ restart_service_deferred() {
         uid="${uid%%:*}"
         local svc="${entry#user:${uid}:}"
         local unit_name="restart-user${uid}-${svc%.service}"
+        local username
+        username=$(getent passwd "$uid" | cut -d: -f1)
+        if [[ -z "$username" ]]; then
+            log "Warning: no user found for uid ${uid}, skipping deferred restart of ${svc}"
+            return 0
+        fi
         log "Scheduling deferred user service restart (uid=${uid}): ${svc}"
         systemd-run --no-block --on-active=2 --unit="$unit_name" \
             /bin/bash -c "XDG_RUNTIME_DIR=/run/user/${uid} \
 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${uid}/bus \
-runuser -u '#${uid}' -- systemctl --user restart '${svc}'" \
+runuser -u '${username}' -- systemctl --user restart '${svc}'" \
             2>/dev/null || true
     else
         local unit_name="restart-${entry%.service}"
