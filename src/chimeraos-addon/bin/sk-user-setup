@@ -159,7 +159,7 @@ function handle_steamos_powerbutton() {
 
         # 获取服务状态
         local service_status
-        service_status=$(systemctl --user is-enabled "$service_name" 2>/dev/null || echo "not-found")
+        service_status=$(systemctl --user is-enabled "$service_name" 2>/dev/null)
 
         if [[ "$service_status" == "masked" ]]; then
             log_info "$service_name is masked, unmasking it"
