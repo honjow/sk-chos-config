@@ -4,9 +4,13 @@
 # Companion service: follows hhd lifecycle via BindsTo=hhd.service
 #
 # - start: blacklist conflicting modules, unload them, stop conflicting services,
-#          remove power key ignore (hhd handles it)
+#          remove power key ignore (hhd handles it), restart listed services
 # - stop:  remove blacklist, reload modules, unmask conflicting services,
-#          restore power key ignore
+#          restore power key ignore, restart listed services (2s deferred)
+#
+# Service entry format:
+#   "servicename"            - system service (managed via systemctl)
+#   "user:UID:servicename"   - user service (managed via systemctl --user as UID)
 
 
 HHD_BLACKLIST_DIR="/run/modprobe.d"
@@ -23,9 +27,17 @@ CONFLICT_SERVICES=(
     inputplumber
 )
 
-# Services to restart when hhd stops (e.g. services that depend on restored modules)
+# Services to restart when hhd starts (immediately after conflicts are stopped).
+# Format: "servicename" or "user:UID:servicename"
+RESTART_ON_START_SERVICES=(
+    "user:1000:steamos-powerbuttond"
+)
+
+# Services to restart when hhd stops (2s deferred, to allow modules to reload first).
+# Format: "servicename" or "user:UID:servicename"
 RESTART_ON_STOP_SERVICES=(
     inputplumber
+    "user:1000:steamos-powerbuttond"
 )
 
 log() {
@@ -34,6 +46,58 @@ log() {
 
 is_module_loaded() {
     lsmod | grep -q "^${1}[[:space:]]"
+}
+
+# --- User service helpers ---
+
+# Invoke systemctl --user as the given UID using their session bus.
+run_user_systemctl() {
+    local uid="$1"
+    shift
+    XDG_RUNTIME_DIR="/run/user/${uid}" \
+    DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/${uid}/bus" \
+    runuser -u "#${uid}" -- systemctl --user "$@"
+}
+
+# Restart a service entry immediately.
+# Entry format: "servicename" or "user:UID:servicename"
+restart_service_now() {
+    local entry="$1"
+    if [[ "$entry" == user:*:* ]]; then
+        local uid="${entry#user:}"
+        uid="${uid%%:*}"
+        local svc="${entry#user:${uid}:}"
+        log "Restarting user service (uid=${uid}): ${svc}"
+        run_user_systemctl "$uid" restart "$svc" 2>/dev/null \
+            || log "Warning: failed to restart user service ${svc}"
+    else
+        log "Restarting service: ${entry}"
+        systemctl restart "$entry" 2>/dev/null \
+            || log "Warning: failed to restart ${entry}"
+    fi
+}
+
+# Schedule a deferred restart (2s delay) for a service entry.
+# Entry format: "servicename" or "user:UID:servicename"
+restart_service_deferred() {
+    local entry="$1"
+    if [[ "$entry" == user:*:* ]]; then
+        local uid="${entry#user:}"
+        uid="${uid%%:*}"
+        local svc="${entry#user:${uid}:}"
+        local unit_name="restart-user${uid}-${svc%.service}"
+        log "Scheduling deferred user service restart (uid=${uid}): ${svc}"
+        systemd-run --no-block --on-active=2 --unit="$unit_name" \
+            /bin/bash -c "XDG_RUNTIME_DIR=/run/user/${uid} \
+DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${uid}/bus \
+runuser -u '#${uid}' -- systemctl --user restart '${svc}'" \
+            2>/dev/null || true
+    else
+        local unit_name="restart-${entry%.service}"
+        log "Scheduling deferred restart: ${entry}"
+        systemd-run --no-block --on-active=2 --unit="$unit_name" \
+            systemctl restart "$entry" 2>/dev/null || true
+    fi
 }
 
 # --- Module management ---
@@ -103,6 +167,10 @@ start_services() {
             systemctl mask "$svc" 2>/dev/null || true
         fi
     done
+
+    for entry in "${RESTART_ON_START_SERVICES[@]}"; do
+        restart_service_now "$entry"
+    done
 }
 
 stop_services() {
@@ -115,10 +183,8 @@ stop_services() {
         fi
     done
 
-    for svc in "${RESTART_ON_STOP_SERVICES[@]}"; do
-        log "Scheduling deferred restart: ${svc}"
-        systemd-run --no-block --on-active=2 --unit="restart-${svc}" \
-            systemctl restart "$svc" 2>/dev/null || true
+    for entry in "${RESTART_ON_STOP_SERVICES[@]}"; do
+        restart_service_deferred "$entry"
     done
 }
 
@@ -149,14 +215,14 @@ stop_powerkey() {
 
 do_start() {
     start_modules
-    start_services
     start_powerkey
+    start_services
 }
 
 do_stop() {
     stop_modules
-    stop_services
     stop_powerkey
+    stop_services
 }
 
 case "${1}" in
