@@ -894,7 +894,7 @@ function auto_reset_etc() {
     if [[ -f "$reset_etc_flag" ]]; then
         log_info "Resetting /etc..."
         sudo /usr/share/sk-chos-tool/scripts/etc_repair.sh && \
-        echo "$version" >> $version_file && \
+        echo "$version" | sudo tee -a $version_file > /dev/null && \
         sudo rm -f $reset_etc_flag
         sleep 10
         sudo reboot
