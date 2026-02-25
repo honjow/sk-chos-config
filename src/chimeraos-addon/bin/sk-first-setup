@@ -882,10 +882,19 @@ function run_sk-chos-daemon() {
 }
 
 function auto_reset_etc() {
+    local version_file="/frzr_root/.reset-etc-version"
+    local version=$(cat /etc/os-release | grep "VERSION_ID" | cut -d'=' -f2 | tr -d '"')
+    if [[ -f "$version_file" ]]; then
+        if grep -q "^$version$" $version_file; then
+            log_info "Version already reset, skipping..."
+            return
+        fi
+    fi
     local reset_etc_flag=/.reset-etc
     if [[ -f "$reset_etc_flag" ]]; then
         log_info "Resetting /etc..."
-        sudo /usr/share/sk-chos-tool/scripts/etc_repair.sh
+        sudo /usr/share/sk-chos-tool/scripts/etc_repair.sh && \
+        echo "$version" >> $version_file && \
         sudo rm -f $reset_etc_flag
         sleep 10
         sudo reboot
