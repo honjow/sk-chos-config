@@ -134,6 +134,10 @@ _deferred_restart_user() {
 
 _deferred_restart_system() {
     local svc="$1"
+    if systemctl is-active --quiet hhd-conflict-manage.service 2>/dev/null; then
+        log "hhd is active, skipping deferred restart of ${svc}"
+        return 0
+    fi
     if [[ "$(systemctl is-enabled "$svc" 2>/dev/null)" == "masked" ]]; then
         log "Unmasking service: ${svc}"
         systemctl unmask "$svc" || true
@@ -198,6 +202,11 @@ stop_modules() {
 # --- Service management ---
 
 start_services() {
+    for svc in "${CONFLICT_SERVICES[@]}"; do
+        local unit_name="restart-${svc%.service}"
+        systemctl stop "${unit_name}.timer" "${unit_name}.service" 2>/dev/null || true
+    done
+
     for svc in "${CONFLICT_SERVICES[@]}"; do
         local svc_state
         svc_state=$(systemctl is-enabled "$svc" 2>/dev/null || true)
