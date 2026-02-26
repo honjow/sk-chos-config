@@ -205,10 +205,8 @@ start_services() {
             log "Stopping conflicting service: ${svc}"
             systemctl stop "$svc" 2>/dev/null || true
         fi
-        if [[ "$svc_state" == "enabled" ]]; then
-            log "Masking conflicting service: ${svc}"
-            systemctl mask "$svc" 2>/dev/null || true
-        fi
+        log "Masking conflicting service: ${svc}"
+        systemctl mask "$svc" 2>/dev/null || true
     done
 
     for entry in "${RESTART_ON_START_SERVICES[@]}"; do
