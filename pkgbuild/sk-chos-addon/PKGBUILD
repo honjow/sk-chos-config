@@ -91,9 +91,9 @@ package() {
     install -dm755 "${pkgdir}/usr/lib/systemd/system/hhd.service.d"
     install -m644 -t "${pkgdir}/usr/lib/systemd/system/hhd.service.d" "${source_dir}/systemd/system/hhd.service.d"/*
 
-	# system-sleep
-	install -dm755 "${pkgdir}/usr/lib/systemd/system-sleep"
-	install -m644 -t "${pkgdir}/usr/lib/systemd/system-sleep" "${source_dir}/systemd/system-sleep"/*
+    # system-sleep
+    install -dm755 "${pkgdir}/usr/lib/systemd/system-sleep"
+    install -m755 -t "${pkgdir}/usr/lib/systemd/system-sleep" "${source_dir}/systemd/system-sleep"/*
 
     # user service
     install -dm755 "${pkgdir}/usr/lib/systemd/user"
