@@ -27,7 +27,7 @@ jobs:
           cat PKGBUILD
 
       - name: Publish AUR package
-        uses: KSXGitHub/github-actions-deploy-aur@v4
+        uses: KSXGitHub/github-actions-deploy-aur@v4.1.1
         with:
           pkgname: sk-chos-addon
           pkgbuild: pkgbuild/sk-chos-addon/PKGBUILD
