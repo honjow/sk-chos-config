@@ -154,20 +154,21 @@ start_modules() {
     local loaded_modules=()
 
     for mod in "${CONFLICT_MODULES[@]}"; do
+        blacklist_entries+=("blacklist ${mod}")
         if is_module_loaded "$mod"; then
-            blacklist_entries+=("blacklist ${mod}")
             loaded_modules+=("$mod")
         fi
     done
+
+    mkdir -p "$HHD_BLACKLIST_DIR"
+    printf '%s\n' "${blacklist_entries[@]}" > "$HHD_BLACKLIST_FILE"
 
     if [[ ${#loaded_modules[@]} -eq 0 ]]; then
         log "No conflicting modules loaded"
         return 0
     fi
 
-    mkdir -p "$HHD_BLACKLIST_DIR"
-    printf '%s\n' "${blacklist_entries[@]}" > "$HHD_BLACKLIST_FILE"
-    log "Blacklisted: ${loaded_modules[*]}"
+    log "Blocking and unloading: ${loaded_modules[*]}"
 
     for mod in "${loaded_modules[@]}"; do
         log "Unloading: ${mod}"
@@ -275,12 +276,26 @@ do_stop() {
     stop_services
 }
 
+# Re-unload conflict modules after system resume.
+# Called via systemd-sleep hook with a delay to allow USB re-enumeration.
+do_post_resume() {
+    if ! systemctl is-active --quiet hhd-conflict-manage.service 2>/dev/null; then
+        log "Post-resume: hhd-conflict-manage not active, skipping"
+        return 0
+    fi
+    log "Post-resume: re-checking conflict modules after resume"
+    start_modules
+}
+
 case "${1}" in
     start)
         do_start
         ;;
     stop)
         do_stop
+        ;;
+    _post-resume)
+        do_post_resume
         ;;
     _deferred-restart-user)
         _deferred_restart_user "${2}" "${3}"
@@ -289,7 +304,7 @@ case "${1}" in
         _deferred_restart_system "${2}"
         ;;
     *)
-        echo "Usage: $(basename "$0") {start|stop}"
+        echo "Usage: $(basename "$0") {start|stop|_post-resume}"
         exit 1
         ;;
 esac
