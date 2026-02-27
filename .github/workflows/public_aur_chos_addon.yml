@@ -38,3 +38,4 @@ jobs:
           commit_message: Update AUR package
           ssh_keyscan_types: rsa,ecdsa,ed25519
           updpkgsums: true
+          force_push: true
