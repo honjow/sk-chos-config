@@ -6,7 +6,7 @@
 case "$1" in
     post)
         systemctl is-active --quiet hhd-conflict-manage.service 2>/dev/null || exit 0
-        systemd-run --no-block --on-active=3 --collect \
+        systemd-run --no-block --on-active=2 --collect \
             --unit=hhd-conflict-manage-post-resume \
             /usr/bin/hhd-conflict-manage _post-resume || true
         ;;
