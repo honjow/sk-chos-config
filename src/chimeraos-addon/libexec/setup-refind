@@ -81,6 +81,11 @@ function set_all_config() {
         _enable_mouse="enable_mouse"
     fi
 
+	local _enable_touch=""
+	if [[ "$VENDOR_NAME" == "LENOVO" && "$PRODUCT_NAME" == "83E1" ]]; then
+		_enable_touch="enable_touch"
+	fi
+
     local _screen_rotation=""
     if [ -n "$ROTATE_OFFSET" ]; then
         _screen_rotation="screen_rotation $((ROTATE_OFFSET * 90))"
@@ -97,6 +102,7 @@ scan_all_linux_kernels false
 write_systemd_vars true
 
 $_enable_mouse
+$_enable_touch
 $_screen_rotation
 
 include skorionos.conf
