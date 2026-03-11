@@ -19,6 +19,8 @@ POWERKEY_IGNORE_CONF="/etc/systemd/logind.conf.d/zzz-handle-power-key-ignore.con
 
 CONFLICT_MODULES=(
     asus_ally_hid
+    hid_asus
+    hid_asus_ally
     hid_lenovo_go
     hid_lenovo_go_s
 )
