@@ -245,6 +245,17 @@ function apply_hhd_patch_handle5() {
 	fi
 }
 
+function apply_hhd_patch_oxp_apex() {
+    local path_base_url="https://gitee.com/honjow/sk-chos-scripts/raw/master/patchs"
+    local path_oxp_apex=(
+        "${path_base_url}/hhd-add-onexplayer-APEX-supports.patch"
+        )
+
+    if [[ "$PRODUCT" == "ONEXPLAYER APEX" ]]; then
+        try_patches_in_order "$HHD_PATH" path_oxp_apex
+    fi
+}
+
 # Execute all applicable patch functions independently
 patch_applied=false
 
@@ -255,7 +266,7 @@ apply_hhd_claw && patch_applied=true
 apply_hhd_gpd && patch_applied=true
 apply_hhd_patch_win5 && patch_applied=true
 apply_hhd_patch_handle5 && patch_applied=true
-
+apply_hhd_patch_oxp_apex && patch_applied=true
 if [[ "$patch_applied" == true ]]; then
     echo "Some hhd patches applied successfully"
     restart_hhd
