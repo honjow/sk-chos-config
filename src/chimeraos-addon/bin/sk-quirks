@@ -224,6 +224,11 @@ function apply_hhd_patch_win5() {
 	# 暂不受到影响
 	local patch_win5_gyro_map=("${path_base_url}/hhd-win5-gyro-map.patch")
 
+	# 新的控制器固件支持
+	local path_win5_controller_firmware=(
+		"${path_base_url}/hhd-add-HID-back-button-support-for-GPD-Win-5-new-firm.patch"
+		)
+
     if [[ "$PRODUCT" == "G1618-05" ]]; then
         try_patches_in_order "$HHD_PATH" path_win5_g1
         try_patches_in_order "$HHD_PATH" path_win5_g2
@@ -231,6 +236,7 @@ function apply_hhd_patch_win5() {
         try_patches_in_order "$HHD_PATH" path_win5_g4
         try_patches_in_order "$HHD_PATH" patch_win5_extra_button
         try_patches_in_order "$HHD_PATH" patch_win5_gyro_map
+        try_patches_in_order "$HHD_PATH" path_win5_controller_firmware
     fi
 }
 
