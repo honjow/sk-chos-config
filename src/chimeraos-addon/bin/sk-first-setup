@@ -883,7 +883,7 @@ function run_sk-chos-daemon() {
 
 function auto_reset_etc() {
     local version_file="/frzr_root/.reset-etc-version"
-    local version=$(cat /etc/os-release | grep "VERSION_ID" | cut -d'=' -f2 | tr -d '"')
+    local version=$(cat /etc/os-release | grep "VERSION_ID" | cut -d'=' -f2 | tr -d '"' | cut -d'-' -f1)
     if [[ -f "$version_file" ]]; then
         if grep -q "^$version$" $version_file; then
             log_info "Version already reset, skipping..."
