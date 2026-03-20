@@ -906,7 +906,7 @@ case $ACTION in
     copy_efi_drivers
     install_decky
     install_decky_plugins
-    install_css_theme
+    # install_css_theme
     setup_decky_plugins
     restart_plugin_loader
     device_quirks
@@ -923,7 +923,7 @@ case $ACTION in
     copy_efi_drivers
     install_decky
     install_decky_plugins
-    install_css_theme
+    # install_css_theme
     setup_decky_plugins
     restart_plugin_loader
     device_quirks
