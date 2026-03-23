@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+"""Apply default Steam client settings before Steam starts.
+
+Currently enables developer mode and advanced update channels
+so that OS updates are shown separately from client updates.
+"""
+
+import os
+import sys
+
+try:
+    import vdf
+except ImportError:
+    sys.exit(0)
+
+STEAM_CONFIG = os.path.join(
+    os.environ.get("HOME", ""),
+    ".local/share/Steam/config/config.vdf",
+)
+
+DEFAULTS = {
+    "developer": {
+        "DevModeEnabled": "1",
+        "ShowAdvancedUpdateChannels": "1",
+    },
+}
+
+
+def main():
+    if not os.path.isfile(STEAM_CONFIG):
+        return
+
+    with open(STEAM_CONFIG, "r", encoding="utf-8") as f:
+        data = vdf.load(f)
+
+    root = data.get("InstallConfigStore", data.get(next(iter(data), ""), {}))
+    if not isinstance(root, dict):
+        return
+
+    changed = False
+    for section, keys in DEFAULTS.items():
+        if section not in root:
+            root[section] = {}
+            changed = True
+        for key, value in keys.items():
+            if root[section].get(key) != value:
+                root[section][key] = value
+                changed = True
+
+    if not changed:
+        return
+
+    with open(STEAM_CONFIG, "w", encoding="utf-8") as f:
+        vdf.dump(data, f, pretty=True)
+
+
+if __name__ == "__main__":
+    main()
