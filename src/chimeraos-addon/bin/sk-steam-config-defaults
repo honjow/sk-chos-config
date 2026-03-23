@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """Apply default Steam client settings before Steam starts.
 
-Currently enables developer mode and advanced update channels
-so that OS updates are shown separately from client updates.
+- Enable developer mode and advanced update channels
+  so that OS updates are shown separately from client updates.
+- Disable wifi power management to avoid connectivity issues.
+- Show battery percentage in the UI.
 """
 
+import glob
+import json
 import os
 import sys
 
@@ -13,45 +17,105 @@ try:
 except ImportError:
     sys.exit(0)
 
-STEAM_CONFIG = os.path.join(
-    os.environ.get("HOME", ""),
-    ".local/share/Steam/config/config.vdf",
-)
+STEAM_DIR = os.path.join(os.environ.get("HOME", ""), ".local/share/Steam")
+STEAM_CONFIG = os.path.join(STEAM_DIR, "config/config.vdf")
 
-DEFAULTS = {
+# --- config.vdf defaults ---
+# path (str or tuple) -> { key: value }
+# Paths are relative to the top-level VDF root (e.g. "InstallConfigStore").
+CONFIG_DEFAULTS = {
     "developer": {
         "DevModeEnabled": "1",
         "ShowAdvancedUpdateChannels": "1",
     },
+    ("Software", "Valve", "Steam", "System"): {
+        "WifiPowerManagementEnabled": "0",
+    },
+}
+
+# --- Per-user localconfig.vdf defaults ---
+# path (str or tuple) -> { key: value }
+# Paths are relative to the top-level VDF root (e.g. "UserLocalConfigStore").
+# Values can be plain strings or dicts. Dict values are stored as JSON strings
+# in the VDF file and will be merged (not replaced) with existing JSON content.
+LOCALCONFIG_DEFAULTS = {
+    "WebStorage": {
+        "CachedBatteryPreferences": {"bShowBatteryPercentage": True},
+    },
 }
 
 
-def main():
+def resolve_path(root, path):
+    """Walk into nested dicts by a tuple of keys, creating missing levels."""
+    if isinstance(path, str):
+        path = (path,)
+    node = root
+    for segment in path:
+        if segment not in node:
+            node[segment] = {}
+        node = node[segment]
+    return node
+
+
+def apply_defaults(data, defaults):
+    """Apply defaults to a parsed VDF dict. Returns True if anything changed."""
+    root = data.get(next(iter(data), ""), {})
+    if not isinstance(root, dict):
+        return False
+
+    changed = False
+    for path, keys in defaults.items():
+        section = resolve_path(root, path)
+        for key, value in keys.items():
+            if isinstance(value, dict):
+                # JSON-encoded value: merge into existing JSON
+                try:
+                    existing = json.loads(section.get(key, "{}"))
+                except (json.JSONDecodeError, TypeError):
+                    existing = {}
+                merged = {**existing, **value}
+                new_val = json.dumps(merged, separators=(",", ":"))
+                if section.get(key) != new_val:
+                    section[key] = new_val
+                    changed = True
+            else:
+                if section.get(key) != value:
+                    section[key] = value
+                    changed = True
+    return changed
+
+
+def apply_config_defaults():
+    """Apply defaults to the global config.vdf."""
     if not os.path.isfile(STEAM_CONFIG):
         return
 
     with open(STEAM_CONFIG, "r", encoding="utf-8") as f:
         data = vdf.load(f)
 
-    root = data.get("InstallConfigStore", data.get(next(iter(data), ""), {}))
-    if not isinstance(root, dict):
-        return
+    if apply_defaults(data, CONFIG_DEFAULTS):
+        with open(STEAM_CONFIG, "w", encoding="utf-8") as f:
+            vdf.dump(data, f, pretty=True)
 
-    changed = False
-    for section, keys in DEFAULTS.items():
-        if section not in root:
-            root[section] = {}
-            changed = True
-        for key, value in keys.items():
-            if root[section].get(key) != value:
-                root[section][key] = value
-                changed = True
 
-    if not changed:
-        return
+def apply_localconfig_defaults():
+    """Apply defaults to every user's localconfig.vdf."""
+    pattern = os.path.join(STEAM_DIR, "userdata/*/config/localconfig.vdf")
+    for path in glob.glob(pattern):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = vdf.load(f)
+        except Exception:
+            continue
 
-    with open(STEAM_CONFIG, "w", encoding="utf-8") as f:
-        vdf.dump(data, f, pretty=True)
+        if apply_defaults(data, LOCALCONFIG_DEFAULTS):
+            with open(path, "w", encoding="utf-8") as f:
+                vdf.dump(data, f, pretty=True)
+
+
+def main():
+    apply_config_defaults()
+    apply_localconfig_defaults()
 
 
 if __name__ == "__main__":
