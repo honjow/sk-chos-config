@@ -97,7 +97,12 @@ package() {
 
     # user service
     install -dm755 "${pkgdir}/usr/lib/systemd/user"
-    install -m644 -t "${pkgdir}/usr/lib/systemd/user" "${source_dir}/systemd/user"/*
+    find "${source_dir}/systemd/user" -maxdepth 1 -type f -exec install -m644 -D {} "${pkgdir}/usr/lib/systemd/user/" \;
+    # user service drop-in: gamescope-session-plus
+    if [ -d "${source_dir}/systemd/user/gamescope-session-plus@.service.d" ]; then
+        install -dm755 "${pkgdir}/usr/lib/systemd/user/gamescope-session-plus@.service.d"
+        install -m644 -t "${pkgdir}/usr/lib/systemd/user/gamescope-session-plus@.service.d" "${source_dir}/systemd/user/gamescope-session-plus@.service.d"/*
+    fi
 
     # /usr/libexec/*
     install -dm755 "${pkgdir}/usr/libexec"
