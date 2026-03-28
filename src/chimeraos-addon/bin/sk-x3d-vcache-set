@@ -2,7 +2,13 @@
 # AMD X3D V-Cache mode switcher
 # Switches the preferred CCD between "cache" (V-Cache) and "frequency" (high-clock)
 
-X3D_MODE_PATH=$(find /sys/bus/platform/drivers/amd_x3d_vcache -name "amd_x3d_mode" -type f 2>/dev/null | head -1)
+X3D_MODE_PATH=""
+for path in /sys/bus/platform/drivers/amd_x3d_vcache/*/amd_x3d_mode; do
+    if [ -f "$path" ]; then
+        X3D_MODE_PATH="$path"
+        break
+    fi
+done
 
 if [ -z "$X3D_MODE_PATH" ]; then
     exit 0
