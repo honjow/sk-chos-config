@@ -5,6 +5,7 @@
   so that OS updates are shown separately from client updates.
 - Disable wifi power management to avoid connectivity issues.
 - Show battery percentage in the UI.
+- Enable CEF remote debugging via Steam's marker file (Decky Loader, devtools).
 """
 
 import glob
@@ -15,10 +16,11 @@ import sys
 try:
     import vdf
 except ImportError:
-    sys.exit(0)
+    vdf = None
 
 STEAM_DIR = os.path.join(os.environ.get("HOME", ""), ".local/share/Steam")
 STEAM_CONFIG = os.path.join(STEAM_DIR, "config/config.vdf")
+CEF_REMOTE_DEBUGGING_MARKER = ".cef-enable-remote-debugging"
 
 # --- config.vdf defaults ---
 # path (str or tuple) -> { key: value }
@@ -43,6 +45,26 @@ LOCALCONFIG_DEFAULTS = {
         "CachedBatteryPreferences": {"bShowBatteryPercentage": True},
     },
 }
+
+
+def ensure_cef_remote_debugging():
+    """Create empty marker file(s) in the Steam root so CEF remote debugging is on."""
+    home = os.environ.get("HOME", "")
+    if not home:
+        return
+    try:
+        os.makedirs(STEAM_DIR, mode=0o755, exist_ok=True)
+        with open(os.path.join(STEAM_DIR, CEF_REMOTE_DEBUGGING_MARKER), "a"):
+            pass
+    except OSError:
+        pass
+    flatpak_steam = os.path.join(home, ".var/app/com.valvesoftware.Steam/data/Steam")
+    if os.path.isdir(flatpak_steam):
+        try:
+            with open(os.path.join(flatpak_steam, CEF_REMOTE_DEBUGGING_MARKER), "a"):
+                pass
+        except OSError:
+            pass
 
 
 def resolve_path(root, path):
@@ -87,7 +109,7 @@ def apply_defaults(data, defaults):
 
 def apply_config_defaults():
     """Apply defaults to the global config.vdf."""
-    if not os.path.isfile(STEAM_CONFIG):
+    if vdf is None or not os.path.isfile(STEAM_CONFIG):
         return
 
     with open(STEAM_CONFIG, "r", encoding="utf-8") as f:
@@ -100,6 +122,8 @@ def apply_config_defaults():
 
 def apply_localconfig_defaults():
     """Apply defaults to every user's localconfig.vdf."""
+    if vdf is None:
+        return
     pattern = os.path.join(STEAM_DIR, "userdata/*/config/localconfig.vdf")
     for path in glob.glob(pattern):
         try:
@@ -114,6 +138,7 @@ def apply_localconfig_defaults():
 
 
 def main():
+    ensure_cef_remote_debugging()
     apply_config_defaults()
     apply_localconfig_defaults()
 
