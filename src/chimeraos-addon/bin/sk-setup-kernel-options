@@ -231,6 +231,17 @@ fi
 
 echo "NEED_REBOOT=$NEED_REBOOT"
 
+# Flush ESP writes and update btrfs backup
+if [[ $NEED_REBOOT -gt 0 ]]; then
+    sync
+    BOOT_BACKUP_DIR="/frzr_root/boot_backup"
+    BOOT_CFG="/frzr_root/boot/loader/entries/frzr.conf"
+    if [[ -f "$BOOT_CFG" ]] && [[ -s "$BOOT_CFG" ]]; then
+        mkdir -p "$BOOT_BACKUP_DIR"
+        cp "$BOOT_CFG" "$BOOT_BACKUP_DIR/frzr.conf.bak"
+    fi
+fi
+
 # 处理重启
 if [[ $NEED_REBOOT -gt 1 && $REBOOT == true ]] || [[ $FORCE == true ]]; then
     echo "重启系统"

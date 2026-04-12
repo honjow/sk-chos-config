@@ -29,8 +29,23 @@ if [ -n "$boot_device" ]; then
     parted -s $disk_device set $partition_number boot on
 fi
 
-if [ -n "$boot_device" ]; then
-    bootctl install --path=/frzr_root/boot --graceful
+# Only install bootloader if the EFI binary is missing
+efi_binary_found=false
+for check_path in /frzr_root/boot /boot /efi; do
+    if [ -f "${check_path}/EFI/systemd/systemd-bootx64.efi" ] || \
+       [ -f "${check_path}/EFI/BOOT/BOOTX64.EFI" ]; then
+        efi_binary_found=true
+        break
+    fi
+done
+
+if [ "$efi_binary_found" = true ]; then
+    echo "systemd-boot EFI binary already present, skipping bootctl install"
 else
-    bootctl install --graceful
+    if [ -n "$boot_device" ]; then
+        bootctl install --path=/frzr_root/boot --graceful
+    else
+        bootctl install --graceful
+    fi
+    sync
 fi
