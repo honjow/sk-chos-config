@@ -11,6 +11,8 @@ just --completions zsh > $zsh_completions_file_name
 
 sed -i "s/#compdef just/#compdef $alias_name/" $zsh_completions_file_name
 sed -i "s/_just/_$alias_name/" $zsh_completions_file_name
+# JUST_COMPLETE=zsh just defines _clap_dynamic_completer_just; do not rename it.
+sed -i "s/_clap_dynamic_completer_${alias_name}/_clap_dynamic_completer_just/" $zsh_completions_file_name
 
 just --completions bash > _just.bash
 just --completions bash > $bash_completions_file_name
