@@ -38,5 +38,26 @@ for kernel in "${kernel_package[@]}"; do
         cp -f /boot/vmlinuz-linux /boot/initramfs-linux.img /frzr_root/boot/$SYSTEM_NAME-*_*/
     fi
 
+    BUILD=$(frzr-release)
+    DEPLOYMENT_PATH="/frzr_root/deployments/$BUILD"
+
+    if [ -n "$DEPLOYMENT_PATH" ]; then
+        echo "Copying kernel to $DEPLOYMENT_PATH/boot/"
+        RELOCK=0
+        LOCK_STATE=$(btrfs property get -fts "$DEPLOYMENT_PATH")
+        if [[ $LOCK_STATE == *"ro=true"* ]]; then
+            btrfs property set -fts ${DEPLOYMENT_PATH} ro false
+            RELOCK=1
+        else
+            echo "Filesystem appears to be unlocked"
+        fi
+        
+        cp -f /boot/vmlinuz-linux /boot/initramfs-linux.img $DEPLOYMENT_PATH/boot/
+        
+        if [[ $RELOCK == 1 ]]; then
+            btrfs property set -fts ${DEPLOYMENT_PATH} ro true
+        fi
+    fi
+
     rm -f /etc/mkinitcpio.d/linux-$kernel.preset
 done
