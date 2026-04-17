@@ -1,0 +1,11 @@
+[Unit]
+Description=Move kernel files before shutdown
+DefaultDependencies=no
+Before=shutdown.target reboot.target halt.target poweroff.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/chos-kernel-mv
+
+[Install]
+WantedBy=multi-user.target
