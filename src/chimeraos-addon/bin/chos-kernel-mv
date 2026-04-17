@@ -11,6 +11,27 @@ kernel_package=(
 )
 
 SYSTEM_NAME="skorionos"
+BUILD=$(frzr-release)
+DEPLOYMENT_PATH="/frzr_root/deployments/$BUILD"
+
+function copy_if_not_equal() {
+    local src_path=$1
+    local dst_path=$2
+    local dst_file
+
+    if [ -d "$dst_path" ]; then
+        dst_file="$dst_path/$(basename "$src_path")"
+    else
+        dst_file="$dst_path"
+    fi
+
+    if [ ! -f "$dst_file" ] || ! cmp -s "$src_path" "$dst_file"; then
+        cp -f "$src_path" "$dst_path"
+        echo "Copied $(basename "$src_path") to $dst_path"
+    else
+        echo "Skipped $(basename "$src_path") (already up-to-date)"
+    fi
+}
 
 for kernel in "${kernel_package[@]}"; do
     echo "Start moving kernel $kernel"
@@ -23,39 +44,42 @@ for kernel in "${kernel_package[@]}"; do
 
     if [ -d "/boot/$SYSTEM_NAME-*_*" ]; then
         echo "Copying kernel to boot"
-        cp -f /boot/vmlinuz-linux /boot/initramfs-linux.img /boot/$SYSTEM_NAME-*_*/
+        copy_if_not_equal /boot/vmlinuz-linux /boot/$BUILD/
+        copy_if_not_equal /boot/initramfs-linux.img /boot/$BUILD/
     fi
 
     if [ -d "/efi/$SYSTEM_NAME-*_*" ]; then
         echo "Copying kernel to efi"
-        cp -f /boot/vmlinuz-linux /boot/initramfs-linux.img /efi/
-        cp -f /boot/vmlinuz-linux /boot/initramfs-linux.img /efi/$SYSTEM_NAME-*_*/
+        copy_if_not_equal /boot/vmlinuz-linux /efi/
+        copy_if_not_equal /boot/initramfs-linux.img /efi/
+        copy_if_not_equal /boot/vmlinuz-linux /efi/$BUILD/
+        copy_if_not_equal /boot/initramfs-linux.img /efi/$BUILD/
     fi
 
     if mount | grep -q " /frzr_root/boot "; then
         echo "Copying kernel to frzr_root"
-        cp -f /boot/vmlinuz-linux /boot/initramfs-linux.img /frzr_root/boot/
-        cp -f /boot/vmlinuz-linux /boot/initramfs-linux.img /frzr_root/boot/$SYSTEM_NAME-*_*/
+        copy_if_not_equal /boot/vmlinuz-linux /frzr_root/boot/
+        copy_if_not_equal /boot/initramfs-linux.img /frzr_root/boot/
+        copy_if_not_equal /boot/vmlinuz-linux /frzr_root/boot/$BUILD/
+        copy_if_not_equal /boot/initramfs-linux.img /frzr_root/boot/$BUILD/
     fi
 
-    BUILD=$(frzr-release)
-    DEPLOYMENT_PATH="/frzr_root/deployments/$BUILD"
-
     if [ -n "$DEPLOYMENT_PATH" ]; then
-        echo "Copying kernel to $DEPLOYMENT_PATH/boot/"
-        RELOCK=0
-        LOCK_STATE=$(btrfs property get -fts "$DEPLOYMENT_PATH")
-        if [[ $LOCK_STATE == *"ro=true"* ]]; then
-            btrfs property set -fts ${DEPLOYMENT_PATH} ro false
-            RELOCK=1
-        else
-            echo "Filesystem appears to be unlocked"
-        fi
-        
-        cp -f /boot/vmlinuz-linux /boot/initramfs-linux.img $DEPLOYMENT_PATH/boot/
-        
-        if [[ $RELOCK == 1 ]]; then
-            btrfs property set -fts ${DEPLOYMENT_PATH} ro true
+        if ! cmp -s /boot/vmlinuz-linux $DEPLOYMENT_PATH/boot/vmlinuz-linux || \
+        ! cmp -s /boot/initramfs-linux.img $DEPLOYMENT_PATH/boot/initramfs-linux.img; then
+            LOCK_STATE=$(btrfs property get -fts "$DEPLOYMENT_PATH")
+            if [[ $LOCK_STATE == *"ro=true"* ]]; then
+                btrfs property set -fts "$DEPLOYMENT_PATH" ro false
+            else
+                echo "Filesystem appears to be unlocked"
+            fi
+
+            copy_if_not_equal /boot/vmlinuz-linux "$DEPLOYMENT_PATH/boot/"
+            copy_if_not_equal /boot/initramfs-linux.img "$DEPLOYMENT_PATH/boot/"
+
+            if [[ $LOCK_STATE == *"ro=true"* ]]; then
+                btrfs property set -fts "$DEPLOYMENT_PATH" ro true
+            fi
         fi
     fi
 
