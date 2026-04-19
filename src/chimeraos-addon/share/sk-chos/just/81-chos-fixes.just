@@ -39,3 +39,30 @@ fix-rdr2-black-screen:
         echo "Red Dead Redemption 2 system.xml not found."
         exit 1
     fi
+
+# Reset Steam without losing data / 重置 Steam 而不丢失数据
+[group("gaming")]
+fix-reset-steam:
+    #!/usr/bin/bash
+    STEAMPATH="$HOME/.local/share/Steam"
+    # Get a list of the contents of steams top level directory except a list of folders/files we can skip to avoid losing data
+    STEAMFILES=$(ls ~/.local/share/Steam/ | grep -vP "(userdata|compatibilitytools\.d|config|controller_base|steamapps|music)")
+    echo "This script will remove a bunch of files from $STEAMPATH and sign you out of steam!"
+    echo "However your games, music, saves, controller profiles and compatibilitytools/custom-proton will not be touched."
+    echo "To cancel and abort this operation press CTRL+C now, to continue press ENTER."
+    read i
+    killall -9 steam
+    sleep 1
+    echo "Resetting Steam to a freshly installed state."
+    # Loop through each file and process it
+    for STEAMFILE in $STEAMFILES
+    do
+      if [ -d "$STEAMPATH/$STEAMFILE" ]; then
+        rm -rv "$STEAMPATH/$STEAMFILE"
+      elif [ -f "$STEAMPATH/$STEAMFILE" ]; then
+        rm -v "$STEAMPATH/$STEAMFILE"
+      fi
+    done
+    sleep 1
+    steam &
+    exit 0
