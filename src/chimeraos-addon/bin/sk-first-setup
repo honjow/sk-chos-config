@@ -15,6 +15,7 @@ ACTION=$1
 
 cpu_id=$(grep "model name" /proc/cpuinfo | head -1 | awk -F ': ' '{print $2}' | xargs)
 cpu_keywords=(
+	"Intel(R) Arc(TM)"
     "Intel(R) Core(TM)"
     "AMD Ryzen"
     "AMD Athlon Silver"
